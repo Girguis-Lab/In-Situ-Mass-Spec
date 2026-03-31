@@ -1,0 +1,93 @@
+#ifndef FLUIDPUMP_H
+#define FLUIDPUMP_H
+
+#define FLUIDPUMP_PWM_STARTUP_DURRATION 2500
+
+#include <Arduino.h>
+
+// https://micropump-nova.s3.us-west-2.amazonaws.com/687/Micropump-EagleDrive-v1_5-Install-Operation-Warranty-Manual.pdf
+// Note that the pump startup requires the PWM wire to be high for first 2.5 seconds of power on in order to enable PWM control mode
+class FluidPump
+{
+public:
+    FluidPump(uint8_t pwmPin, uint8_t powerPin)
+        : pwmPin(pwmPin), powerPin(powerPin), initialized(false), pumpEnableComplete(false), timeWhenEnabled(0), currentSpeedPercent(0) {}
+
+    /* Init sets up the pump for operation, it should be called early on in your code before any other methods are called */
+    void init()
+    {
+        pinMode(pwmPin, OUTPUT);
+        pinMode(powerPin, OUTPUT);
+        _setSpeed(0); // Initialize pump pwm to fully off
+        initialized = true;
+    }
+
+    /*
+    Loop handler should be called in your main program loop fairly frequently - on the order of ms.
+    It's job is to ensure that the electrical startup conditions for the fluid pump are met whenever the fluid pump is turned on.
+    */
+    void loopHandler()
+    {
+        return; // loop is currently disabled because we are using the analog instead of pwm control
+        if (!initialized)
+            return; // Not initialized or not enabled
+        if (currentSpeedPercent == 0)
+        {
+            timeWhenEnabled = 0;
+            _setSpeed(0);
+            return;
+        }
+        else if (timeWhenEnabled == 0)
+        {
+            // Startup procedure calls for a near 100% duty cycle for a set durration on the PWM line to enable pwm control
+            _setSpeed(100);
+            // record when startup begins
+            timeWhenEnabled = millis();
+            pumpEnableComplete = false;
+            return;
+        }
+        else if (timeWhenEnabled > FLUIDPUMP_PWM_STARTUP_DURRATION && !pumpEnableComplete)
+        {
+            // when the pump enable time is finished, actually set the pump to the desired speed
+            _setSpeed(currentSpeedPercent);
+            pumpEnableComplete = true;
+        }
+    }
+
+    // Returns the currently set speed of the pump as a percentage of full speed
+    uint8_t getSpeed() const
+    {
+        return currentSpeedPercent;
+    }
+
+    // Set pump speed as a percentage of full speed (0-100)
+    int setSpeed(uint8_t percent)
+    {
+        if (!initialized)
+            return -1; // Not initialized
+        if (percent > 100)
+            percent = 100;
+        currentSpeedPercent = percent;
+        // loopHandler();
+        _setSpeed(currentSpeedPercent);
+        return currentSpeedPercent;
+    }
+
+    // Set raw PWM speed as percentage, enabling or disabling pump power as necessary (0-100)
+    void _setSpeed(uint8_t percent)
+    {
+        uint8_t pwmValue = map(percent, 0, 100, 0, 255);
+        digitalWrite(powerPin, percent == 0 ? LOW : HIGH); // Turn off power if speed is 0
+        analogWrite(pwmPin, pwmValue);
+    }
+
+private:
+    uint8_t pwmPin;
+    uint8_t powerPin;
+    bool initialized;
+    bool pumpEnableComplete;
+    unsigned long timeWhenEnabled; // in miliseconds
+    uint8_t currentSpeedPercent;
+};
+
+#endif // FLUIDPUMP_H

@@ -1,0 +1,64 @@
+//
+// !!! WARNING !!! AUTO-GENERATED FILE!
+// PLEASE DO NOT MODIFY IT AND USE "platformio.ini":
+// https://docs.platformio.org/page/projectconf/section_env_build.html#build-flags
+//
+{
+    "configurations": [
+        {
+            "name": "PlatformIO",
+            "includePath": [
+                "/Users/ky/Documents/Girguis Lab/ISMS/Code/ISMS_Code/include",
+                "/Users/ky/Documents/Girguis Lab/ISMS/Code/ISMS_Code/src",
+                "/Users/ky/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
+                "/Users/ky/Documents/Girguis Lab/ISMS/Code/ISMS_Code/lib/PfeifferTurboTC80/src",
+                "/Users/ky/Documents/Girguis Lab/ISMS/Code/ISMS_Code/lib/lazy-serial/src",
+                "/Users/ky/Documents/Girguis Lab/ISMS/Code/ISMS_Code/lib/DoEEP/src",
+                "/Users/ky/.platformio/packages/framework-arduino-avr/libraries/EEPROM/src",
+                "/Users/ky/Documents/Girguis Lab/ISMS/Code/ISMS_Code/lib/Arduino-Log",
+                "/Users/ky/.platformio/packages/framework-arduino-avr/cores/arduino",
+                "/Users/ky/.platformio/packages/framework-arduino-avr/variants/mega",
+                "/Users/ky/.platformio/packages/framework-arduino-avr/libraries/HID/src",
+                "/Users/ky/.platformio/packages/framework-arduino-avr/libraries/SPI/src",
+                "/Users/ky/.platformio/packages/framework-arduino-avr/libraries/SoftwareSerial/src",
+                ""
+            ],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true,
+                "path": [
+                    "/Users/ky/Documents/Girguis Lab/ISMS/Code/ISMS_Code/include",
+                    "/Users/ky/Documents/Girguis Lab/ISMS/Code/ISMS_Code/src",
+                    "/Users/ky/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
+                    "/Users/ky/Documents/Girguis Lab/ISMS/Code/ISMS_Code/lib/PfeifferTurboTC80/src",
+                    "/Users/ky/Documents/Girguis Lab/ISMS/Code/ISMS_Code/lib/lazy-serial/src",
+                    "/Users/ky/Documents/Girguis Lab/ISMS/Code/ISMS_Code/lib/DoEEP/src",
+                    "/Users/ky/.platformio/packages/framework-arduino-avr/libraries/EEPROM/src",
+                    "/Users/ky/Documents/Girguis Lab/ISMS/Code/ISMS_Code/lib/Arduino-Log",
+                    "/Users/ky/.platformio/packages/framework-arduino-avr/cores/arduino",
+                    "/Users/ky/.platformio/packages/framework-arduino-avr/variants/mega",
+                    "/Users/ky/.platformio/packages/framework-arduino-avr/libraries/HID/src",
+                    "/Users/ky/.platformio/packages/framework-arduino-avr/libraries/SPI/src",
+                    "/Users/ky/.platformio/packages/framework-arduino-avr/libraries/SoftwareSerial/src",
+                    ""
+                ]
+            },
+            "defines": [
+                "PLATFORMIO=60119",
+                "ARDUINO_AVR_ADK",
+                "F_CPU=16000000L",
+                "ARDUINO_ARCH_AVR",
+                "ARDUINO=10808",
+                "__AVR_ATmega2560__",
+                ""
+            ],
+            "cStandard": "gnu11",
+            "cppStandard": "gnu++11",
+            "compilerPath": "/Users/ky/.platformio/packages/toolchain-atmelavr/bin/avr-gcc",
+            "compilerArgs": [
+                "-mmcu=atmega2560",
+                ""
+            ]
+        }
+    ],
+    "version": 4
+}
