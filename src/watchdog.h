@@ -51,23 +51,23 @@ void wdtPrintStatus(Stream &Serial)
 {
     if (mcusr_mirror & (1 << BORF))
     {
-        Serial.println(F("WARNING: Brown-out reset occured"));
+        Serial.println(F("| STARTUP: Normal, Brown-out occured - This is expected on power-on."));
     }
     else if (mcusr_mirror & (1 << WDRF))
     {
-        Serial.println(F("WARNING: Watchdog reset Timer occured"));
+        Serial.println(F("| STARTUP: Watchdog timeout occured"));
     }
     else if (mcusr_mirror & (1 << EXTRF))
     {
-        Serial.println(F("WARNING: External reset occured"));
+        Serial.println(F("| STARTUP: External reset triggered"));
     }
     else if (mcusr_mirror & (1 << PORF))
     {
-        Serial.println(F("INFO: Power-on reset occured"));
+        Serial.println(F("| STARTUP: Power-on reset occured"));
     }
     else
     {
-        Serial.println(F("INFO: Normal startup, no reset occured"));
+        Serial.println(F("| STARTUP: Normal, no reset occured"));
     }
 }
 #endif // WATCHDOG_H

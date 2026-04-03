@@ -83,97 +83,87 @@ namespace PfeifferVacProtocol
     }
 
     // Print a human-readable version of a PfeifferTelegram
-    void printTelegramHumanReadable(const PfeifferTelegram &telegram, Stream &stream)
+    void printTelegramHumanReadable(const PfeifferTelegram &telegram)
     {
         if (telegram.address.length() == 0 || telegram.parameter.length() == 0)
         {
-            stream.print("Nothing");
+            Log.info("Nothing ");
             return;
         }
         int paramNum = telegram.parameter.toInt();
         // Find the command entry by parameter number
         const ParameterDebugEntry *entry = PfeifferVacProtocol::getParameterDebugEntry(paramNum);
         // print details
-        stream.print("Turbo Pump ");
-        stream.print(telegram.address);
+        Log.info("Turbo ");
+        Log.verbose("(Addr:%s) ", telegram.address.c_str());
         if (telegram.action == (char)PfeifferVacProtocol::Action::Query)
-            stream.print(" Query");
+            Log.info("Query ");
         else if (telegram.action == (char)PfeifferVacProtocol::Action::Command)
-            stream.print(" Command");
+            Log.info("Command ");
         else
-            stream.print(String(" Unknown action (") + telegram.action + ")");
+            Log.warning("Unknown action '%s' ", telegram.action);
 
-        stream.print(String(" Parameter ") + telegram.parameter + " = ");
+        if (entry)
+            Log.info(entry->description);
+        Log.trace(" (p%s)", telegram.parameter.c_str());
+        if (telegram.action == (char)PfeifferVacProtocol::Action::Query)
+            return; // For queries, we don't have data to interpret, so we can return early after printing the parameter description
         if (entry)
         {
-            stream.print(String(entry->description).c_str());
-            stream.print(" is ");
             if (telegram.data.length() > 0)
             {
                 const char *ascii = telegram.data.c_str();
                 switch (entry->datatype)
                 {
                 case DataType::BooleanOld:
-                    stream.print("(BooleanOld)");
-                    stream.print(ascii);
-                    stream.print(" = ");
-                    stream.print(String(entry->lookupFuncFunction(BooleanOld(ascii).decode() ? 1 : 0)).c_str());
+                    Log.info(String(entry->lookupFuncFunction(BooleanOld(ascii).decode() ? 1 : 0)).c_str());
+                    Log.trace("(BooleanOld %s)", ascii);
                     break;
                 case DataType::BooleanNew:
-                    stream.print("(BooleanNew) ");
-                    stream.print(ascii);
-                    stream.print(" = ");
-                    stream.print(String(entry->lookupFuncFunction(BooleanNew(ascii).decode() ? 1 : 0)).c_str());
+                    Log.info(String(entry->lookupFuncFunction(BooleanNew(ascii).decode() ? 1 : 0)).c_str());
+                    Log.trace("(BooleanNew %s)", ascii);
                     break;
                 case DataType::UShortInt:
-                    stream.print("(UShortInt) ");
-                    stream.print(ascii);
-                    stream.print(" = ");
-                    stream.print(String(entry->lookupFuncFunction(UShortInt(ascii).decode())).c_str());
+                    Log.info(String(entry->lookupFuncFunction(UShortInt(ascii).decode())).c_str());
+                    Log.trace("(UShortInt %s)", ascii);
                     break;
                 case DataType::UInteger:
-                    stream.print("(UInteger) ");
-                    stream.print(ascii);
-                    stream.print(" = ");
-                    stream.print(UInteger(ascii).decode());
+                    Log.info("%d", UInteger(ascii).decode());
+                    Log.trace("(UInteger %s)", ascii);
                     break;
                 case DataType::UReal:
-                    stream.print("(UReal) ");
-                    stream.print(ascii);
-                    stream.print(" = ");
-                    stream.print(UReal(ascii).decode(), 2);
+                    Log.info("%.2f", UReal(ascii).decode());
+                    Log.trace("(UReal %s)", ascii);
                     break;
                 case DataType::String6:
-                    stream.print(ascii);
+                    Log.info(ascii);
                     break;
                 case DataType::String16:
-                    stream.print(ascii);
+                    Log.info(ascii);
                     break;
                 case DataType::String8:
-                    stream.print(ascii);
+                    Log.info(ascii);
                     break;
                 default:
-                    stream.print(String("Unknown Datatype (") + ((int)entry->datatype) + ")");
-                    stream.print(" Raw data is ");
-                    stream.print(ascii);
+                    Log.info(ascii);
+                    Log.trace("(Unknown Datatype %d)", (int)entry->datatype);
                     break;
                 }
             }
             else
             {
-                stream.print("(no data)");
+                Log.info("(no data)");
             }
         }
         else
         {
-            stream.print(String(" Unknown ") + telegram.parameter);
-            stream.print(telegram.data.length() > 0 ? (String(" Data is ") + telegram.data) : "(no data)");
+            Log.trace(" Unknown Param %s", telegram.parameter.c_str());
+            Log.trace("RawData: %s", telegram.data.length() > 0 ? telegram.data.c_str() : "(no data)");
         }
         if (!telegram.checksumValid)
         {
-            stream.print(" | WARNING: Invalid checksum!");
+            Log.warning(" | WARNING: Invalid turbo checksum!");
         }
-        stream.println();
     }
 }
 

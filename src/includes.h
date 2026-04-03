@@ -14,6 +14,7 @@
 #include "util.h"
 #include "watchdog.h"
 #include "fluidpump.h"
+#include "savedSettings.h"
 
 // --- Forward function declarations ----
 void nonBlockDelay(unsigned long ms);
@@ -30,25 +31,17 @@ void nonBlockDelay(unsigned long ms);
 #define FIRMWARE_VERSION "3.5"
 #define OK "OK "
 #define ERROR "ERROR"
-#define COMMS_SPEED 9600
-#define COMMS Serial1
-#define DEBUG Serial1
+#define COMMS_BAUDRATE 9600
+#define COMMS Serial
+#define DEBUG Serial
 LazySerial::LazySerial<128> lazy(COMMS);
-
-// -- SAVED SETTINGS IN EEPROM --
-#define AUTOSTART_DELAY_EEP_KEY "autostart_delay"
-#define AUTOSTART_DELAY_DEFAULT 5000UL // milliseconds to wait before autostarting if autostart is enabled
-#define AUTOSTART_ENABLED_EEP_KEY "autostart_enabled"
-#define AUTOSTART_ENABLED_DEFAULT false
-#define LOG_LEVEL_EEP_KEY "log_level"
-#define LOG_LEVEL_DEFAULT LOG_LEVEL_INFO
 
 // -- TURBO PUMP CONTROLLER CONFIG --
 #define PIN_TC80_RS485_DISABLE_RECEIVE 22 // RE (INVERTED: PIN HIGH = Disabled)
 #define PIN_TC80_RS485_ENABLE_SEND 23     // DE (REGULAR: PIN HIGH = Enabled)
 #define TC80_SERIAL_SPEED 9600
 #define TC80_SERIAL_CONFIG SERIAL_8N1
-#define TC80_RESPONSE_TIMEOUT 1000                                                                                         // milliseconds to wait for a response from the TC80
-PfeifferSerialTC80 turboTC80(Serial, 1, DEBUG, nonBlockDelay, PIN_TC80_RS485_ENABLE_SEND, PIN_TC80_RS485_DISABLE_RECEIVE); // Turbo pump controller object (address 1, using HardwareSerial1)
+#define TC80_RESPONSE_TIMEOUT 1000                                                                                          // milliseconds to wait for a response from the TC80
+PfeifferSerialTC80 turboTC80(Serial1, 1, COMMS, nonBlockDelay, PIN_TC80_RS485_ENABLE_SEND, PIN_TC80_RS485_DISABLE_RECEIVE); // Turbo pump controller object (address 1, using HardwareSerial1)
 
 FluidPump fluidPump(PIN_ANALOG_FLUIDPUMP_SPEED, PIN_PWR_FLUIDPUMP); // Fluid pump control object

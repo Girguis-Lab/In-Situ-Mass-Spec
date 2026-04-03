@@ -69,21 +69,25 @@ public:
         _enable485Receiver();
     }
 
+    void printTelegram(const char action, const uint16_t parameter, const char *data = nullptr)
+    {
+        String telegramStr = PfeifferVacProtocol::encodeTelegram(_address, action, parameter, data);
+
+        PfeifferVacProtocol::PfeifferTelegram telegram = PfeifferVacProtocol::decodeTelegram(telegramStr.c_str());
+        PfeifferVacProtocol::printTelegramHumanReadable(telegram);
+        // Log.verbose("(Raw Telegram: ");
+        // Log.verbose(telegramStr.c_str());
+        // Log.verboseln(")");
+    }
+
     // Send a telegram using action, parameter, and data
     void _sendTelegram(const char action, const uint16_t parameter, const char *data = nullptr, const bool debugPrint = false)
     {
-        if (debugPrint)
+        if (debugPrint || Log.getLevel() >= LOG_LEVEL_TRACE)
         {
-            String telegramStr = PfeifferVacProtocol::encodeTelegram(_address, action, parameter, data);
-            Log.trace("Raw: ");
-            Log.traceln(telegramStr.c_str());
-            PfeifferVacProtocol::PfeifferTelegram telegram = PfeifferVacProtocol::decodeTelegram(telegramStr.c_str());
-            PfeifferVacProtocol::printTelegramHumanReadable(telegram, _debug);
+            Log.info("\nSending: ");
+            printTelegram(action, parameter, data);
         }
-
-        // Check function is designed to allow the user to back out if they actually don't want to send the command
-        // if (_checkFunc && _checkFunc() == false)
-        //     return;
 
         String telegramStr = PfeifferVacProtocol::encodeTelegram(_address, action, parameter, data);
         _sendTelegramRaw(telegramStr.c_str());
@@ -114,12 +118,14 @@ public:
     {
         String raw = _receiveTelegramRaw(timeout);
         PfeifferVacProtocol::PfeifferTelegram telegram = PfeifferVacProtocol::decodeTelegram(raw.c_str());
-        if (debugPrint)
+        if (debugPrint || Log.getLevel() >= LOG_LEVEL_TRACE)
         {
-            _debug.print("Turbo Received: (RAW=");
-            _debug.print(raw);
-            _debug.print(") ");
-            PfeifferVacProtocol::printTelegramHumanReadable(telegram, _debug);
+            Log.info("\nReceived: ");
+            PfeifferVacProtocol::printTelegramHumanReadable(telegram);
+            Log.verbose("(RAW Received Telegram is ");
+            Log.verbose(raw.c_str());
+            Log.verbose(") ");
+            Log.info("\n");
         }
         return telegram;
     }
@@ -141,7 +147,7 @@ public:
     }
 
     // 0: boolean_old
-    void sendCommand(const uint16_t parameter, const PfeifferVacProtocol::BooleanOld data, const bool debugPrint = false, bool receive = true)
+    void sendCommand(const uint16_t parameter, const PfeifferVacProtocol::BooleanOld data, const bool debugPrint = false)
     {
         _sendTelegram('1', parameter, data.encode().c_str(), debugPrint);
     }
@@ -206,28 +212,24 @@ public:
     }
 
     // A utility function to output debug messages (assuming _debug is available)
-    inline void _printInvalidResponseDebug(bool debugPrint, const PfeifferVacProtocol::PfeifferTelegram telegram, uint16_t expectedParameter)
+    inline void _printInvalidResponseDebug(const PfeifferVacProtocol::PfeifferTelegram telegram, uint16_t expectedParameter)
     {
-        if (debugPrint)
+        // Assuming Log.verbose is available or a similar logging mechanism
+        if (strcmp(telegram.address.c_str(), _address) == 0)
         {
-            // Assuming _debug.print is available or a similar logging mechanism
-            _debug.print("INVALID Response Received: ");
-            if (strcmp(telegram.address.c_str(), _address) == 0)
-            {
-                _debug.print("Address mismatch.");
-            }
-            else if (!telegram.checksumValid)
-            {
-                _debug.print("Checksum invalid.");
-            }
-            else if ((uint8_t)telegram.parameter.toInt() != expectedParameter)
-            {
-                _debug.print(String("Expected parameter ") + expectedParameter + " got " + telegram.parameter);
-            }
-            else
-            {
-                _debug.print("Data length mismatch or unexpected content.");
-            }
+            Log.traceln("WARNING: Address mismatch in Turbo response. Expected: %s, Received: %s", _address, telegram.address.c_str());
+        }
+        else if (!telegram.checksumValid)
+        {
+            Log.traceln("WARNING: Checksum invalid in Turbo response.");
+        }
+        else if ((uint8_t)telegram.parameter.toInt() != expectedParameter)
+        {
+            Log.traceln("WARNING: Unexpected parameter in Turbo response: %s ≠ %d", telegram.parameter.c_str(), expectedParameter);
+        }
+        else
+        {
+            Log.traceln("WARNING: Data length mismatch or unexpected content in Turbo response.");
         }
     }
 
@@ -243,7 +245,7 @@ public:
         else
         {
             isValid = false;
-            _printInvalidResponseDebug(debugPrint, telegram, expectedParameter);
+            _printInvalidResponseDebug(telegram, expectedParameter);
             return false; // Default/invalid return
         }
     }
@@ -260,7 +262,7 @@ public:
         else
         {
             isValid = false;
-            _printInvalidResponseDebug(debugPrint, telegram, expectedParameter);
+            _printInvalidResponseDebug(telegram, expectedParameter);
             return 0; // Default/invalid return
         }
     }
@@ -277,7 +279,7 @@ public:
         else
         {
             isValid = false;
-            _printInvalidResponseDebug(debugPrint, telegram, expectedParameter);
+            _printInvalidResponseDebug(telegram, expectedParameter);
             return 0.0f; // Default/invalid return
         }
     }
@@ -294,7 +296,7 @@ public:
         else
         {
             isValid = false;
-            _printInvalidResponseDebug(debugPrint, telegram, expectedParameter);
+            _printInvalidResponseDebug(telegram, expectedParameter);
             return false; // Default/invalid return
         }
     }
@@ -311,7 +313,7 @@ public:
         else
         {
             isValid = false;
-            _printInvalidResponseDebug(debugPrint, telegram, expectedParameter);
+            _printInvalidResponseDebug(telegram, expectedParameter);
             return 0; // Default/invalid return
         }
     }
@@ -328,7 +330,7 @@ public:
         else
         {
             isValid = false;
-            _printInvalidResponseDebug(debugPrint, telegram, expectedParameter);
+            _printInvalidResponseDebug(telegram, expectedParameter);
             return 0.0f; // Default/invalid return
         }
     }
@@ -350,7 +352,7 @@ public:
         else
         {
             isValid = false;
-            _printInvalidResponseDebug(debugPrint, telegram, expectedParameter);
+            _printInvalidResponseDebug(telegram, expectedParameter);
             return ""; // Return empty String on invalid response
         }
     }
@@ -367,7 +369,7 @@ public:
         else
         {
             isValid = false;
-            _printInvalidResponseDebug(debugPrint, telegram, expectedParameter);
+            _printInvalidResponseDebug(telegram, expectedParameter);
             return "";
         }
     }
@@ -384,19 +386,19 @@ public:
         else
         {
             isValid = false;
-            _printInvalidResponseDebug(debugPrint, telegram, expectedParameter);
+            _printInvalidResponseDebug(telegram, expectedParameter);
             return "";
         }
     }
 
 private:
     HardwareSerial &_turboSerial;
-    uint8_t _pin485SendEnable;
-    uint8_t _pin485ReceiveDisable;
-    char _address[4]; // 3 digits + null terminator address of the turbo pump
     Stream &_debug;
     DelayFunc _delayFunc;
     CheckFunc _checkFunc;
+    uint8_t _pin485SendEnable;
+    uint8_t _pin485ReceiveDisable;
+    char _address[4]; // 3 digits + null terminator address of the turbo pump
 };
 
 #endif // PFEIFFER_SERIAL_H
