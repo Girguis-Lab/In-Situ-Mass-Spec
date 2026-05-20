@@ -11,6 +11,14 @@
 
 namespace PfeifferVacProtocol
 {
+    enum class TelegramError
+    {
+        None,
+        InvalidParameter, // sent as "NO_DEF", Parameter no longer used or invalid
+        OutOfRange,       // sent as "_RANGE", Parameter value out of range
+        LogicError,       // sent as "_LOGIC", Logical access error
+        InvalidChecksum,  // Checksum does not match the calculated checksum of the telegram
+    };
 
     enum class Action
     {
@@ -613,13 +621,108 @@ namespace PfeifferVacProtocol
             {(uint16_t)AdditionalParams::ParamSet, F("ParamSet"), F("Parameter set"), F("FuncOnOff, Values: Basic=0, Extended=1, Type: u_short_int, RW, min=0, max=1, default=0"), DataType::UShortInt, nullptr},
             {(uint16_t)AdditionalParams::Servicelin, F("Servicelin"), F("Insert service line"), F("Type: u_short_int, RW, default=795"), DataType::UShortInt, nullptr}};
 
-        const size_t paramCount = sizeof(ParameterDebugMap) / sizeof(ParameterDebugMap[0]);
+        const size_t entryCount = sizeof(ParameterDebugMap) / sizeof(ParameterDebugMap[0]);
         // Find the parameter by number
-        for (size_t i = 0; i < paramCount; ++i)
+        for (size_t i = 0; i < entryCount; ++i)
         {
             if (ParameterDebugMap[i].number == number)
             {
                 return &ParameterDebugMap[i];
+            }
+        }
+        return nullptr; // Not found
+    }
+
+    // Stores a human redable problem text for possible pump error codes:
+    typedef const String (*LookupFuncFunction)(uint8_t idx);
+    struct ErrorCodeDebugEntry
+    {
+        const __FlashStringHelper *errorCode; // 6 character error/warning code like "Err001"
+        const __FlashStringHelper *problem;   // Human-readable description of the problem
+    };
+
+    const ErrorCodeDebugEntry *getHumanReadableErrorMessage(String errorCode)
+    {
+        // Static array of all parameters
+        // Static array of all parameters
+        static const ErrorCodeDebugEntry ErrorCodeDebugMap[] = {
+            {F("Err001"), F("Excess rotation speed")},
+            {F("Err002"), F("Excess voltage")},
+            {F("Err006"), F("Run-up error")},
+            {F("Err007"), F("Operating fluid low")},
+            {F("Err008"), F("Electronic drive unit - turbopump connection faulty")},
+            {F("Err010"), F("Internal device error")},
+            {F("Err021"), F("Electronic drive unit does not detect turbo-pump")},
+            {F("Err041"), F("Drive fault")},
+            {F("Err043"), F("Internal configuration error")},
+            {F("Err044"), F("Excess temperature, electronics")},
+            {F("Err045"), F("Excess temperature, motor")},
+            {F("Err046"), F("Internal initialization error")},
+            {F("Err073"), F("Axial magnetic bearing overload")},
+            {F("Err074"), F("Radial magnetic bearing overload")},
+            {F("Err089"), F("Rotor instable")},
+            {F("Err091"), F("Internal device error")},
+            {F("Err092"), F("Unknown connection panel")},
+            {F("Err093"), F("Motor temperature evaluation faulty")},
+            {F("Err094"), F("Electronics temperature evaluation faulty")},
+            {F("Err098"), F("Internal communication error")},
+            {F("Err106"), F("High rotor temperature")},
+            {F("Err107"), F("Final stage group error")},
+            {F("Err108"), F("Rotation speed measurement faulty")},
+            {F("Err109"), F("Software not released")},
+            {F("Err110"), F("Operating fluid evaluation faulty")},
+            {F("Err111"), F("Operating fluid pump communication error")},
+            {F("Err112"), F("Operating fluid pump group error")},
+            {F("Err113"), F("Rotor temperature evaluation faulty")},
+            {F("Err114"), F("Final stage temperature evaluation faulty")},
+            {F("Err117"), F("Excess temperature, pump lower part")},
+            {F("Err118"), F("Excess temperature, final stage")},
+            {F("Err119"), F("Excess temperature, bearing")},
+            {F("Err143"), F("Operating fluid pump excess temperature")},
+            {F("Err777"), F("Nominal rotation speed not confirmed")},
+            {F("Err800"), F("Magnetic bearing overflow")},
+            {F("Err802"), F("Magnetic bearing sensor technology fault")},
+            {F("Err810"), F("Internal configuration error")},
+            {F("Err815"), F("Magnetic bearing overflow")},
+            {F("Err890"), F("Safety bearing worn")},
+            {F("Err891"), F("Rotor imbalance too high")},
+            {F("Wrn001"), F("TMS heat-up time expired")},
+            {F("Wrn003"), F("TMS temperature invalid")},
+            {F("Wrn007"), F("Undervoltage or power failure")},
+            {F("Wrn016"), F("Accessory configuration invalid")},
+            {F("Wrn018"), F("Operating supremacy conflict")},
+            {F("Wrn021"), F("Blocking signal invalid")},
+            {F("Wrn034"), F("Sealing gas flow too low")},
+            {F("Wrn045"), F("Motor high temperature")},
+            {F("Wrn076"), F("Electronics high temperature")},
+            {F("Wrn089"), F("Imbalance high")},
+            {F("Wrn097"), F("Invalid pump information")},
+            {F("Wrn098"), F("Incomplete pump information")},
+            {F("Wrn100"), F("Minimum speed not reached")},
+            {F("Wrn106"), F("High rotor temperature")},
+            {F("Wrn113"), F("Inaccurate rotor temperature")},
+            {F("Wrn115"), F("Pump lower part temperature evaluation faulty")},
+            {F("Wrn116"), F("Bearing temperature evaluation faulty")},
+            {F("Wrn117"), F("Pump lower part high temperature")},
+            {F("Wrn118"), F("Final stage high temperature")},
+            {F("Wrn119"), F("Bearing high temperature")},
+            {F("Wrn143"), F("High operating fluid pump temperature")},
+            {F("Wrn168"), F("High delay")},
+            {F("Wrn801"), F("Braking transistor defective")},
+            {F("Wrn806"), F("Brake resistance defective")},
+            {F("Wrn807"), F("Calibration requirement")},
+            {F("Wrn890"), F("Safety bearing wear too high")},
+            {F("Wrn891"), F("High rotor imbalance")},
+        };
+
+        const size_t entryCount = sizeof(ErrorCodeDebugMap) / sizeof(ErrorCodeDebugMap[0]);
+        // Find the parameter by number
+        for (size_t i = 0; i < entryCount; ++i)
+        {
+            PGM_P entryErrorCode = reinterpret_cast<PGM_P>(ErrorCodeDebugMap[i].errorCode);
+            if (strcasecmp_P(errorCode.c_str(), entryErrorCode) == 0)
+            {
+                return &ErrorCodeDebugMap[i];
             }
         }
         return nullptr; // Not found

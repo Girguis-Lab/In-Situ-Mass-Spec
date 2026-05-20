@@ -6,6 +6,7 @@
 #include "PfeifferVacProtocolConsts.h"
 #include "PfeifferVacProtocolFuncs.h"
 #include "PfeifferVacProtocolDatatypes.h"
+#include "RS485Serial.h"
 
 class PfeifferSerialTC80
 {
@@ -13,22 +14,15 @@ public:
     typedef void (*DelayFunc)(unsigned long);
     typedef bool (*CheckFunc)();
 
-    PfeifferSerialTC80(HardwareSerial &turboSerial, const uint16_t address = 1, Stream &debug = Serial, DelayFunc delayFunc = ::delay, uint8_t pin485DriverEnable = 0, uint8_t pin485ReciverDisable = 0)
-        : _turboSerial(turboSerial), _debug(debug), _delayFunc(delayFunc), _pin485SendEnable(pin485DriverEnable), _pin485ReceiveDisable(pin485ReciverDisable)
+    PfeifferSerialTC80(RS485Serial<HardwareSerial> &turboSerial, const uint16_t address = 1, Stream &debug = Serial, DelayFunc delayFunc = ::delay)
+        : _turboSerial(turboSerial), _debug(debug), _delayFunc(delayFunc)
     {
         sprintf(_address, "%03d", address);
-        _checkFunc = nullptr;
     }
 
-    void begin(unsigned long baud = 9600, uint32_t config = SERIAL_8N1, CheckFunc checkFunc = nullptr)
+    void begin(unsigned long baud = 9600, uint32_t config = SERIAL_8N1)
     {
-        _checkFunc = checkFunc;
-        if (_pin485SendEnable != 0)
-            pinMode(_pin485SendEnable, OUTPUT);
-        if (_pin485ReceiveDisable != 0)
-            pinMode(_pin485ReceiveDisable, OUTPUT);
-        _enable485Receiver();
-        _turboSerial.begin(baud, config); // default: 9600 baud, 8 data bits, no parity, 1 stop bit
+        _turboSerial.begin(baud, config); // RS485Serial handles pin setup and initialization
     }
 
     void setAddress(const uint16_t address)
@@ -41,43 +35,22 @@ public:
         return _address;
     }
 
-    void _enable485Receiver()
-    {
-        if (_pin485SendEnable != 0)
-            digitalWrite(_pin485SendEnable, LOW);
-
-        if (_pin485ReceiveDisable != 0)
-            digitalWrite(_pin485ReceiveDisable, LOW);
-    }
-
-    void _enable485Sender()
-    {
-        if (_pin485SendEnable != 0)
-            digitalWrite(_pin485SendEnable, HIGH);
-
-        if (_pin485ReceiveDisable != 0)
-            digitalWrite(_pin485ReceiveDisable, HIGH);
-    }
-
     // Send a raw telegram string
     void _sendTelegramRaw(const char *telegram)
     {
-        _enable485Sender();
-        _turboSerial.print(telegram);
-        _turboSerial.print('\r');
-        _turboSerial.flush();
-        _enable485Receiver();
+        _turboSerial.write(reinterpret_cast<const uint8_t *>(telegram), strlen(telegram));
+        _turboSerial.write('\r');
+        // RS485Serial automatically handles direction switching via task()
     }
 
-    void printTelegram(const char action, const uint16_t parameter, const char *data = nullptr)
+    void printOutgoingTelegram(const char action, const uint16_t parameter, const char *data = nullptr)
     {
         String telegramStr = PfeifferVacProtocol::encodeTelegram(_address, action, parameter, data);
-
         PfeifferVacProtocol::PfeifferTelegram telegram = PfeifferVacProtocol::decodeTelegram(telegramStr.c_str());
-        PfeifferVacProtocol::printTelegramHumanReadable(telegram);
-        // Log.verbose("(Raw Telegram: ");
-        // Log.verbose(telegramStr.c_str());
-        // Log.verboseln(")");
+        PfeifferVacProtocol::printTelegramHumanReadable(telegram, true);
+        Log.verbose("[Raw Telegram: '");
+        Log.verbose(telegramStr.c_str());
+        Log.verboseln("']");
     }
 
     // Send a telegram using action, parameter, and data
@@ -85,8 +58,7 @@ public:
     {
         if (debugPrint || Log.getLevel() >= LOG_LEVEL_TRACE)
         {
-            Log.info("\nSending: ");
-            printTelegram(action, parameter, data);
+            printOutgoingTelegram(action, parameter, data);
         }
 
         String telegramStr = PfeifferVacProtocol::encodeTelegram(_address, action, parameter, data);
@@ -94,14 +66,14 @@ public:
     }
 
     // Receive a raw telegram (non-blocking, returns String)
-    String _receiveTelegramRaw(unsigned long timeout = 1000)
+    String _receiveTelegramRaw(unsigned long timeout = 10000)
     {
-        _enable485Receiver();
         String frame = "";
         unsigned long start = millis();
         while (millis() - start < timeout)
         {
-            _delayFunc(1); // Small delay to avoid busy wait
+            _turboSerial.task(); // Call task() to handle buffering and direction control
+            _delayFunc(1);       // Small delay to avoid busy wait
             if (_turboSerial.available())
             {
                 char c = _turboSerial.read();
@@ -113,18 +85,17 @@ public:
         return frame;
     }
 
-    // Receive and decode a telegram (non-blocking)
-    PfeifferVacProtocol::PfeifferTelegram receiveTelegram(bool debugPrint = false, unsigned long timeout = 1000)
+    // Receive and decode a telegram
+    PfeifferVacProtocol::PfeifferTelegram receiveTelegram(bool debugPrint = false, unsigned long timeout = 5000)
     {
         String raw = _receiveTelegramRaw(timeout);
         PfeifferVacProtocol::PfeifferTelegram telegram = PfeifferVacProtocol::decodeTelegram(raw.c_str());
         if (debugPrint || Log.getLevel() >= LOG_LEVEL_TRACE)
         {
-            Log.info("\nReceived: ");
-            PfeifferVacProtocol::printTelegramHumanReadable(telegram);
-            Log.verbose("(RAW Received Telegram is ");
+            PfeifferVacProtocol::printTelegramHumanReadable(telegram, false);
+            Log.verbose("\n[RAW Received Telegram is '");
             Log.verbose(raw.c_str());
-            Log.verbose(") ");
+            Log.verbose("'] ");
             Log.info("\n");
         }
         return telegram;
@@ -143,7 +114,7 @@ public:
     //
     void sendCommand(const uint16_t parameter, const uint8_t data, const bool debugPrint = false)
     {
-        _sendTelegram('1', parameter, String(data).c_str());
+        _sendTelegram('1', parameter, String(data).c_str(), debugPrint);
     }
 
     // 0: boolean_old
@@ -206,22 +177,34 @@ public:
     // Helper to check if a response is complete & valid
     inline bool isValidResponse(const PfeifferVacProtocol::PfeifferTelegram &telegram, uint16_t expectedParameter)
     {
-        // A standard successful response has the same source address and a valid checksum
-        return telegram.address == _address &&
-               telegram.checksumValid && (uint16_t)telegram.parameter.toInt() == expectedParameter;
+        // A standard successful response has the same source address and no Errors
+        return strcmp(telegram.address.c_str(), _address) == 0 &&
+               telegram.error == PfeifferVacProtocol::TelegramError::None && (uint16_t)telegram.parameter.toInt() == expectedParameter;
     }
 
     // A utility function to output debug messages (assuming _debug is available)
     inline void _printInvalidResponseDebug(const PfeifferVacProtocol::PfeifferTelegram telegram, uint16_t expectedParameter)
     {
         // Assuming Log.verbose is available or a similar logging mechanism
-        if (strcmp(telegram.address.c_str(), _address) == 0)
+        if (strcmp(telegram.address.c_str(), _address) != 0)
         {
             Log.traceln("WARNING: Address mismatch in Turbo response. Expected: %s, Received: %s", _address, telegram.address.c_str());
         }
-        else if (!telegram.checksumValid)
+        else if (telegram.error == PfeifferVacProtocol::TelegramError::LogicError)
         {
-            Log.traceln("WARNING: Checksum invalid in Turbo response.");
+            Log.traceln("WARNING: Turbo pump internal logic error.");
+        }
+        else if (telegram.error == PfeifferVacProtocol::TelegramError::OutOfRange)
+        {
+            Log.traceln("WARNING: Given command value was out of range.");
+        }
+        else if (telegram.error == PfeifferVacProtocol::TelegramError::InvalidParameter)
+        {
+            Log.traceln("WARNING: Parameter %s is not a valid parameter.", (uint8_t)telegram.parameter.toInt());
+        }
+        else if (telegram.error == PfeifferVacProtocol::TelegramError::InvalidChecksum)
+        {
+            Log.traceln("WARNING: Checksum invalid or partial Turbo response.");
         }
         else if ((uint8_t)telegram.parameter.toInt() != expectedParameter)
         {
@@ -236,103 +219,133 @@ public:
     // 0: boolean_old (Native Type: boolean)
     boolean receiveBooleanOld(uint16_t expectedParameter, bool &isValid, bool debugPrint = true, unsigned long timeout = 1000)
     {
-        const PfeifferVacProtocol::PfeifferTelegram telegram = receiveTelegram(debugPrint, timeout);
-        if (isValidResponse(telegram, expectedParameter) && telegram.data.length() == 6)
+        unsigned long startTime = millis();
+        while (millis() - startTime < timeout)
         {
-            isValid = true;
-            return PfeifferVacProtocol::BooleanOld(telegram.data.c_str()).decode();
+            const PfeifferVacProtocol::PfeifferTelegram telegram = receiveTelegram(debugPrint, timeout / 10);
+            if (isValidResponse(telegram, expectedParameter) && telegram.data.length() == 6)
+            {
+                isValid = true;
+                return PfeifferVacProtocol::BooleanOld(telegram.data.c_str()).decode();
+            }
+            else
+            {
+                isValid = false;
+                _printInvalidResponseDebug(telegram, expectedParameter);
+                _delayFunc(50); // Small delay before retrying
+            }
         }
-        else
-        {
-            isValid = false;
-            _printInvalidResponseDebug(telegram, expectedParameter);
-            return false; // Default/invalid return
-        }
+        return false; // Default/invalid return
     }
 
     // 1: u_integer (Native Type: uint32_t)
-    uint32_t receiveUInteger(uint16_t expectedParameter, bool &isValid, bool debugPrint = true, unsigned long timeout = 1000)
+    uint32_t receiveUInteger(uint16_t expectedParameter, bool &isValid, bool debugPrint = true, unsigned long timeout = 10000)
     {
-        const PfeifferVacProtocol::PfeifferTelegram telegram = receiveTelegram(debugPrint, timeout);
-        if (isValidResponse(telegram, expectedParameter) && telegram.data.length() == 6)
+        unsigned long startTime = millis();
+        while (millis() - startTime < timeout)
         {
-            isValid = true;
-            return PfeifferVacProtocol::UInteger(telegram.data.c_str()).decode();
+            const PfeifferVacProtocol::PfeifferTelegram telegram = receiveTelegram(debugPrint, timeout / 10);
+            if (isValidResponse(telegram, expectedParameter) && telegram.data.length() == 6)
+            {
+                isValid = true;
+                return PfeifferVacProtocol::UInteger(telegram.data.c_str()).decode();
+            }
+            else
+            {
+                isValid = false;
+                _printInvalidResponseDebug(telegram, expectedParameter);
+                _delayFunc(50); // Small delay before retrying
+            }
         }
-        else
-        {
-            isValid = false;
-            _printInvalidResponseDebug(telegram, expectedParameter);
-            return 0; // Default/invalid return
-        }
+        return 0; // Default/invalid return
     }
 
     // 2: u_real (Native Type: float)
     float receiveUReal(uint16_t expectedParameter, bool &isValid, bool debugPrint = true, unsigned long timeout = 1000)
     {
-        const PfeifferVacProtocol::PfeifferTelegram telegram = receiveTelegram(debugPrint, timeout);
-        if (isValidResponse(telegram, expectedParameter) && telegram.data.length() == 6)
+        unsigned long startTime = millis();
+        while (millis() - startTime < timeout)
         {
-            isValid = true;
-            return PfeifferVacProtocol::UReal(telegram.data.c_str()).decode();
+            const PfeifferVacProtocol::PfeifferTelegram telegram = receiveTelegram(debugPrint, timeout / 10);
+            if (isValidResponse(telegram, expectedParameter) && telegram.data.length() == 6)
+            {
+                isValid = true;
+                return PfeifferVacProtocol::UReal(telegram.data.c_str()).decode();
+            }
+            else
+            {
+                isValid = false;
+                _printInvalidResponseDebug(telegram, expectedParameter);
+                _delayFunc(50); // Small delay before retrying
+            }
         }
-        else
-        {
-            isValid = false;
-            _printInvalidResponseDebug(telegram, expectedParameter);
-            return 0.0f; // Default/invalid return
-        }
+        return 0.0f; // Default/invalid return
     }
 
     // 6: boolean_new (Native Type: boolean)
     boolean receiveBooleanNew(uint16_t expectedParameter, bool &isValid, bool debugPrint = true, unsigned long timeout = 1000)
     {
-        const PfeifferVacProtocol::PfeifferTelegram telegram = receiveTelegram(debugPrint, timeout);
-        if (isValidResponse(telegram, expectedParameter) && telegram.data.length() == 1)
+        unsigned long startTime = millis();
+        while (millis() - startTime < timeout)
         {
-            isValid = true;
-            return PfeifferVacProtocol::BooleanNew(telegram.data.c_str()).decode();
+            const PfeifferVacProtocol::PfeifferTelegram telegram = receiveTelegram(debugPrint, timeout / 10);
+            if (isValidResponse(telegram, expectedParameter) && telegram.data.length() == 1)
+            {
+                isValid = true;
+                return PfeifferVacProtocol::BooleanNew(telegram.data.c_str()).decode();
+            }
+            else
+            {
+                isValid = false;
+                _printInvalidResponseDebug(telegram, expectedParameter);
+                _delayFunc(50); // Small delay before retrying
+            }
         }
-        else
-        {
-            isValid = false;
-            _printInvalidResponseDebug(telegram, expectedParameter);
-            return false; // Default/invalid return
-        }
+        return false; // Default/invalid return
     }
 
     // 7: u_short_int (Native Type: uint16_t)
     uint16_t receiveUShortInt(uint16_t expectedParameter, bool &isValid, bool debugPrint = true, unsigned long timeout = 1000)
     {
-        const PfeifferVacProtocol::PfeifferTelegram telegram = receiveTelegram(debugPrint, timeout);
-        if (isValidResponse(telegram, expectedParameter) && telegram.data.length() == 3)
+        unsigned long startTime = millis();
+        while (millis() - startTime < timeout)
         {
-            isValid = true;
-            return PfeifferVacProtocol::UShortInt(telegram.data.c_str()).decode();
+            const PfeifferVacProtocol::PfeifferTelegram telegram = receiveTelegram(debugPrint, timeout / 10);
+            if (isValidResponse(telegram, expectedParameter) && telegram.data.length() == 3)
+            {
+                isValid = true;
+                return PfeifferVacProtocol::UShortInt(telegram.data.c_str()).decode();
+            }
+            else
+            {
+                isValid = false;
+                _printInvalidResponseDebug(telegram, expectedParameter);
+                _delayFunc(50); // Small delay before retrying
+            }
         }
-        else
-        {
-            isValid = false;
-            _printInvalidResponseDebug(telegram, expectedParameter);
-            return 0; // Default/invalid return
-        }
+        return 0; // Default/invalid return
     }
 
     // 10: u_expo_new (Native Type: float)
     float receiveUExpoNew(uint16_t expectedParameter, bool &isValid, bool debugPrint = true, unsigned long timeout = 1000)
     {
-        const PfeifferVacProtocol::PfeifferTelegram telegram = receiveTelegram(debugPrint, timeout);
-        if (isValidResponse(telegram, expectedParameter) && telegram.data.length() == 6)
+        unsigned long startTime = millis();
+        while (millis() - startTime < timeout)
         {
-            isValid = true;
-            return PfeifferVacProtocol::UExpoNew(telegram.data.c_str()).decode();
+            const PfeifferVacProtocol::PfeifferTelegram telegram = receiveTelegram(debugPrint, timeout / 10);
+            if (isValidResponse(telegram, expectedParameter) && telegram.data.length() == 6)
+            {
+                isValid = true;
+                return PfeifferVacProtocol::UExpoNew(telegram.data.c_str()).decode();
+            }
+            else
+            {
+                isValid = false;
+                _printInvalidResponseDebug(telegram, expectedParameter);
+                _delayFunc(50); // Small delay before retrying
+            }
         }
-        else
-        {
-            isValid = false;
-            _printInvalidResponseDebug(telegram, expectedParameter);
-            return 0.0f; // Default/invalid return
-        }
+        return 0.0f; // Default/invalid return
     }
 
     // ----------------------------------------
@@ -342,62 +355,119 @@ public:
     // 4: string (6 chars) (Native Type: String)
     String receiveString6(uint16_t expectedParameter, bool &isValid, bool debugPrint = true, unsigned long timeout = 1000)
     {
-        const PfeifferVacProtocol::PfeifferTelegram telegram = receiveTelegram(debugPrint, timeout);
-        if (isValidResponse(telegram, expectedParameter) && telegram.data.length() == 6)
+        unsigned long startTime = millis();
+        while (millis() - startTime < timeout)
         {
-            isValid = true;
-            // Decode returns const char*, which is implicitly convertible to Arduino String
-            return String(PfeifferVacProtocol::String6(telegram.data.c_str()).decode());
+            const PfeifferVacProtocol::PfeifferTelegram telegram = receiveTelegram(debugPrint, timeout / 10);
+            if (isValidResponse(telegram, expectedParameter) && telegram.data.length() == 6)
+            {
+                isValid = true;
+                // Decode returns const char*, which is implicitly convertible to Arduino String
+                return String(PfeifferVacProtocol::String6(telegram.data.c_str()).decode());
+            }
+            else
+            {
+                isValid = false;
+                _printInvalidResponseDebug(telegram, expectedParameter);
+                _delayFunc(50); // Small delay before retrying
+            }
         }
-        else
-        {
-            isValid = false;
-            _printInvalidResponseDebug(telegram, expectedParameter);
-            return ""; // Return empty String on invalid response
-        }
+        return ""; // Return empty String on invalid response
     }
 
     // 11: string16 (Native Type: String)
     String receiveString16(uint16_t expectedParameter, bool &isValid, bool debugPrint = true, unsigned long timeout = 1000)
     {
-        const PfeifferVacProtocol::PfeifferTelegram telegram = receiveTelegram(debugPrint, timeout);
-        if (isValidResponse(telegram, expectedParameter) && telegram.data.length() == 16)
+        unsigned long startTime = millis();
+        while (millis() - startTime < timeout)
         {
-            isValid = true;
-            return String(PfeifferVacProtocol::String16(telegram.data.c_str()).decode());
+            const PfeifferVacProtocol::PfeifferTelegram telegram = receiveTelegram(debugPrint, timeout / 10);
+            if (isValidResponse(telegram, expectedParameter) && telegram.data.length() == 16)
+            {
+                isValid = true;
+                return String(PfeifferVacProtocol::String16(telegram.data.c_str()).decode());
+            }
+            else
+            {
+                isValid = false;
+                _printInvalidResponseDebug(telegram, expectedParameter);
+                _delayFunc(50); // Small delay before retrying
+            }
         }
-        else
-        {
-            isValid = false;
-            _printInvalidResponseDebug(telegram, expectedParameter);
-            return "";
-        }
+        return "";
     }
 
     // 12: string8 (Native Type: String)
     String receiveString8(uint16_t expectedParameter, bool &isValid, bool debugPrint = true, unsigned long timeout = 1000)
     {
-        const PfeifferVacProtocol::PfeifferTelegram telegram = receiveTelegram(debugPrint, timeout);
-        if (isValidResponse(telegram, expectedParameter) && telegram.data.length() == 8)
+        unsigned long startTime = millis();
+        while (millis() - startTime < timeout)
         {
-            isValid = true;
-            return String(PfeifferVacProtocol::String8(telegram.data.c_str()).decode());
+            const PfeifferVacProtocol::PfeifferTelegram telegram = receiveTelegram(debugPrint, timeout / 10);
+            if (isValidResponse(telegram, expectedParameter) && telegram.data.length() == 8)
+            {
+                isValid = true;
+                return String(PfeifferVacProtocol::String8(telegram.data.c_str()).decode());
+            }
+            else
+            {
+                isValid = false;
+                _printInvalidResponseDebug(telegram, expectedParameter);
+                _delayFunc(50); // Small delay before retrying
+            }
         }
+        return "";
+    }
+
+    // Queries the log of accumulated errors on the turbo pump and returns them as a comma separated human readable list
+    const String queryLatestError(bool &isValid, bool debugPrint = false, unsigned long timeout = 2000)
+    {
+        sendQuery(PfeifferVacProtocol::StatusRequest::ErrorCode, debugPrint);
+        String errMsg = receiveString6(PfeifferVacProtocol::StatusRequest::ErrorCode, isValid, debugPrint, timeout / 10);
+        const PfeifferVacProtocol::ErrorCodeDebugEntry *ErrorDebugEntry = PfeifferVacProtocol::getHumanReadableErrorMessage(errMsg);
+        if (ErrorDebugEntry != nullptr)
+            return String(ErrorDebugEntry->problem);
         else
+            return String("");
+    }
+
+    // Queries the log of accumulated errors on the turbo pump and returns them as a comma separated human readable list
+    const String queryErrorHistory(bool &isValid, bool debugPrint = false, unsigned long timeout = 2000)
+    {
+        String errorMessages = "";
+        for (int p = PfeifferVacProtocol::StatusRequest::ErrHist1; p <= PfeifferVacProtocol::StatusRequest::ErrHist10; p++)
         {
-            isValid = false;
-            _printInvalidResponseDebug(telegram, expectedParameter);
-            return "";
+            sendQuery(p, debugPrint);
+            String errMsg = receiveString6(p, isValid, debugPrint, timeout / 10);
+            if (!isValid)
+            {
+                errorMessages += "failed to query turbo error history,";
+                break;
+            }
+            else if (errMsg == String("000000"))
+            {
+                break; // we've reached the end of the error/warning history
+            }
+            else
+            {
+                errorMessages += errMsg;
+#if PFEIFFER_VAC_PROTOCOL_INCLUDE_DEBUG
+                const PfeifferVacProtocol::ErrorCodeDebugEntry *ErrorDebugEntry = PfeifferVacProtocol::getHumanReadableErrorMessage(errMsg);
+                if (ErrorDebugEntry != nullptr)
+                {
+                    errorMessages += String(" ") + String(ErrorDebugEntry->problem);
+                }
+#endif // PFEIFFER_VAC_PROTOCOL_INCLUDE_DEBUG
+                errorMessages += ",";
+            }
         }
+        return errorMessages;
     }
 
 private:
-    HardwareSerial &_turboSerial;
+    RS485Serial<HardwareSerial> &_turboSerial;
     Stream &_debug;
     DelayFunc _delayFunc;
-    CheckFunc _checkFunc;
-    uint8_t _pin485SendEnable;
-    uint8_t _pin485ReceiveDisable;
     char _address[4]; // 3 digits + null terminator address of the turbo pump
 };
 

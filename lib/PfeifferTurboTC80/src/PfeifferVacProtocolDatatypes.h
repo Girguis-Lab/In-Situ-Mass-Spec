@@ -155,8 +155,8 @@ namespace PfeifferVacProtocol
         // returns the ASCII representation of a String6 (6 chars)
         String encode() const
         {
-            // Returns the string, padded with spaces if necessary, up to 6 chars
-            char buf[7] = "      "; // Initialize with spaces
+            // Returns the string, up to 6 chars
+            char buf[7] = {'\0'}; // Initialize with null terminators
             strncpy(buf, _value, 6);
             return String(buf);
         }
@@ -223,7 +223,7 @@ namespace PfeifferVacProtocol
         String encode() const
         {
             // Pad with leading zeros to 3 digits
-            char buf[4];
+            char buf[4] = {'\0'};
             snprintf(buf, sizeof(buf), "%03u", _value);
             return String(buf);
         }

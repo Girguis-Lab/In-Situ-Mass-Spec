@@ -11,6 +11,25 @@ inline int getAvailableRAM()
     return (int)&v - (__brkval == 0 ? (int)&__heap_start : (int)__brkval);
 }
 
+// Returns the total RAM in bytes on Arduino Mega
+inline int getTotalRam()
+{
+    return RAMEND - RAMSTART + 1;
+}
+
+/**
+ * Print a string padded with a specific character to a specific width.
+ */
+void print_padded(Stream &s, const __FlashStringHelper *str, int length, char pad_char = ' ')
+{
+    s.print(str);
+    int str_len = strlen_P(reinterpret_cast<PGM_P>(str));
+    for (int i = 0; i < length - str_len; ++i)
+    {
+        s.print(pad_char);
+    }
+}
+
 int logLevelToInt(const char *levelStr)
 {
     if (strncasecmp(levelStr, "SILENT", 6) == 0)

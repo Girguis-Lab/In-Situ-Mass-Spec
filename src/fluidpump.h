@@ -2,6 +2,7 @@
 #define FLUIDPUMP_H
 
 #define FLUIDPUMP_PWM_STARTUP_DURRATION 2500
+#define FLUID_PUMP_UNINITIALIZED -999
 
 #include <Arduino.h>
 
@@ -10,14 +11,16 @@
 class FluidPump
 {
 public:
-    FluidPump(uint8_t pwmPin, uint8_t powerPin)
-        : pwmPin(pwmPin), powerPin(powerPin), initialized(false), pumpEnableComplete(false), timeWhenEnabled(0), currentSpeedPercent(0) {}
+    FluidPump(uint8_t pwmPin, uint8_t powerPin, uint8_t reverseDirectionPin)
+        : pwmPin(pwmPin), powerPin(powerPin), reverseDirectionPin(reverseDirectionPin), initialized(false), pumpEnableComplete(false), timeWhenEnabled(0), currentSpeedPercent(0) {}
 
     /* Init sets up the pump for operation, it should be called early on in your code before any other methods are called */
     void init()
     {
         pinMode(pwmPin, OUTPUT);
         pinMode(powerPin, OUTPUT);
+        pinMode(reverseDirectionPin, OUTPUT);
+
         _setSpeed(0); // Initialize pump pwm to fully off
         initialized = true;
     }
@@ -55,22 +58,45 @@ public:
     }
 
     // Returns the currently set speed of the pump as a percentage of full speed
-    uint8_t getSpeed() const
+    int getSpeed() const
     {
         return currentSpeedPercent;
     }
 
     // Set pump speed as a percentage of full speed (0-100)
-    int setSpeed(uint8_t percent)
+    int16_t setSpeed(int16_t percent)
     {
         if (!initialized)
-            return -1; // Not initialized
+            return FLUID_PUMP_UNINITIALIZED; // Not initialized
+        if (percent < -100)
+            percent = 100;
         if (percent > 100)
             percent = 100;
+        if (percent < 0)
+        {
+            runInReverseDir();
+        }
+        else
+        {
+            runInForwardDir();
+        }
         currentSpeedPercent = percent;
         // loopHandler();
         _setSpeed(currentSpeedPercent);
         return currentSpeedPercent;
+    }
+
+    void runInReverseDir()
+    {
+        /// ground the pin per micropump documentation
+        pinMode(reverseDirectionPin, OUTPUT);
+        digitalWrite(reverseDirectionPin, LOW);
+    }
+
+    void runInForwardDir()
+    {
+        /// float the pin per micropump documentation
+        pinMode(reverseDirectionPin, INPUT);
     }
 
     // Set raw PWM speed as percentage, enabling or disabling pump power as necessary (0-100)
@@ -84,10 +110,11 @@ public:
 private:
     uint8_t pwmPin;
     uint8_t powerPin;
+    uint8_t reverseDirectionPin;
     bool initialized;
     bool pumpEnableComplete;
     unsigned long timeWhenEnabled; // in miliseconds
-    uint8_t currentSpeedPercent;
+    int currentSpeedPercent;
 };
 
 #endif // FLUIDPUMP_H
