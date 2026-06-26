@@ -19,7 +19,7 @@ void get_mcusr(void)
     __attribute__((section(".init3")));
 void get_mcusr(void)
 {
-    mcusr_mirror = MCUSR;
+    mcusr_mirror = reinterpret_cast<uint8_t>(MCUSR);
     MCUSR = 0;
     wdt_disable();
 }
@@ -51,11 +51,11 @@ void wdtPrintStatus(Stream &Serial)
 {
     if (mcusr_mirror & (1 << BORF))
     {
-        Serial.println(F("| STARTUP: Normal, Brown-out occured - This is expected on power-on."));
+        Serial.println(F("| STARTUP: Normal, Brown-out occurred - This is expected on power-on."));
     }
     else if (mcusr_mirror & (1 << WDRF))
     {
-        Serial.println(F("| STARTUP: Watchdog timeout occured"));
+        Serial.println(F("| STARTUP: Watchdog timeout occurred"));
     }
     else if (mcusr_mirror & (1 << EXTRF))
     {
@@ -63,11 +63,11 @@ void wdtPrintStatus(Stream &Serial)
     }
     else if (mcusr_mirror & (1 << PORF))
     {
-        Serial.println(F("| STARTUP: Power-on reset occured"));
+        Serial.println(F("| STARTUP: Power-on reset occurred"));
     }
     else
     {
-        Serial.println(F("| STARTUP: Normal, no reset occured"));
+        Serial.println(F("| STARTUP: Normal, no reset occurred"));
     }
 }
 #endif // WATCHDOG_H

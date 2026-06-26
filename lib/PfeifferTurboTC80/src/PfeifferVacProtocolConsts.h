@@ -314,7 +314,7 @@ namespace PfeifferVacProtocol
         if (idx < size && names[idx] != nullptr)
         {
             // Copy from PROGMEM to RAM and return as String
-            String result = String((__FlashStringHelper *)names[idx]);
+            String result = String(reinterpret_cast<const __FlashStringHelper *>(names[idx]));
             if (result.length() > 0)
             {
                 return result;
@@ -516,121 +516,610 @@ namespace PfeifferVacProtocol
         LookupFuncFunction lookupFuncFunction; // Pointer to function that takes uint8_t and returns String
     };
 
-    const ParameterDebugEntry *getParameterDebugEntry(int number)
-    {
-        // Static array of all parameters, sorted by number
-        static const ParameterDebugEntry ParameterDebugMap[] = {
-            // Control Commands
-            {(uint16_t)ControlCommand::Heating, F("Heating"), F("Heating"), F("FuncOnOff, Values: Off=0, On=1, Type: boolean_old, RW, min=0, max=1, default=0"), DataType::BooleanOld, lookupFuncOnOff},
-            {(uint16_t)ControlCommand::StandBy, F("StandBy"), F("Stand-by"), F("FuncOnOff, Values: Off=0, On=1, Type: boolean_old, RW, min=0, max=1, default=0"), DataType::BooleanOld, lookupFuncOnOff},
-            {(uint16_t)ControlCommand::RUTimeCtrl, F("RUTimeCtrl"), F("Run-up time monitoring"), F("FuncOnOff, Values: Off=0, On=1, Type: boolean_old, RW, min=0, max=1, default=1"), DataType::BooleanOld, lookupFuncOnOff},
-            {(uint16_t)ControlCommand::ErrorAckn, F("ErrorAckn"), F("Malfunction acknowledgement"), F("FuncMalfunctionAckn, Values: Acknowledge=1, Type: boolean_old, W, min=1, max=1"), DataType::BooleanOld, lookupFuncMalfunctionAckn},
-            {(uint16_t)ControlCommand::PumpgStatn, F("PumpgStatn"), F("Pumping station"), F("FuncPumpingStation, Values: Off=0, OnAndAckn=1, Type: boolean_old, RW, min=0, max=1, default=0"), DataType::BooleanOld, lookupFuncPumpingStation},
-            {(uint16_t)ControlCommand::EnableVent, F("EnableVent"), F("Enable venting"), F("FuncYesNo, Values: No=0, Yes=1, Type: boolean_old, RW, min=0, max=1, default=0"), DataType::BooleanOld, lookupFuncYesNo},
-            {(uint16_t)ControlCommand::CfgSpdSwPt, F("CfgSpdSwPt"), F("Rotation speed switchpoint configuration"), F("FuncRotationSwitchpointCfg, Values: Switchpoint1=0, Switchpoints1And2=1, Type: u_short_int, RW, min=0, max=1, default=0"), DataType::UShortInt, lookupFuncRotationSwitchpointCfg},
-            {(uint16_t)ControlCommand::CfgDO2, F("CfgDO2"), F("Output DO2 configuration"), F("FuncOutputDO2Cfg, Type: u_short_int, RW, min=0, max=22, default=1"), DataType::UShortInt, lookupFuncOutputDO2Cfg},
-            {(uint16_t)ControlCommand::MotorPump, F("MotorPump"), F("Motor pump"), F("FuncOnOff, Values: Off=0, On=1, Type: boolean_old, RW, min=0, max=1, default=1"), DataType::BooleanOld, lookupFuncOnOff},
-            {(uint16_t)ControlCommand::CfgDO1, F("CfgDO1"), F("Output DO1 configuration"), F("FuncOutputDO1Cfg, Type: u_short_int, RW, min=0, max=22, default=0"), DataType::UShortInt, lookupFuncOutputDO2Cfg},
-            {(uint16_t)ControlCommand::OpModeBKP, F("OpModeBKP"), F("Backing pump operating mode"), F("FuncBackingPumpOpMode, Values: Continuous=0, Intermittent=1, DelayedOn=2, DelayedInterval=3, Type: u_short_int, RW, min=0, max=3, default=0"), DataType::UShortInt, lookupFuncBackingPumpOpMode},
-            {(uint16_t)ControlCommand::SpdSetMode, F("SpdSetMode"), F("Rotation speed setting mode"), F("FuncOnOff, Values: Off=0, On=1, Type: u_short_int, RW, min=0, max=1, default=0"), DataType::UShortInt, lookupFuncOnOff},
-            {(uint16_t)ControlCommand::GasMode, F("GasMode"), F("Gas mode"), F("FuncGasMode, Values: HeavyGases=0, LightGases=1, Helium=2, Type: u_short_int, RW, min=0, max=2, default=0"), DataType::UShortInt, lookupFuncGasMode},
-            {(uint16_t)ControlCommand::VentMode, F("VentMode"), F("Venting mode"), F("FuncVentMode, Values: DelayedVenting=0, NoVenting=1, DirectVenting=2, Type: u_short_int, RW, min=0, max=2, default=2"), DataType::UShortInt, lookupFuncVentMode},
-            {(uint16_t)ControlCommand::CfgAccA1, F("CfgAccA1"), F("Configuration accessory connection A1"), F("FuncAccA1Cfg, Type: u_short_int, RW, min=0, max=13, default=0"), DataType::UShortInt, lookupFuncAccA1Cfg},
-            {(uint16_t)ControlCommand::CfgAccB1, F("CfgAccB1"), F("Configuration accessory connection B1"), F("FuncAccB1Cfg, Type: u_short_int, RW, min=0, max=13, default=1"), DataType::UShortInt, lookupFuncAccA1Cfg},
-            {(uint16_t)ControlCommand::Press1HVen, F("Press1HVen"), F("Release HV sensor integrated"), F("FuncPress1HVen, Values: Off=0, On=1, OnWithRotSpdSwitchpoint=2, OnWithPressureSwitchNotReached=3, Type: u_short_int, RW, min=0, max=3, default=2"), DataType::UShortInt, lookupFuncPress1HVen},
-            {(uint16_t)ControlCommand::SealingGas, F("SealingGas"), F("Sealing gas"), F("FuncOnOff, Values: Off=0, On=1, Type: boolean_old, RW, min=0, max=1, default=0"), DataType::BooleanOld, lookupFuncOnOff},
-            {(uint16_t)ControlCommand::CfgAO1, F("CfgAO1"), F("Output AO1 configuration"), F("FuncOutputAO1Cfg, Type: u_short_int, RW, min=0, max=8, default=0"), DataType::UShortInt, lookupFuncOutputAO1Cfg},
-            {(uint16_t)ControlCommand::TmpMgtMode, F("TmpMgtMode"), F("Temperature management configuration"), F("FuncTmpMgtMode, Values: PumpTempLEQ60C=0, PumpTempLEQ80C=1, PowerCharacteristic=2, Type: u_short_int, RW, min=0, max=2, default=0"), DataType::UShortInt, lookupFuncTmpMgtMode},
-            {(uint16_t)ControlCommand::CtrlVialnt, F("CtrlVialnt"), F("Operate via interface"), F("FuncCtrlVialnt, Values: Remote=1, RS485=2, PVCAN=4, UnlockInterfaceSelection=255, Type: u_short_int, RW, min=1, max=255, default=1"), DataType::UShortInt, lookupFuncCtrlVialnt},
-            {(uint16_t)ControlCommand::IntSelLckd, F("IntSelLckd"), F("Interface selection locked"), F("FuncOnOff, Values: Off=0, On=1, Type: boolean_old, RW, min=0, max=1, default=0"), DataType::BooleanOld, lookupFuncOnOff},
-            {(uint16_t)ControlCommand::CfgDI1, F("CfgDI1"), F("Input DI1 configuration"), F("FuncDI1Cfg, Type: u_short_int, RW, min=0, max=7, default=1"), DataType::UShortInt, lookupFuncDI1Cfg},
-            {(uint16_t)ControlCommand::CfgD12, F("CfgD12"), F("Input D12 configuration"), F("FuncDI2Cfg, Type: u_short_int, RW, min=0, max=7, default=2"), DataType::UShortInt, lookupFuncDI1Cfg},
-            {(uint16_t)ControlCommand::CfgAccC1, F("CfgAccC1"), F("Configuration accessory connection C1"), F("FuncAccC1Cfg, Type: u_short_int, RW, min=0, max=13, default=0"), DataType::UShortInt, lookupFuncAccA1Cfg},
-            {(uint16_t)ControlCommand::CfgAccD1, F("CfgAccD1"), F("Configuration accessory connection D1"), F("FuncAccD1Cfg, Type: u_short_int, RW, min=0, max=13, default=0"), DataType::UShortInt, lookupFuncAccA1Cfg},
-            // Status Requests
-            {(uint16_t)StatusRequest::RemotePrio, F("RemotePrio"), F("Remote priority"), F("Type: boolean_old, R, min=0, max=1"), DataType::BooleanOld, lookupFuncYesNo},
-            {(uint16_t)StatusRequest::SpdSwPtAtt, F("SpdSwPtAtt"), F("Rotation speed switchpoint reached"), F("Type: boolean_old, R, min=0, max=1"), DataType::BooleanOld, lookupFuncYesNo},
-            {(uint16_t)StatusRequest::ErrorCode, F("ErrorCode"), F("Error code"), F("Type: string6, R"), DataType::String6, nullptr},
-            {(uint16_t)StatusRequest::OvTempElec, F("OvTempElec"), F("Excess temperature drive electronics"), F("Type: boolean_old, R, min=0, max=1"), DataType::BooleanOld, lookupFuncYesNo},
-            {(uint16_t)StatusRequest::OvTempPump, F("OvTempPump"), F("Excess temperature pump"), F("Type: boolean_old, R, min=0, max=1"), DataType::BooleanOld, lookupFuncYesNo},
-            {(uint16_t)StatusRequest::SetSpdAtt, F("SetSpdAtt"), F("Set rotation speed reached"), F("Type: boolean_old, R, min=0, max=1"), DataType::BooleanOld, lookupFuncYesNo},
-            {(uint16_t)StatusRequest::PumpAccel, F("PumpAccel"), F("Pump accelerating"), F("Type: boolean_old, R, min=0, max=1"), DataType::BooleanOld, lookupFuncYesNo},
-            {(uint16_t)StatusRequest::SetRotSpdHz, F("SetRotSpdHz"), F("Set rotation speed (Hz)"), F("Type: u_integer, R, Hz, min=0, max=999999"), DataType::UInteger, nullptr},
-            {(uint16_t)StatusRequest::ActualSpdHz, F("ActualSpdHz"), F("Actual rotational speed (Hz)"), F("Type: u_integer, R, Hz, min=0, max=999999"), DataType::UInteger, nullptr},
-            {(uint16_t)StatusRequest::DrvCurrent, F("DrvCurrent"), F("Drive current"), F("Type: u_real, R, A, min=0, max=9999.99"), DataType::UReal, nullptr},
-            {(uint16_t)StatusRequest::OpHrsPump, F("OpHrsPump"), F("Pump operating hours"), F("Type: u_integer, R, h, min=0, max=65535"), DataType::UInteger, nullptr},
-            {(uint16_t)StatusRequest::FwVersion, F("FwVersion"), F("Drive electronics software version"), F("Type: string6, R"), DataType::String6, nullptr},
-            {(uint16_t)StatusRequest::DrvVoltage, F("DrvVoltage"), F("Drive voltage"), F("Type: u_real, R, V, min=0, max=9999.99"), DataType::UReal, nullptr},
-            {(uint16_t)StatusRequest::OpHrsElec, F("OpHrsElec"), F("Drive electronics operating hours"), F("Type: u_integer, R, h, min=0, max=65535"), DataType::UInteger, nullptr},
-            {(uint16_t)StatusRequest::NominalSpdHz, F("NominalSpdHz"), F("Nominal rotation speed (Hz)"), F("Type: u_integer, R, Hz, min=0, max=999999"), DataType::UInteger, nullptr},
-            {(uint16_t)StatusRequest::DrvPower, F("DrvPower"), F("Drive power"), F("Type: u_integer, R, W, min=0, max=999999"), DataType::UInteger, nullptr},
-            {(uint16_t)StatusRequest::PumpCycles, F("PumpCycles"), F("Pump cycles"), F("Type: u_integer, R, min=0, max=65535"), DataType::UInteger, nullptr},
-            {(uint16_t)StatusRequest::TmpPwrStg, F("TmpPwrStg"), F("Temperature power stage"), F("Type: u_integer, R, °C, min=0, max=999999"), DataType::UInteger, nullptr},
-            {(uint16_t)StatusRequest::TempElec, F("TempElec"), F("Electronics temperature"), F("Type: u_integer, R, °C, min=0, max=999999"), DataType::UInteger, nullptr},
-            {(uint16_t)StatusRequest::TempPmpBot, F("TempPmpBot"), F("Pump lower part temperature"), F("Type: u_integer, R, °C, min=0, max=999999"), DataType::UInteger, nullptr},
-            {(uint16_t)StatusRequest::AccelDecel, F("AccelDecel"), F("Acceleration/deceleration"), F("Type: u_integer, R, rpm/s, min=0, max=999999"), DataType::UInteger, nullptr},
-            {(uint16_t)StatusRequest::ElecName, F("ElecName"), F("Electronic drive unit designation"), F("Type: string6, R"), DataType::String6, nullptr},
-            {(uint16_t)StatusRequest::HWVersion, F("HWVersion"), F("Hardware version drive electronics"), F("Type: string6, R"), DataType::String6, nullptr},
-            {(uint16_t)StatusRequest::SerialNo, F("SerialNo"), F("Serial number"), F("Type: string16, R"), DataType::String16, nullptr},
-            {(uint16_t)StatusRequest::ErrHist1, F("ErrHist1"), F("Error code history, item 1"), F("Type: string6, R"), DataType::String6, nullptr},
-            {(uint16_t)StatusRequest::ErrHist2, F("ErrHist2"), F("Error code history, item 2"), F("Type: string6, R"), DataType::String6, nullptr},
-            {(uint16_t)StatusRequest::ErrHist3, F("ErrHist3"), F("Error code history, item 3"), F("Type: string6, R"), DataType::String6, nullptr},
-            {(uint16_t)StatusRequest::ErrHist4, F("ErrHist4"), F("Error code history, item 4"), F("Type: string6, R"), DataType::String6, nullptr},
-            {(uint16_t)StatusRequest::ErrHist5, F("ErrHist5"), F("Error code history, item 5"), F("Type: string6, R"), DataType::String6, nullptr},
-            {(uint16_t)StatusRequest::ErrHist6, F("ErrHist6"), F("Error code history, item 6"), F("Type: string6, R"), DataType::String6, nullptr},
-            {(uint16_t)StatusRequest::ErrHist7, F("ErrHist7"), F("Error code history, item 7"), F("Type: string6, R"), DataType::String6, nullptr},
-            {(uint16_t)StatusRequest::ErrHist8, F("ErrHist8"), F("Error code history, item 8"), F("Type: string6, R"), DataType::String6, nullptr},
-            {(uint16_t)StatusRequest::ErrHist9, F("ErrHist9"), F("Error code history, item 9"), F("Type: string6, R"), DataType::String6, nullptr},
-            {(uint16_t)StatusRequest::ErrHist10, F("ErrHist10"), F("Error code history, item 10"), F("Type: string6, R"), DataType::String6, nullptr},
-            {(uint16_t)StatusRequest::TempRotor, F("TempRotor"), F("Rotor temperature"), F("Type: u_integer, R, °C, min=0, max=999999"), DataType::UInteger, nullptr},
-            {(uint16_t)StatusRequest::OrderCode, F("OrderCode"), F("Order number"), F("Type: string16, R"), DataType::String16, nullptr},
-            {(uint16_t)StatusRequest::AddID, F("AddID"), F("Pump ID"), F("Type: u_integer, R"), DataType::UInteger, nullptr},
-            {(uint16_t)StatusRequest::SetRotSpdRpm, F("SetRotSpdRpm"), F("Set rotation speed (rpm)"), F("Type: u_integer, R, rpm, min=0, max=999999"), DataType::UInteger, nullptr},
-            {(uint16_t)StatusRequest::ActualSpdRpm, F("ActualSpdRpm"), F("Actual rotational speed (rpm)"), F("Type: u_integer, R, rpm, min=0, max=999999"), DataType::UInteger, nullptr},
-            {(uint16_t)StatusRequest::NominalSpdRpm, F("NominalSpdRpm"), F("Nominal rotation speed (rpm)"), F("Type: u_integer, R, rpm, min=0, max=999999"), DataType::UInteger, nullptr},
-            // Reference Value Inputs
-            {(uint16_t)ReferenceValueInput::RUTimeSVal, F("RUTimeSVal"), F("Set value run-up time"), F("Type: u_integer, RW, min=1, max=120, default=8"), DataType::UInteger, nullptr},
-            {(uint16_t)ReferenceValueInput::SpdSwPt1, F("SpdSwPt1"), F("Rotation speed switch point 1"), F("Type: u_integer, RW, %, min=50, max=97, default=80"), DataType::UInteger, nullptr},
-            {(uint16_t)ReferenceValueInput::SpdSVal, F("SpdSVal"), F("Set value in rotation speed setting mode"), F("Type: u_real, RW, %, min=20, max=100, default=65"), DataType::UReal, nullptr},
-            {(uint16_t)ReferenceValueInput::PwrSVal, F("PwrSVal"), F("Set value power consumption"), F("Type: u_short_int, RW, %, min=10, max=100, default=100"), DataType::UShortInt, nullptr},
-            {(uint16_t)ReferenceValueInput::SwoffBKP, F("SwoffBKP"), F("Backing pump switch-off threshold for intermittent operation"), F("Type: u_integer, RW, W, min=0, max=1000, default=0"), DataType::UInteger, nullptr},
-            {(uint16_t)ReferenceValueInput::SwOnBKP, F("SwOnBKP"), F("Backing pump switch-on threshold for intermittent operation"), F("Type: u_integer, RW, W, min=0, max=1000, default=0"), DataType::UInteger, nullptr},
-            {(uint16_t)ReferenceValueInput::StdbySVal, F("StdbySVal"), F("Rotation speed set value in stand-by operation"), F("Type: u_real, RW, %, min=20, max=100, default=66.7"), DataType::UReal, nullptr},
-            {(uint16_t)ReferenceValueInput::SpdSwPt2, F("SpdSwPt2"), F("Rotation speed switch point 2"), F("Type: u_integer, RW, %, min=5, max=97, default=20"), DataType::UInteger, nullptr},
-            {(uint16_t)ReferenceValueInput::VentSpd, F("VentSpd"), F("Venting at rotation speed, delayed venting"), F("Type: u_short_int, RW, %, min=40, max=98, default=50"), DataType::UShortInt, nullptr},
-            {(uint16_t)ReferenceValueInput::VentTime, F("VentTime"), F("Venting time, delayed venting"), F("Type: u_integer, RW, s, min=6, max=3600, default=3600"), DataType::UInteger, nullptr},
-            {(uint16_t)ReferenceValueInput::mxPwrOutTm, F("mxPwrOutTm"), F("Max. time for the output voltage in power back-up mode"), F("Type: u_integer, RW, s, min=1, max=255, default=10"), DataType::UInteger, nullptr},
-            {(uint16_t)ReferenceValueInput::fanOnTemp, F("fanOnTemp"), F("Start-up temperature of the fan in temperature-controlled mode"), F("Type: u_integer, RW, °C, min=6, max=75, default=45"), DataType::UInteger, nullptr},
-            {(uint16_t)ReferenceValueInput::PrsSwPt1, F("PrsSwPt1"), F("Pressure switch point 1"), F("Type: u_expo_new, RW, hPa, default=1000"), DataType::UExpoNew, nullptr},
-            {(uint16_t)ReferenceValueInput::PrsSwPt2, F("PrsSwPt2"), F("Pressure switch point 2"), F("Type: u_expo_new, RW, hPa, default=1000"), DataType::UExpoNew, nullptr},
-            {(uint16_t)ReferenceValueInput::PwrOutVolt, F("PwrOutVolt"), F("Output voltage in power back-up mode"), F("Type: u_real, RW, V, min=20.50, max=26.50, default=23.00"), DataType::UReal, nullptr},
-            {(uint16_t)ReferenceValueInput::PwrOutThrs, F("PwrOutThrs"), F("Power threshold from which the voltage is output from P733"), F("Type: u_integer, RW, W, min=15, max=150, default=20"), DataType::UInteger, nullptr},
-            {(uint16_t)ReferenceValueInput::PrsSn1Name, F("PrsSn1Name"), F("Name sensor 1"), F("Type: string6, R"), DataType::String6, nullptr},
-            {(uint16_t)ReferenceValueInput::Pressure1, F("Pressure1"), F("Pressure value 1"), F("Type: u_expo_new, RW, hPa"), DataType::UExpoNew, nullptr},
-            {(uint16_t)ReferenceValueInput::PrsCorrPi1, F("PrsCorrPi1"), F("Correction factor 1"), F("Type: u_real, RW, min=0.1, max=8.0, default=0"), DataType::UReal, nullptr},
-            {(uint16_t)ReferenceValueInput::PrsSn2Name, F("PrsSn2Name"), F("Name sensor 2"), F("Type: string6, R"), DataType::String6, nullptr},
-            {(uint16_t)ReferenceValueInput::Pressure2, F("Pressure2"), F("Pressure value 2"), F("Type: u_expo_new, RW, hPa"), DataType::UExpoNew, nullptr},
-            {(uint16_t)ReferenceValueInput::PrsCorrPi2, F("PrsCorrPi2"), F("Correction factor 2"), F("Type: u_real, RW, min=0.1, max=8.0, default=0"), DataType::UReal, nullptr},
-            {(uint16_t)ReferenceValueInput::NomSpdConf, F("NomSpdConf"), F("Confirmation of nominal rotation speed"), F("Type: u_integer, RW, Hz, min=0, max=1500, default=0"), DataType::UInteger, nullptr},
-            {(uint16_t)ReferenceValueInput::RS485Adr, F("RS485Adr"), F("RS-485 Interface address"), F("Type: u_integer, RW, min=1, max=255, default=1"), DataType::UInteger, nullptr},
-            // Additional Parameters
-            {(uint16_t)AdditionalParams::Pressure, F("Pressure"), F("Actual pressure value (ActiveLine)"), F("Type: u_short_int, R, hPa, min=1e-10, max=1e3"), DataType::UShortInt, nullptr},
-            {(uint16_t)AdditionalParams::CtrName, F("CtrName"), F("Control unit type"), F("Type: string6, R"), DataType::String6, nullptr},
-            {(uint16_t)AdditionalParams::CtrSoftware, F("CtrSoftware"), F("Control unit software version"), F("Type: string6, R"), DataType::String6, nullptr},
-            {(uint16_t)AdditionalParams::GaugeType, F("GaugeType"), F("Type of pressure gauge"), F("Type: string6, RW"), DataType::String6, nullptr},
-            {(uint16_t)AdditionalParams::ParamSet, F("ParamSet"), F("Parameter set"), F("FuncOnOff, Values: Basic=0, Extended=1, Type: u_short_int, RW, min=0, max=1, default=0"), DataType::UShortInt, nullptr},
-            {(uint16_t)AdditionalParams::Servicelin, F("Servicelin"), F("Insert service line"), F("Type: u_short_int, RW, default=795"), DataType::UShortInt, nullptr}};
+    // debug entries
 
+    // ControlCommand::Heating debug strings
+    const char debug_Heating_name[] PROGMEM = "Heating";
+    const char debug_Heating_sdesc[] PROGMEM = "Heating";
+    const char debug_Heating_ldesc[] PROGMEM = "FuncOnOff, Values: Off=0, On=1, Type: boolean_old, RW, min=0, max=1, default=0";
+
+    // ControlCommand::StandBy debug strings
+    const char debug_StandBy_name[] PROGMEM = "StandBy";
+    const char debug_StandBy_sdesc[] PROGMEM = "Stand-by";
+    const char debug_StandBy_ldesc[] PROGMEM = "FuncOnOff, Values: Off=0, On=1, Type: boolean_old, RW, min=0, max=1, default=0";
+
+    // ControlCommand::RUTimeCtrl debug strings
+    const char debug_RUTimeCtrl_name[] PROGMEM = "RUTimeCtrl";
+    const char debug_RUTimeCtrl_sdesc[] PROGMEM = "Run-up time monitoring";
+    const char debug_RUTimeCtrl_ldesc[] PROGMEM = "FuncOnOff, Values: Off=0, On=1, Type: boolean_old, RW, min=0, max=1, default=1";
+
+    // ControlCommand::ErrorAckn debug strings
+    const char debug_ErrorAckn_name[] PROGMEM = "ErrorAckn";
+    const char debug_ErrorAckn_sdesc[] PROGMEM = "Malfunction acknowledgement";
+    const char debug_ErrorAckn_ldesc[] PROGMEM = "FuncMalfunctionAckn, Values: Acknowledge=1, Type: boolean_old, W, min=1, max=1";
+
+    // ControlCommand::PumpgStatn debug strings
+    const char debug_PumpgStatn_name[] PROGMEM = "PumpgStatn";
+    const char debug_PumpgStatn_sdesc[] PROGMEM = "Pumping station";
+    const char debug_PumpgStatn_ldesc[] PROGMEM = "FuncPumpingStation, Values: Off=0, OnAndAckn=1, Type: boolean_old, RW, min=0, max=1, default=0";
+
+    // ControlCommand::EnableVent debug strings
+    const char debug_EnableVent_name[] PROGMEM = "EnableVent";
+    const char debug_EnableVent_sdesc[] PROGMEM = "Enable venting";
+    const char debug_EnableVent_ldesc[] PROGMEM = "FuncYesNo, Values: No=0, Yes=1, Type: boolean_old, RW, min=0, max=1, default=0";
+
+    // ControlCommand::CfgSpdSwPt debug strings
+    const char debug_CfgSpdSwPt_name[] PROGMEM = "CfgSpdSwPt";
+    const char debug_CfgSpdSwPt_sdesc[] PROGMEM = "Rotation speed switchpoint configuration";
+    const char debug_CfgSpdSwPt_ldesc[] PROGMEM = "FuncRotationSwitchpointCfg, Values: Switchpoint1=0, Switchpoints1And2=1, Type: u_short_int, RW, min=0, max=1, default=0";
+
+    // ControlCommand::CfgDO2 debug strings
+    const char debug_CfgDO2_name[] PROGMEM = "CfgDO2";
+    const char debug_CfgDO2_sdesc[] PROGMEM = "Output DO2 configuration";
+    const char debug_CfgDO2_ldesc[] PROGMEM = "FuncOutputDO2Cfg, Type: u_short_int, RW, min=0, max=22, default=1";
+
+    // ControlCommand::MotorPump debug strings
+    const char debug_MotorPump_name[] PROGMEM = "MotorPump";
+    const char debug_MotorPump_sdesc[] PROGMEM = "Motor pump";
+    const char debug_MotorPump_ldesc[] PROGMEM = "FuncOnOff, Values: Off=0, On=1, Type: boolean_old, RW, min=0, max=1, default=1";
+
+    // ControlCommand::CfgDO1 debug strings
+    const char debug_CfgDO1_name[] PROGMEM = "CfgDO1";
+    const char debug_CfgDO1_sdesc[] PROGMEM = "Output DO1 configuration";
+    const char debug_CfgDO1_ldesc[] PROGMEM = "FuncOutputDO1Cfg, Type: u_short_int, RW, min=0, max=22, default=0";
+
+    // ControlCommand::OpModeBKP debug strings
+    const char debug_OpModeBKP_name[] PROGMEM = "OpModeBKP";
+    const char debug_OpModeBKP_sdesc[] PROGMEM = "Backing pump operating mode";
+    const char debug_OpModeBKP_ldesc[] PROGMEM = "FuncBackingPumpOpMode, Values: Continuous=0, Intermittent=1, DelayedOn=2, DelayedInterval=3, Type: u_short_int, RW, min=0, max=3, default=0";
+
+    // ControlCommand::SpdSetMode debug strings
+    const char debug_SpdSetMode_name[] PROGMEM = "SpdSetMode";
+    const char debug_SpdSetMode_sdesc[] PROGMEM = "Rotation speed setting mode";
+    const char debug_SpdSetMode_ldesc[] PROGMEM = "FuncOnOff, Values: Off=0, On=1, Type: u_short_int, RW, min=0, max=1, default=0";
+
+    // ControlCommand::GasMode debug strings
+    const char debug_GasMode_name[] PROGMEM = "GasMode";
+    const char debug_GasMode_sdesc[] PROGMEM = "Gas mode";
+    const char debug_GasMode_ldesc[] PROGMEM = "FuncGasMode, Values: HeavyGases=0, LightGases=1, Helium=2, Type: u_short_int, RW, min=0, max=2, default=0";
+
+    // ControlCommand::VentMode debug strings
+    const char debug_VentMode_name[] PROGMEM = "VentMode";
+    const char debug_VentMode_sdesc[] PROGMEM = "Venting mode";
+    const char debug_VentMode_ldesc[] PROGMEM = "FuncVentMode, Values: DelayedVenting=0, NoVenting=1, DirectVenting=2, Type: u_short_int, RW, min=0, max=2, default=2";
+
+    // ControlCommand::CfgAccA1 debug strings
+    const char debug_CfgAccA1_name[] PROGMEM = "CfgAccA1";
+    const char debug_CfgAccA1_sdesc[] PROGMEM = "Configuration accessory connection A1";
+    const char debug_CfgAccA1_ldesc[] PROGMEM = "FuncAccA1Cfg, Type: u_short_int, RW, min=0, max=13, default=0";
+
+    // ControlCommand::CfgAccB1 debug strings
+    const char debug_CfgAccB1_name[] PROGMEM = "CfgAccB1";
+    const char debug_CfgAccB1_sdesc[] PROGMEM = "Configuration accessory connection B1";
+    const char debug_CfgAccB1_ldesc[] PROGMEM = "FuncAccB1Cfg, Type: u_short_int, RW, min=0, max=13, default=1";
+
+    // ControlCommand::Press1HVen debug strings
+    const char debug_Press1HVen_name[] PROGMEM = "Press1HVen";
+    const char debug_Press1HVen_sdesc[] PROGMEM = "Release HV sensor integrated";
+    const char debug_Press1HVen_ldesc[] PROGMEM = "FuncPress1HVen, Values: Off=0, On=1, OnWithRotSpdSwitchpoint=2, OnWithPressureSwitchNotReached=3, Type: u_short_int, RW, min=0, max=3, default=2";
+
+    // ControlCommand::SealingGas debug strings
+    const char debug_SealingGas_name[] PROGMEM = "SealingGas";
+    const char debug_SealingGas_sdesc[] PROGMEM = "Sealing gas";
+    const char debug_SealingGas_ldesc[] PROGMEM = "FuncOnOff, Values: Off=0, On=1, Type: boolean_old, RW, min=0, max=1, default=0";
+
+    // ControlCommand::CfgAO1 debug strings
+    const char debug_CfgAO1_name[] PROGMEM = "CfgAO1";
+    const char debug_CfgAO1_sdesc[] PROGMEM = "Output AO1 configuration";
+    const char debug_CfgAO1_ldesc[] PROGMEM = "FuncOutputAO1Cfg, Type: u_short_int, RW, min=0, max=8, default=0";
+
+    // ControlCommand::TmpMgtMode debug strings
+    const char debug_TmpMgtMode_name[] PROGMEM = "TmpMgtMode";
+    const char debug_TmpMgtMode_sdesc[] PROGMEM = "Temperature management configuration";
+    const char debug_TmpMgtMode_ldesc[] PROGMEM = "FuncTmpMgtMode, Values: PumpTempLEQ60C=0, PumpTempLEQ80C=1, PowerCharacteristic=2, Type: u_short_int, RW, min=0, max=2, default=0";
+
+    // ControlCommand::CtrlVialnt debug strings
+    const char debug_CtrlVialnt_name[] PROGMEM = "CtrlVialnt";
+    const char debug_CtrlVialnt_sdesc[] PROGMEM = "Operate via interface";
+    const char debug_CtrlVialnt_ldesc[] PROGMEM = "FuncCtrlVialnt, Values: Remote=1, RS485=2, PVCAN=4, UnlockInterfaceSelection=255, Type: u_short_int, RW, min=1, max=255, default=1";
+
+    // ControlCommand::IntSelLckd debug strings
+    const char debug_IntSelLckd_name[] PROGMEM = "IntSelLckd";
+    const char debug_IntSelLckd_sdesc[] PROGMEM = "Interface selection locked";
+    const char debug_IntSelLckd_ldesc[] PROGMEM = "FuncOnOff, Values: Off=0, On=1, Type: boolean_old, RW, min=0, max=1, default=0";
+
+    // ControlCommand::CfgDI1 debug strings
+    const char debug_CfgDI1_name[] PROGMEM = "CfgDI1";
+    const char debug_CfgDI1_sdesc[] PROGMEM = "Input DI1 configuration";
+    const char debug_CfgDI1_ldesc[] PROGMEM = "FuncDI1Cfg, Type: u_short_int, RW, min=0, max=7, default=1";
+
+    // ControlCommand::CfgD12 debug strings
+    const char debug_CfgD12_name[] PROGMEM = "CfgD12";
+    const char debug_CfgD12_sdesc[] PROGMEM = "Input D12 configuration";
+    const char debug_CfgD12_ldesc[] PROGMEM = "FuncDI2Cfg, Type: u_short_int, RW, min=0, max=7, default=2";
+
+    // ControlCommand::CfgAccC1 debug strings
+    const char debug_CfgAccC1_name[] PROGMEM = "CfgAccC1";
+    const char debug_CfgAccC1_sdesc[] PROGMEM = "Configuration accessory connection C1";
+    const char debug_CfgAccC1_ldesc[] PROGMEM = "FuncAccC1Cfg, Type: u_short_int, RW, min=0, max=13, default=0";
+
+    // ControlCommand::CfgAccD1 debug strings
+    const char debug_CfgAccD1_name[] PROGMEM = "CfgAccD1";
+    const char debug_CfgAccD1_sdesc[] PROGMEM = "Configuration accessory connection D1";
+    const char debug_CfgAccD1_ldesc[] PROGMEM = "FuncAccD1Cfg, Type: u_short_int, RW, min=0, max=13, default=0";
+
+    // StatusRequest::RemotePrio debug strings
+    const char debug_RemotePrio_name[] PROGMEM = "RemotePrio";
+    const char debug_RemotePrio_sdesc[] PROGMEM = "Remote priority";
+    const char debug_RemotePrio_ldesc[] PROGMEM = "Type: boolean_old, R, min=0, max=1";
+
+    // StatusRequest::SpdSwPtAtt debug strings
+    const char debug_SpdSwPtAtt_name[] PROGMEM = "SpdSwPtAtt";
+    const char debug_SpdSwPtAtt_sdesc[] PROGMEM = "Rotation speed switchpoint reached";
+    const char debug_SpdSwPtAtt_ldesc[] PROGMEM = "Type: boolean_old, R, min=0, max=1";
+
+    // StatusRequest::ErrorCode debug strings
+    const char debug_ErrorCode_name[] PROGMEM = "ErrorCode";
+    const char debug_ErrorCode_sdesc[] PROGMEM = "Error code";
+    const char debug_ErrorCode_ldesc[] PROGMEM = "Type: string6, R";
+
+    // StatusRequest::OvTempElec debug strings
+    const char debug_OvTempElec_name[] PROGMEM = "OvTempElec";
+    const char debug_OvTempElec_sdesc[] PROGMEM = "Excess temperature drive electronics";
+    const char debug_OvTempElec_ldesc[] PROGMEM = "Type: boolean_old, R, min=0, max=1";
+
+    // StatusRequest::OvTempPump debug strings
+    const char debug_OvTempPump_name[] PROGMEM = "OvTempPump";
+    const char debug_OvTempPump_sdesc[] PROGMEM = "Excess temperature pump";
+    const char debug_OvTempPump_ldesc[] PROGMEM = "Type: boolean_old, R, min=0, max=1";
+
+    // StatusRequest::SetSpdAtt debug strings
+    const char debug_SetSpdAtt_name[] PROGMEM = "SetSpdAtt";
+    const char debug_SetSpdAtt_sdesc[] PROGMEM = "Set rotation speed reached";
+    const char debug_SetSpdAtt_ldesc[] PROGMEM = "Type: boolean_old, R, min=0, max=1";
+
+    // StatusRequest::PumpAccel debug strings
+    const char debug_PumpAccel_name[] PROGMEM = "PumpAccel";
+    const char debug_PumpAccel_sdesc[] PROGMEM = "Pump accelerating";
+    const char debug_PumpAccel_ldesc[] PROGMEM = "Type: boolean_old, R, min=0, max=1";
+
+    // StatusRequest::SetRotSpdHz debug strings
+    const char debug_SetRotSpdHz_name[] PROGMEM = "SetRotSpdHz";
+    const char debug_SetRotSpdHz_sdesc[] PROGMEM = "Set rotation speed (Hz)";
+    const char debug_SetRotSpdHz_ldesc[] PROGMEM = "Type: u_integer, R, Hz, min=0, max=999999";
+
+    // StatusRequest::ActualSpdHz debug strings
+    const char debug_ActualSpdHz_name[] PROGMEM = "ActualSpdHz";
+    const char debug_ActualSpdHz_sdesc[] PROGMEM = "Actual rotational speed (Hz)";
+    const char debug_ActualSpdHz_ldesc[] PROGMEM = "Type: u_integer, R, Hz, min=0, max=999999";
+
+    // StatusRequest::DrvCurrent debug strings
+    const char debug_DrvCurrent_name[] PROGMEM = "DrvCurrent";
+    const char debug_DrvCurrent_sdesc[] PROGMEM = "Drive current";
+    const char debug_DrvCurrent_ldesc[] PROGMEM = "Type: u_real, R, A, min=0, max=9999.99";
+
+    // StatusRequest::OpHrsPump debug strings
+    const char debug_OpHrsPump_name[] PROGMEM = "OpHrsPump";
+    const char debug_OpHrsPump_sdesc[] PROGMEM = "Pump operating hours";
+    const char debug_OpHrsPump_ldesc[] PROGMEM = "Type: u_integer, R, h, min=0, max=65535";
+
+    // StatusRequest::FwVersion debug strings
+    const char debug_FwVersion_name[] PROGMEM = "FwVersion";
+    const char debug_FwVersion_sdesc[] PROGMEM = "Drive electronics software version";
+    const char debug_FwVersion_ldesc[] PROGMEM = "Type: string6, R";
+
+    // StatusRequest::DrvVoltage debug strings
+    const char debug_DrvVoltage_name[] PROGMEM = "DrvVoltage";
+    const char debug_DrvVoltage_sdesc[] PROGMEM = "Drive voltage";
+    const char debug_DrvVoltage_ldesc[] PROGMEM = "Type: u_real, R, V, min=0, max=9999.99";
+
+    // StatusRequest::OpHrsElec debug strings
+    const char debug_OpHrsElec_name[] PROGMEM = "OpHrsElec";
+    const char debug_OpHrsElec_sdesc[] PROGMEM = "Drive electronics operating hours";
+    const char debug_OpHrsElec_ldesc[] PROGMEM = "Type: u_integer, R, h, min=0, max=65535";
+
+    // StatusRequest::NominalSpdHz debug strings
+    const char debug_NominalSpdHz_name[] PROGMEM = "NominalSpdHz";
+    const char debug_NominalSpdHz_sdesc[] PROGMEM = "Nominal rotation speed (Hz)";
+    const char debug_NominalSpdHz_ldesc[] PROGMEM = "Type: u_integer, R, Hz, min=0, max=999999";
+
+    // StatusRequest::DrvPower debug strings
+    const char debug_DrvPower_name[] PROGMEM = "DrvPower";
+    const char debug_DrvPower_sdesc[] PROGMEM = "Drive power";
+    const char debug_DrvPower_ldesc[] PROGMEM = "Type: u_integer, R, W, min=0, max=999999";
+
+    // StatusRequest::PumpCycles debug strings
+    const char debug_PumpCycles_name[] PROGMEM = "PumpCycles";
+    const char debug_PumpCycles_sdesc[] PROGMEM = "Pump cycles";
+    const char debug_PumpCycles_ldesc[] PROGMEM = "Type: u_integer, R, min=0, max=65535";
+
+    // StatusRequest::TmpPwrStg debug strings
+    const char debug_TmpPwrStg_name[] PROGMEM = "TmpPwrStg";
+    const char debug_TmpPwrStg_sdesc[] PROGMEM = "Temperature power stage";
+    const char debug_TmpPwrStg_ldesc[] PROGMEM = "Type: u_integer, R, °C, min=0, max=999999";
+
+    // StatusRequest::TempElec debug strings
+    const char debug_TempElec_name[] PROGMEM = "TempElec";
+    const char debug_TempElec_sdesc[] PROGMEM = "Electronics temperature";
+    const char debug_TempElec_ldesc[] PROGMEM = "Type: u_integer, R, °C, min=0, max=999999";
+
+    // StatusRequest::TempPmpBot debug strings
+    const char debug_TempPmpBot_name[] PROGMEM = "TempPmpBot";
+    const char debug_TempPmpBot_sdesc[] PROGMEM = "Pump lower part temperature";
+    const char debug_TempPmpBot_ldesc[] PROGMEM = "Type: u_integer, R, °C, min=0, max=999999";
+
+    // StatusRequest::AccelDecel debug strings
+    const char debug_AccelDecel_name[] PROGMEM = "AccelDecel";
+    const char debug_AccelDecel_sdesc[] PROGMEM = "Acceleration/deceleration";
+    const char debug_AccelDecel_ldesc[] PROGMEM = "Type: u_integer, R, rpm/s, min=0, max=999999";
+
+    // StatusRequest::ElecName debug strings
+    const char debug_ElecName_name[] PROGMEM = "ElecName";
+    const char debug_ElecName_sdesc[] PROGMEM = "Electronic drive unit designation";
+    const char debug_ElecName_ldesc[] PROGMEM = "Type: string6, R";
+
+    // StatusRequest::HWVersion debug strings
+    const char debug_HWVersion_name[] PROGMEM = "HWVersion";
+    const char debug_HWVersion_sdesc[] PROGMEM = "Hardware version drive electronics";
+    const char debug_HWVersion_ldesc[] PROGMEM = "Type: string6, R";
+
+    // StatusRequest::SerialNo debug strings
+    const char debug_SerialNo_name[] PROGMEM = "SerialNo";
+    const char debug_SerialNo_sdesc[] PROGMEM = "Serial number";
+    const char debug_SerialNo_ldesc[] PROGMEM = "Type: string16, R";
+
+    // StatusRequest::ErrHist1 debug strings
+    const char debug_ErrHist1_name[] PROGMEM = "ErrHist1";
+    const char debug_ErrHist1_sdesc[] PROGMEM = "Error code history, item 1";
+    const char debug_ErrHist1_ldesc[] PROGMEM = "Type: string6, R";
+
+    // StatusRequest::ErrHist2 debug strings
+    const char debug_ErrHist2_name[] PROGMEM = "ErrHist2";
+    const char debug_ErrHist2_sdesc[] PROGMEM = "Error code history, item 2";
+    const char debug_ErrHist2_ldesc[] PROGMEM = "Type: string6, R";
+
+    // StatusRequest::ErrHist3 debug strings
+    const char debug_ErrHist3_name[] PROGMEM = "ErrHist3";
+    const char debug_ErrHist3_sdesc[] PROGMEM = "Error code history, item 3";
+    const char debug_ErrHist3_ldesc[] PROGMEM = "Type: string6, R";
+
+    // StatusRequest::ErrHist4 debug strings
+    const char debug_ErrHist4_name[] PROGMEM = "ErrHist4";
+    const char debug_ErrHist4_sdesc[] PROGMEM = "Error code history, item 4";
+    const char debug_ErrHist4_ldesc[] PROGMEM = "Type: string6, R";
+
+    // StatusRequest::ErrHist5 debug strings
+    const char debug_ErrHist5_name[] PROGMEM = "ErrHist5";
+    const char debug_ErrHist5_sdesc[] PROGMEM = "Error code history, item 5";
+    const char debug_ErrHist5_ldesc[] PROGMEM = "Type: string6, R";
+
+    // StatusRequest::ErrHist6 debug strings
+    const char debug_ErrHist6_name[] PROGMEM = "ErrHist6";
+    const char debug_ErrHist6_sdesc[] PROGMEM = "Error code history, item 6";
+    const char debug_ErrHist6_ldesc[] PROGMEM = "Type: string6, R";
+
+    // StatusRequest::ErrHist7 debug strings
+    const char debug_ErrHist7_name[] PROGMEM = "ErrHist7";
+    const char debug_ErrHist7_sdesc[] PROGMEM = "Error code history, item 7";
+    const char debug_ErrHist7_ldesc[] PROGMEM = "Type: string6, R";
+
+    // StatusRequest::ErrHist8 debug strings
+    const char debug_ErrHist8_name[] PROGMEM = "ErrHist8";
+    const char debug_ErrHist8_sdesc[] PROGMEM = "Error code history, item 8";
+    const char debug_ErrHist8_ldesc[] PROGMEM = "Type: string6, R";
+
+    // StatusRequest::ErrHist9 debug strings
+    const char debug_ErrHist9_name[] PROGMEM = "ErrHist9";
+    const char debug_ErrHist9_sdesc[] PROGMEM = "Error code history, item 9";
+    const char debug_ErrHist9_ldesc[] PROGMEM = "Type: string6, R";
+
+    // StatusRequest::ErrHist10 debug strings
+    const char debug_ErrHist10_name[] PROGMEM = "ErrHist10";
+    const char debug_ErrHist10_sdesc[] PROGMEM = "Error code history, item 10";
+    const char debug_ErrHist10_ldesc[] PROGMEM = "Type: string6, R";
+
+    // StatusRequest::TempRotor debug strings
+    const char debug_TempRotor_name[] PROGMEM = "TempRotor";
+    const char debug_TempRotor_sdesc[] PROGMEM = "Rotor temperature";
+    const char debug_TempRotor_ldesc[] PROGMEM = "Type: u_integer, R, °C, min=0, max=999999";
+
+    // StatusRequest::OrderCode debug strings
+    const char debug_OrderCode_name[] PROGMEM = "OrderCode";
+    const char debug_OrderCode_sdesc[] PROGMEM = "Order number";
+    const char debug_OrderCode_ldesc[] PROGMEM = "Type: string16, R";
+
+    // StatusRequest::AddID debug strings
+    const char debug_AddID_name[] PROGMEM = "AddID";
+    const char debug_AddID_sdesc[] PROGMEM = "Pump ID";
+    const char debug_AddID_ldesc[] PROGMEM = "Type: u_integer, R";
+
+    // StatusRequest::SetRotSpdRpm debug strings
+    const char debug_SetRotSpdRpm_name[] PROGMEM = "SetRotSpdRpm";
+    const char debug_SetRotSpdRpm_sdesc[] PROGMEM = "Set rotation speed (rpm)";
+    const char debug_SetRotSpdRpm_ldesc[] PROGMEM = "Type: u_integer, R, rpm, min=0, max=999999";
+
+    // StatusRequest::ActualSpdRpm debug strings
+    const char debug_ActualSpdRpm_name[] PROGMEM = "ActualSpdRpm";
+    const char debug_ActualSpdRpm_sdesc[] PROGMEM = "Actual rotational speed (rpm)";
+    const char debug_ActualSpdRpm_ldesc[] PROGMEM = "Type: u_integer, R, rpm, min=0, max=999999";
+
+    // StatusRequest::NominalSpdRpm debug strings
+    const char debug_NominalSpdRpm_name[] PROGMEM = "NominalSpdRpm";
+    const char debug_NominalSpdRpm_sdesc[] PROGMEM = "Nominal rotation speed (rpm)";
+    const char debug_NominalSpdRpm_ldesc[] PROGMEM = "Type: u_integer, R, rpm, min=0, max=999999";
+
+    // ReferenceValueInput::RUTimeSVal debug strings
+    const char debug_RUTimeSVal_name[] PROGMEM = "RUTimeSVal";
+    const char debug_RUTimeSVal_sdesc[] PROGMEM = "Set value run-up time";
+    const char debug_RUTimeSVal_ldesc[] PROGMEM = "Type: u_integer, RW, min=1, max=120, default=8";
+
+    // ReferenceValueInput::SpdSwPt1 debug strings
+    const char debug_SpdSwPt1_name[] PROGMEM = "SpdSwPt1";
+    const char debug_SpdSwPt1_sdesc[] PROGMEM = "Rotation speed switch point 1";
+    const char debug_SpdSwPt1_ldesc[] PROGMEM = "Type: u_integer, RW, %, min=50, max=97, default=80";
+
+    // ReferenceValueInput::SpdSVal debug strings
+    const char debug_SpdSVal_name[] PROGMEM = "SpdSVal";
+    const char debug_SpdSVal_sdesc[] PROGMEM = "Set value in rotation speed setting mode";
+    const char debug_SpdSVal_ldesc[] PROGMEM = "Type: u_real, RW, %, min=20, max=100, default=65";
+
+    // ReferenceValueInput::PwrSVal debug strings
+    const char debug_PwrSVal_name[] PROGMEM = "PwrSVal";
+    const char debug_PwrSVal_sdesc[] PROGMEM = "Set value power consumption";
+    const char debug_PwrSVal_ldesc[] PROGMEM = "Type: u_short_int, RW, %, min=10, max=100, default=100";
+
+    // ReferenceValueInput::SwoffBKP debug strings
+    const char debug_SwoffBKP_name[] PROGMEM = "SwoffBKP";
+    const char debug_SwoffBKP_sdesc[] PROGMEM = "Backing pump switch-off threshold for intermittent operation";
+    const char debug_SwoffBKP_ldesc[] PROGMEM = "Type: u_integer, RW, W, min=0, max=1000, default=0";
+
+    // ReferenceValueInput::SwOnBKP debug strings
+    const char debug_SwOnBKP_name[] PROGMEM = "SwOnBKP";
+    const char debug_SwOnBKP_sdesc[] PROGMEM = "Backing pump switch-on threshold for intermittent operation";
+    const char debug_SwOnBKP_ldesc[] PROGMEM = "Type: u_integer, RW, W, min=0, max=1000, default=0";
+
+    // ReferenceValueInput::StdbySVal debug strings
+    const char debug_StdbySVal_name[] PROGMEM = "StdbySVal";
+    const char debug_StdbySVal_sdesc[] PROGMEM = "Rotation speed set value in stand-by operation";
+    const char debug_StdbySVal_ldesc[] PROGMEM = "Type: u_real, RW, %, min=20, max=100, default=66.7";
+
+    // ReferenceValueInput::SpdSwPt2 debug strings
+    const char debug_SpdSwPt2_name[] PROGMEM = "SpdSwPt2";
+    const char debug_SpdSwPt2_sdesc[] PROGMEM = "Rotation speed switch point 2";
+    const char debug_SpdSwPt2_ldesc[] PROGMEM = "Type: u_integer, RW, %, min=5, max=97, default=20";
+
+    // ReferenceValueInput::VentSpd debug strings
+    const char debug_VentSpd_name[] PROGMEM = "VentSpd";
+    const char debug_VentSpd_sdesc[] PROGMEM = "Venting at rotation speed, delayed venting";
+    const char debug_VentSpd_ldesc[] PROGMEM = "Type: u_short_int, RW, %, min=40, max=98, default=50";
+
+    // ReferenceValueInput::VentTime debug strings
+    const char debug_VentTime_name[] PROGMEM = "VentTime";
+    const char debug_VentTime_sdesc[] PROGMEM = "Venting time, delayed venting";
+    const char debug_VentTime_ldesc[] PROGMEM = "Type: u_integer, RW, s, min=6, max=3600, default=3600";
+
+    // ReferenceValueInput::mxPwrOutTm debug strings
+    const char debug_mxPwrOutTm_name[] PROGMEM = "mxPwrOutTm";
+    const char debug_mxPwrOutTm_sdesc[] PROGMEM = "Max. time for the output voltage in power back-up mode";
+    const char debug_mxPwrOutTm_ldesc[] PROGMEM = "Type: u_integer, RW, s, min=1, max=255, default=10";
+
+    // ReferenceValueInput::fanOnTemp debug strings
+    const char debug_fanOnTemp_name[] PROGMEM = "fanOnTemp";
+    const char debug_fanOnTemp_sdesc[] PROGMEM = "Start-up temperature of the fan in temperature-controlled mode";
+    const char debug_fanOnTemp_ldesc[] PROGMEM = "Type: u_integer, RW, °C, min=6, max=75, default=45";
+
+    // ReferenceValueInput::PrsSwPt1 debug strings
+    const char debug_PrsSwPt1_name[] PROGMEM = "PrsSwPt1";
+    const char debug_PrsSwPt1_sdesc[] PROGMEM = "Pressure switch point 1";
+    const char debug_PrsSwPt1_ldesc[] PROGMEM = "Type: u_expo_new, RW, hPa, default=1000";
+
+    // ReferenceValueInput::PrsSwPt2 debug strings
+    const char debug_PrsSwPt2_name[] PROGMEM = "PrsSwPt2";
+    const char debug_PrsSwPt2_sdesc[] PROGMEM = "Pressure switch point 2";
+    const char debug_PrsSwPt2_ldesc[] PROGMEM = "Type: u_expo_new, RW, hPa, default=1000";
+
+    // ReferenceValueInput::PwrOutVolt debug strings
+    const char debug_PwrOutVolt_name[] PROGMEM = "PwrOutVolt";
+    const char debug_PwrOutVolt_sdesc[] PROGMEM = "Output voltage in power back-up mode";
+    const char debug_PwrOutVolt_ldesc[] PROGMEM = "Type: u_real, RW, V, min=20.50, max=26.50, default=23.00";
+
+    // ReferenceValueInput::PwrOutThrs debug strings
+    const char debug_PwrOutThrs_name[] PROGMEM = "PwrOutThrs";
+    const char debug_PwrOutThrs_sdesc[] PROGMEM = "Power threshold from which the voltage is output from P733";
+    const char debug_PwrOutThrs_ldesc[] PROGMEM = "Type: u_integer, RW, W, min=15, max=150, default=20";
+
+    // ReferenceValueInput::PrsSn1Name debug strings
+    const char debug_PrsSn1Name_name[] PROGMEM = "PrsSn1Name";
+    const char debug_PrsSn1Name_sdesc[] PROGMEM = "Name sensor 1";
+    const char debug_PrsSn1Name_ldesc[] PROGMEM = "Type: string6, R";
+
+    // ReferenceValueInput::Pressure1 debug strings
+    const char debug_Pressure1_name[] PROGMEM = "Pressure1";
+    const char debug_Pressure1_sdesc[] PROGMEM = "Pressure value 1";
+    const char debug_Pressure1_ldesc[] PROGMEM = "Type: u_expo_new, RW, hPa";
+
+    // ReferenceValueInput::PrsCorrPi1 debug strings
+    const char debug_PrsCorrPi1_name[] PROGMEM = "PrsCorrPi1";
+    const char debug_PrsCorrPi1_sdesc[] PROGMEM = "Correction factor 1";
+    const char debug_PrsCorrPi1_ldesc[] PROGMEM = "Type: u_real, RW, min=0.1, max=8.0, default=0";
+
+    // ReferenceValueInput::PrsSn2Name debug strings
+    const char debug_PrsSn2Name_name[] PROGMEM = "PrsSn2Name";
+    const char debug_PrsSn2Name_sdesc[] PROGMEM = "Name sensor 2";
+    const char debug_PrsSn2Name_ldesc[] PROGMEM = "Type: string6, R";
+
+    // ReferenceValueInput::Pressure2 debug strings
+    const char debug_Pressure2_name[] PROGMEM = "Pressure2";
+    const char debug_Pressure2_sdesc[] PROGMEM = "Pressure value 2";
+    const char debug_Pressure2_ldesc[] PROGMEM = "Type: u_expo_new, RW, hPa";
+
+    // ReferenceValueInput::PrsCorrPi2 debug strings
+    const char debug_PrsCorrPi2_name[] PROGMEM = "PrsCorrPi2";
+    const char debug_PrsCorrPi2_sdesc[] PROGMEM = "Correction factor 2";
+    const char debug_PrsCorrPi2_ldesc[] PROGMEM = "Type: u_real, RW, min=0.1, max=8.0, default=0";
+
+    // ReferenceValueInput::NomSpdConf debug strings
+    const char debug_NomSpdConf_name[] PROGMEM = "NomSpdConf";
+    const char debug_NomSpdConf_sdesc[] PROGMEM = "Confirmation of nominal rotation speed";
+    const char debug_NomSpdConf_ldesc[] PROGMEM = "Type: u_integer, RW, Hz, min=0, max=1500, default=0";
+
+    // ReferenceValueInput::RS485Adr debug strings
+    const char debug_RS485Adr_name[] PROGMEM = "RS485Adr";
+    const char debug_RS485Adr_sdesc[] PROGMEM = "RS-485 Interface address";
+    const char debug_RS485Adr_ldesc[] PROGMEM = "Type: u_integer, RW, min=1, max=255, default=1";
+
+    // AdditionalParams::Pressure debug strings
+    const char debug_Pressure_name[] PROGMEM = "Pressure";
+    const char debug_Pressure_sdesc[] PROGMEM = "Actual pressure value (ActiveLine)";
+    const char debug_Pressure_ldesc[] PROGMEM = "Type: u_short_int, R, hPa, min=1e-10, max=1e3";
+
+    // AdditionalParams::CtrName debug strings
+    const char debug_CtrName_name[] PROGMEM = "CtrName";
+    const char debug_CtrName_sdesc[] PROGMEM = "Control unit type";
+    const char debug_CtrName_ldesc[] PROGMEM = "Type: string6, R";
+
+    // AdditionalParams::CtrSoftware debug strings
+    const char debug_CtrSoftware_name[] PROGMEM = "CtrSoftware";
+    const char debug_CtrSoftware_sdesc[] PROGMEM = "Control unit software version";
+    const char debug_CtrSoftware_ldesc[] PROGMEM = "Type: string6, R";
+
+    // AdditionalParams::GaugeType debug strings
+    const char debug_GaugeType_name[] PROGMEM = "GaugeType";
+    const char debug_GaugeType_sdesc[] PROGMEM = "Type of pressure gauge";
+    const char debug_GaugeType_ldesc[] PROGMEM = "Type: string6, RW";
+
+    // AdditionalParams::ParamSet debug strings
+    const char debug_ParamSet_name[] PROGMEM = "ParamSet";
+    const char debug_ParamSet_sdesc[] PROGMEM = "Parameter set";
+    const char debug_ParamSet_ldesc[] PROGMEM = "FuncOnOff, Values: Basic=0, Extended=1, Type: u_short_int, RW, min=0, max=1, default=0";
+
+    // AdditionalParams::Servicelin debug strings
+    const char debug_Servicelin_name[] PROGMEM = "Servicelin";
+    const char debug_Servicelin_sdesc[] PROGMEM = "Insert service line";
+    const char debug_Servicelin_ldesc[] PROGMEM = "Type: u_short_int, RW, default=795";
+
+    // Static array of all parameters, sorted by number
+    static const ParameterDebugEntry ParameterDebugMap[] PROGMEM = {
+        // Control Commands
+        {(uint16_t)ControlCommand::Heating, reinterpret_cast<const __FlashStringHelper *>(debug_Heating_name), reinterpret_cast<const __FlashStringHelper *>(debug_Heating_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_Heating_ldesc), DataType::BooleanOld, lookupFuncOnOff},
+        {(uint16_t)ControlCommand::StandBy, reinterpret_cast<const __FlashStringHelper *>(debug_StandBy_name), reinterpret_cast<const __FlashStringHelper *>(debug_StandBy_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_StandBy_ldesc), DataType::BooleanOld, lookupFuncOnOff},
+        {(uint16_t)ControlCommand::RUTimeCtrl, reinterpret_cast<const __FlashStringHelper *>(debug_RUTimeCtrl_name), reinterpret_cast<const __FlashStringHelper *>(debug_RUTimeCtrl_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_RUTimeCtrl_ldesc), DataType::BooleanOld, lookupFuncOnOff},
+        {(uint16_t)ControlCommand::ErrorAckn, reinterpret_cast<const __FlashStringHelper *>(debug_ErrorAckn_name), reinterpret_cast<const __FlashStringHelper *>(debug_ErrorAckn_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_ErrorAckn_ldesc), DataType::BooleanOld, lookupFuncMalfunctionAckn},
+        {(uint16_t)ControlCommand::PumpgStatn, reinterpret_cast<const __FlashStringHelper *>(debug_PumpgStatn_name), reinterpret_cast<const __FlashStringHelper *>(debug_PumpgStatn_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_PumpgStatn_ldesc), DataType::BooleanOld, lookupFuncPumpingStation},
+        {(uint16_t)ControlCommand::EnableVent, reinterpret_cast<const __FlashStringHelper *>(debug_EnableVent_name), reinterpret_cast<const __FlashStringHelper *>(debug_EnableVent_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_EnableVent_ldesc), DataType::BooleanOld, lookupFuncYesNo},
+        {(uint16_t)ControlCommand::CfgSpdSwPt, reinterpret_cast<const __FlashStringHelper *>(debug_CfgSpdSwPt_name), reinterpret_cast<const __FlashStringHelper *>(debug_CfgSpdSwPt_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_CfgSpdSwPt_ldesc), DataType::UShortInt, lookupFuncRotationSwitchpointCfg},
+        {(uint16_t)ControlCommand::CfgDO2, reinterpret_cast<const __FlashStringHelper *>(debug_CfgDO2_name), reinterpret_cast<const __FlashStringHelper *>(debug_CfgDO2_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_CfgDO2_ldesc), DataType::UShortInt, lookupFuncOutputDO2Cfg},
+        {(uint16_t)ControlCommand::MotorPump, reinterpret_cast<const __FlashStringHelper *>(debug_MotorPump_name), reinterpret_cast<const __FlashStringHelper *>(debug_MotorPump_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_MotorPump_ldesc), DataType::BooleanOld, lookupFuncOnOff},
+        {(uint16_t)ControlCommand::CfgDO1, reinterpret_cast<const __FlashStringHelper *>(debug_CfgDO1_name), reinterpret_cast<const __FlashStringHelper *>(debug_CfgDO1_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_CfgDO1_ldesc), DataType::UShortInt, lookupFuncOutputDO2Cfg},
+        {(uint16_t)ControlCommand::OpModeBKP, reinterpret_cast<const __FlashStringHelper *>(debug_OpModeBKP_name), reinterpret_cast<const __FlashStringHelper *>(debug_OpModeBKP_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_OpModeBKP_ldesc), DataType::UShortInt, lookupFuncBackingPumpOpMode},
+        {(uint16_t)ControlCommand::SpdSetMode, reinterpret_cast<const __FlashStringHelper *>(debug_SpdSetMode_name), reinterpret_cast<const __FlashStringHelper *>(debug_SpdSetMode_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_SpdSetMode_ldesc), DataType::UShortInt, lookupFuncOnOff},
+        {(uint16_t)ControlCommand::GasMode, reinterpret_cast<const __FlashStringHelper *>(debug_GasMode_name), reinterpret_cast<const __FlashStringHelper *>(debug_GasMode_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_GasMode_ldesc), DataType::UShortInt, lookupFuncGasMode},
+        {(uint16_t)ControlCommand::VentMode, reinterpret_cast<const __FlashStringHelper *>(debug_VentMode_name), reinterpret_cast<const __FlashStringHelper *>(debug_VentMode_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_VentMode_ldesc), DataType::UShortInt, lookupFuncVentMode},
+        {(uint16_t)ControlCommand::CfgAccA1, reinterpret_cast<const __FlashStringHelper *>(debug_CfgAccA1_name), reinterpret_cast<const __FlashStringHelper *>(debug_CfgAccA1_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_CfgAccA1_ldesc), DataType::UShortInt, lookupFuncAccA1Cfg},
+        {(uint16_t)ControlCommand::CfgAccB1, reinterpret_cast<const __FlashStringHelper *>(debug_CfgAccB1_name), reinterpret_cast<const __FlashStringHelper *>(debug_CfgAccB1_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_CfgAccB1_ldesc), DataType::UShortInt, lookupFuncAccA1Cfg},
+        {(uint16_t)ControlCommand::Press1HVen, reinterpret_cast<const __FlashStringHelper *>(debug_Press1HVen_name), reinterpret_cast<const __FlashStringHelper *>(debug_Press1HVen_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_Press1HVen_ldesc), DataType::UShortInt, lookupFuncPress1HVen},
+        {(uint16_t)ControlCommand::SealingGas, reinterpret_cast<const __FlashStringHelper *>(debug_SealingGas_name), reinterpret_cast<const __FlashStringHelper *>(debug_SealingGas_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_SealingGas_ldesc), DataType::BooleanOld, lookupFuncOnOff},
+        {(uint16_t)ControlCommand::CfgAO1, reinterpret_cast<const __FlashStringHelper *>(debug_CfgAO1_name), reinterpret_cast<const __FlashStringHelper *>(debug_CfgAO1_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_CfgAO1_ldesc), DataType::UShortInt, lookupFuncOutputAO1Cfg},
+        {(uint16_t)ControlCommand::TmpMgtMode, reinterpret_cast<const __FlashStringHelper *>(debug_TmpMgtMode_name), reinterpret_cast<const __FlashStringHelper *>(debug_TmpMgtMode_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_TmpMgtMode_ldesc), DataType::UShortInt, lookupFuncTmpMgtMode},
+        {(uint16_t)ControlCommand::CtrlVialnt, reinterpret_cast<const __FlashStringHelper *>(debug_CtrlVialnt_name), reinterpret_cast<const __FlashStringHelper *>(debug_CtrlVialnt_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_CtrlVialnt_ldesc), DataType::UShortInt, lookupFuncCtrlVialnt},
+        {(uint16_t)ControlCommand::IntSelLckd, reinterpret_cast<const __FlashStringHelper *>(debug_IntSelLckd_name), reinterpret_cast<const __FlashStringHelper *>(debug_IntSelLckd_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_IntSelLckd_ldesc), DataType::BooleanOld, lookupFuncOnOff},
+        {(uint16_t)ControlCommand::CfgDI1, reinterpret_cast<const __FlashStringHelper *>(debug_CfgDI1_name), reinterpret_cast<const __FlashStringHelper *>(debug_CfgDI1_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_CfgDI1_ldesc), DataType::UShortInt, lookupFuncDI1Cfg},
+        {(uint16_t)ControlCommand::CfgD12, reinterpret_cast<const __FlashStringHelper *>(debug_CfgD12_name), reinterpret_cast<const __FlashStringHelper *>(debug_CfgD12_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_CfgD12_ldesc), DataType::UShortInt, lookupFuncDI1Cfg},
+        {(uint16_t)ControlCommand::CfgAccC1, reinterpret_cast<const __FlashStringHelper *>(debug_CfgAccC1_name), reinterpret_cast<const __FlashStringHelper *>(debug_CfgAccC1_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_CfgAccC1_ldesc), DataType::UShortInt, lookupFuncAccA1Cfg},
+        {(uint16_t)ControlCommand::CfgAccD1, reinterpret_cast<const __FlashStringHelper *>(debug_CfgAccD1_name), reinterpret_cast<const __FlashStringHelper *>(debug_CfgAccD1_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_CfgAccD1_ldesc), DataType::UShortInt, lookupFuncAccA1Cfg},
+        // Status Requests
+        {(uint16_t)StatusRequest::RemotePrio, reinterpret_cast<const __FlashStringHelper *>(debug_RemotePrio_name), reinterpret_cast<const __FlashStringHelper *>(debug_RemotePrio_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_RemotePrio_ldesc), DataType::BooleanOld, lookupFuncYesNo},
+        {(uint16_t)StatusRequest::SpdSwPtAtt, reinterpret_cast<const __FlashStringHelper *>(debug_SpdSwPtAtt_name), reinterpret_cast<const __FlashStringHelper *>(debug_SpdSwPtAtt_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_SpdSwPtAtt_ldesc), DataType::BooleanOld, lookupFuncYesNo},
+        {(uint16_t)StatusRequest::ErrorCode, reinterpret_cast<const __FlashStringHelper *>(debug_ErrorCode_name), reinterpret_cast<const __FlashStringHelper *>(debug_ErrorCode_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_ErrorCode_ldesc), DataType::String6, nullptr},
+        {(uint16_t)StatusRequest::OvTempElec, reinterpret_cast<const __FlashStringHelper *>(debug_OvTempElec_name), reinterpret_cast<const __FlashStringHelper *>(debug_OvTempElec_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_OvTempElec_ldesc), DataType::BooleanOld, lookupFuncYesNo},
+        {(uint16_t)StatusRequest::OvTempPump, reinterpret_cast<const __FlashStringHelper *>(debug_OvTempPump_name), reinterpret_cast<const __FlashStringHelper *>(debug_OvTempPump_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_OvTempPump_ldesc), DataType::BooleanOld, lookupFuncYesNo},
+        {(uint16_t)StatusRequest::SetSpdAtt, reinterpret_cast<const __FlashStringHelper *>(debug_SetSpdAtt_name), reinterpret_cast<const __FlashStringHelper *>(debug_SetSpdAtt_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_SetSpdAtt_ldesc), DataType::BooleanOld, lookupFuncYesNo},
+        {(uint16_t)StatusRequest::PumpAccel, reinterpret_cast<const __FlashStringHelper *>(debug_PumpAccel_name), reinterpret_cast<const __FlashStringHelper *>(debug_PumpAccel_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_PumpAccel_ldesc), DataType::BooleanOld, lookupFuncYesNo},
+        {(uint16_t)StatusRequest::SetRotSpdHz, reinterpret_cast<const __FlashStringHelper *>(debug_SetRotSpdHz_name), reinterpret_cast<const __FlashStringHelper *>(debug_SetRotSpdHz_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_SetRotSpdHz_ldesc), DataType::UInteger, nullptr},
+        {(uint16_t)StatusRequest::ActualSpdHz, reinterpret_cast<const __FlashStringHelper *>(debug_ActualSpdHz_name), reinterpret_cast<const __FlashStringHelper *>(debug_ActualSpdHz_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_ActualSpdHz_ldesc), DataType::UInteger, nullptr},
+        {(uint16_t)StatusRequest::DrvCurrent, reinterpret_cast<const __FlashStringHelper *>(debug_DrvCurrent_name), reinterpret_cast<const __FlashStringHelper *>(debug_DrvCurrent_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_DrvCurrent_ldesc), DataType::UReal, nullptr},
+        {(uint16_t)StatusRequest::OpHrsPump, reinterpret_cast<const __FlashStringHelper *>(debug_OpHrsPump_name), reinterpret_cast<const __FlashStringHelper *>(debug_OpHrsPump_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_OpHrsPump_ldesc), DataType::UInteger, nullptr},
+        {(uint16_t)StatusRequest::FwVersion, reinterpret_cast<const __FlashStringHelper *>(debug_FwVersion_name), reinterpret_cast<const __FlashStringHelper *>(debug_FwVersion_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_FwVersion_ldesc), DataType::String6, nullptr},
+        {(uint16_t)StatusRequest::DrvVoltage, reinterpret_cast<const __FlashStringHelper *>(debug_DrvVoltage_name), reinterpret_cast<const __FlashStringHelper *>(debug_DrvVoltage_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_DrvVoltage_ldesc), DataType::UReal, nullptr},
+        {(uint16_t)StatusRequest::OpHrsElec, reinterpret_cast<const __FlashStringHelper *>(debug_OpHrsElec_name), reinterpret_cast<const __FlashStringHelper *>(debug_OpHrsElec_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_OpHrsElec_ldesc), DataType::UInteger, nullptr},
+        {(uint16_t)StatusRequest::NominalSpdHz, reinterpret_cast<const __FlashStringHelper *>(debug_NominalSpdHz_name), reinterpret_cast<const __FlashStringHelper *>(debug_NominalSpdHz_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_NominalSpdHz_ldesc), DataType::UInteger, nullptr},
+        {(uint16_t)StatusRequest::DrvPower, reinterpret_cast<const __FlashStringHelper *>(debug_DrvPower_name), reinterpret_cast<const __FlashStringHelper *>(debug_DrvPower_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_DrvPower_ldesc), DataType::UInteger, nullptr},
+        {(uint16_t)StatusRequest::PumpCycles, reinterpret_cast<const __FlashStringHelper *>(debug_PumpCycles_name), reinterpret_cast<const __FlashStringHelper *>(debug_PumpCycles_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_PumpCycles_ldesc), DataType::UInteger, nullptr},
+        {(uint16_t)StatusRequest::TmpPwrStg, reinterpret_cast<const __FlashStringHelper *>(debug_TmpPwrStg_name), reinterpret_cast<const __FlashStringHelper *>(debug_TmpPwrStg_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_TmpPwrStg_ldesc), DataType::UInteger, nullptr},
+        {(uint16_t)StatusRequest::TempElec, reinterpret_cast<const __FlashStringHelper *>(debug_TempElec_name), reinterpret_cast<const __FlashStringHelper *>(debug_TempElec_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_TempElec_ldesc), DataType::UInteger, nullptr},
+        {(uint16_t)StatusRequest::TempPmpBot, reinterpret_cast<const __FlashStringHelper *>(debug_TempPmpBot_name), reinterpret_cast<const __FlashStringHelper *>(debug_TempPmpBot_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_TempPmpBot_ldesc), DataType::UInteger, nullptr},
+        {(uint16_t)StatusRequest::AccelDecel, reinterpret_cast<const __FlashStringHelper *>(debug_AccelDecel_name), reinterpret_cast<const __FlashStringHelper *>(debug_AccelDecel_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_AccelDecel_ldesc), DataType::UInteger, nullptr},
+        {(uint16_t)StatusRequest::ElecName, reinterpret_cast<const __FlashStringHelper *>(debug_ElecName_name), reinterpret_cast<const __FlashStringHelper *>(debug_ElecName_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_ElecName_ldesc), DataType::String6, nullptr},
+        {(uint16_t)StatusRequest::HWVersion, reinterpret_cast<const __FlashStringHelper *>(debug_HWVersion_name), reinterpret_cast<const __FlashStringHelper *>(debug_HWVersion_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_HWVersion_ldesc), DataType::String6, nullptr},
+        {(uint16_t)StatusRequest::SerialNo, reinterpret_cast<const __FlashStringHelper *>(debug_SerialNo_name), reinterpret_cast<const __FlashStringHelper *>(debug_SerialNo_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_SerialNo_ldesc), DataType::String16, nullptr},
+        {(uint16_t)StatusRequest::ErrHist1, reinterpret_cast<const __FlashStringHelper *>(debug_ErrHist1_name), reinterpret_cast<const __FlashStringHelper *>(debug_ErrHist1_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_ErrHist1_ldesc), DataType::String6, nullptr},
+        {(uint16_t)StatusRequest::ErrHist2, reinterpret_cast<const __FlashStringHelper *>(debug_ErrHist2_name), reinterpret_cast<const __FlashStringHelper *>(debug_ErrHist2_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_ErrHist2_ldesc), DataType::String6, nullptr},
+        {(uint16_t)StatusRequest::ErrHist3, reinterpret_cast<const __FlashStringHelper *>(debug_ErrHist3_name), reinterpret_cast<const __FlashStringHelper *>(debug_ErrHist3_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_ErrHist3_ldesc), DataType::String6, nullptr},
+        {(uint16_t)StatusRequest::ErrHist4, reinterpret_cast<const __FlashStringHelper *>(debug_ErrHist4_name), reinterpret_cast<const __FlashStringHelper *>(debug_ErrHist4_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_ErrHist4_ldesc), DataType::String6, nullptr},
+        {(uint16_t)StatusRequest::ErrHist5, reinterpret_cast<const __FlashStringHelper *>(debug_ErrHist5_name), reinterpret_cast<const __FlashStringHelper *>(debug_ErrHist5_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_ErrHist5_ldesc), DataType::String6, nullptr},
+        {(uint16_t)StatusRequest::ErrHist6, reinterpret_cast<const __FlashStringHelper *>(debug_ErrHist6_name), reinterpret_cast<const __FlashStringHelper *>(debug_ErrHist6_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_ErrHist6_ldesc), DataType::String6, nullptr},
+        {(uint16_t)StatusRequest::ErrHist7, reinterpret_cast<const __FlashStringHelper *>(debug_ErrHist7_name), reinterpret_cast<const __FlashStringHelper *>(debug_ErrHist7_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_ErrHist7_ldesc), DataType::String6, nullptr},
+        {(uint16_t)StatusRequest::ErrHist8, reinterpret_cast<const __FlashStringHelper *>(debug_ErrHist8_name), reinterpret_cast<const __FlashStringHelper *>(debug_ErrHist8_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_ErrHist8_ldesc), DataType::String6, nullptr},
+        {(uint16_t)StatusRequest::ErrHist9, reinterpret_cast<const __FlashStringHelper *>(debug_ErrHist9_name), reinterpret_cast<const __FlashStringHelper *>(debug_ErrHist9_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_ErrHist9_ldesc), DataType::String6, nullptr},
+        {(uint16_t)StatusRequest::ErrHist10, reinterpret_cast<const __FlashStringHelper *>(debug_ErrHist10_name), reinterpret_cast<const __FlashStringHelper *>(debug_ErrHist10_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_ErrHist10_ldesc), DataType::String6, nullptr},
+        {(uint16_t)StatusRequest::TempRotor, reinterpret_cast<const __FlashStringHelper *>(debug_TempRotor_name), reinterpret_cast<const __FlashStringHelper *>(debug_TempRotor_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_TempRotor_ldesc), DataType::UInteger, nullptr},
+        {(uint16_t)StatusRequest::OrderCode, reinterpret_cast<const __FlashStringHelper *>(debug_OrderCode_name), reinterpret_cast<const __FlashStringHelper *>(debug_OrderCode_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_OrderCode_ldesc), DataType::String16, nullptr},
+        {(uint16_t)StatusRequest::AddID, reinterpret_cast<const __FlashStringHelper *>(debug_AddID_name), reinterpret_cast<const __FlashStringHelper *>(debug_AddID_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_AddID_ldesc), DataType::UInteger, nullptr},
+        {(uint16_t)StatusRequest::SetRotSpdRpm, reinterpret_cast<const __FlashStringHelper *>(debug_SetRotSpdRpm_name), reinterpret_cast<const __FlashStringHelper *>(debug_SetRotSpdRpm_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_SetRotSpdRpm_ldesc), DataType::UInteger, nullptr},
+        {(uint16_t)StatusRequest::ActualSpdRpm, reinterpret_cast<const __FlashStringHelper *>(debug_ActualSpdRpm_name), reinterpret_cast<const __FlashStringHelper *>(debug_ActualSpdRpm_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_ActualSpdRpm_ldesc), DataType::UInteger, nullptr},
+        {(uint16_t)StatusRequest::NominalSpdRpm, reinterpret_cast<const __FlashStringHelper *>(debug_NominalSpdRpm_name), reinterpret_cast<const __FlashStringHelper *>(debug_NominalSpdRpm_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_NominalSpdRpm_ldesc), DataType::UInteger, nullptr},
+        // Reference Value Inputs
+        {(uint16_t)ReferenceValueInput::RUTimeSVal, reinterpret_cast<const __FlashStringHelper *>(debug_RUTimeSVal_name), reinterpret_cast<const __FlashStringHelper *>(debug_RUTimeSVal_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_RUTimeSVal_ldesc), DataType::UInteger, nullptr},
+        {(uint16_t)ReferenceValueInput::SpdSwPt1, reinterpret_cast<const __FlashStringHelper *>(debug_SpdSwPt1_name), reinterpret_cast<const __FlashStringHelper *>(debug_SpdSwPt1_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_SpdSwPt1_ldesc), DataType::UInteger, nullptr},
+        {(uint16_t)ReferenceValueInput::SpdSVal, reinterpret_cast<const __FlashStringHelper *>(debug_SpdSVal_name), reinterpret_cast<const __FlashStringHelper *>(debug_SpdSVal_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_SpdSVal_ldesc), DataType::UReal, nullptr},
+        {(uint16_t)ReferenceValueInput::PwrSVal, reinterpret_cast<const __FlashStringHelper *>(debug_PwrSVal_name), reinterpret_cast<const __FlashStringHelper *>(debug_PwrSVal_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_PwrSVal_ldesc), DataType::UShortInt, nullptr},
+        {(uint16_t)ReferenceValueInput::SwoffBKP, reinterpret_cast<const __FlashStringHelper *>(debug_SwoffBKP_name), reinterpret_cast<const __FlashStringHelper *>(debug_SwoffBKP_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_SwoffBKP_ldesc), DataType::UInteger, nullptr},
+        {(uint16_t)ReferenceValueInput::SwOnBKP, reinterpret_cast<const __FlashStringHelper *>(debug_SwOnBKP_name), reinterpret_cast<const __FlashStringHelper *>(debug_SwOnBKP_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_SwOnBKP_ldesc), DataType::UInteger, nullptr},
+        {(uint16_t)ReferenceValueInput::StdbySVal, reinterpret_cast<const __FlashStringHelper *>(debug_StdbySVal_name), reinterpret_cast<const __FlashStringHelper *>(debug_StdbySVal_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_StdbySVal_ldesc), DataType::UReal, nullptr},
+        {(uint16_t)ReferenceValueInput::SpdSwPt2, reinterpret_cast<const __FlashStringHelper *>(debug_SpdSwPt2_name), reinterpret_cast<const __FlashStringHelper *>(debug_SpdSwPt2_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_SpdSwPt2_ldesc), DataType::UInteger, nullptr},
+        {(uint16_t)ReferenceValueInput::VentSpd, reinterpret_cast<const __FlashStringHelper *>(debug_VentSpd_name), reinterpret_cast<const __FlashStringHelper *>(debug_VentSpd_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_VentSpd_ldesc), DataType::UShortInt, nullptr},
+        {(uint16_t)ReferenceValueInput::VentTime, reinterpret_cast<const __FlashStringHelper *>(debug_VentTime_name), reinterpret_cast<const __FlashStringHelper *>(debug_VentTime_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_VentTime_ldesc), DataType::UInteger, nullptr},
+        {(uint16_t)ReferenceValueInput::mxPwrOutTm, reinterpret_cast<const __FlashStringHelper *>(debug_mxPwrOutTm_name), reinterpret_cast<const __FlashStringHelper *>(debug_mxPwrOutTm_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_mxPwrOutTm_ldesc), DataType::UInteger, nullptr},
+        {(uint16_t)ReferenceValueInput::fanOnTemp, reinterpret_cast<const __FlashStringHelper *>(debug_fanOnTemp_name), reinterpret_cast<const __FlashStringHelper *>(debug_fanOnTemp_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_fanOnTemp_ldesc), DataType::UInteger, nullptr},
+        {(uint16_t)ReferenceValueInput::PrsSwPt1, reinterpret_cast<const __FlashStringHelper *>(debug_PrsSwPt1_name), reinterpret_cast<const __FlashStringHelper *>(debug_PrsSwPt1_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_PrsSwPt1_ldesc), DataType::UExpoNew, nullptr},
+        {(uint16_t)ReferenceValueInput::PrsSwPt2, reinterpret_cast<const __FlashStringHelper *>(debug_PrsSwPt2_name), reinterpret_cast<const __FlashStringHelper *>(debug_PrsSwPt2_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_PrsSwPt2_ldesc), DataType::UExpoNew, nullptr},
+        {(uint16_t)ReferenceValueInput::PwrOutVolt, reinterpret_cast<const __FlashStringHelper *>(debug_PwrOutVolt_name), reinterpret_cast<const __FlashStringHelper *>(debug_PwrOutVolt_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_PwrOutVolt_ldesc), DataType::UReal, nullptr},
+        {(uint16_t)ReferenceValueInput::PwrOutThrs, reinterpret_cast<const __FlashStringHelper *>(debug_PwrOutThrs_name), reinterpret_cast<const __FlashStringHelper *>(debug_PwrOutThrs_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_PwrOutThrs_ldesc), DataType::UInteger, nullptr},
+        {(uint16_t)ReferenceValueInput::PrsSn1Name, reinterpret_cast<const __FlashStringHelper *>(debug_PrsSn1Name_name), reinterpret_cast<const __FlashStringHelper *>(debug_PrsSn1Name_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_PrsSn1Name_ldesc), DataType::String6, nullptr},
+        {(uint16_t)ReferenceValueInput::Pressure1, reinterpret_cast<const __FlashStringHelper *>(debug_Pressure1_name), reinterpret_cast<const __FlashStringHelper *>(debug_Pressure1_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_Pressure1_ldesc), DataType::UExpoNew, nullptr},
+        {(uint16_t)ReferenceValueInput::PrsCorrPi1, reinterpret_cast<const __FlashStringHelper *>(debug_PrsCorrPi1_name), reinterpret_cast<const __FlashStringHelper *>(debug_PrsCorrPi1_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_PrsCorrPi1_ldesc), DataType::UReal, nullptr},
+        {(uint16_t)ReferenceValueInput::PrsSn2Name, reinterpret_cast<const __FlashStringHelper *>(debug_PrsSn2Name_name), reinterpret_cast<const __FlashStringHelper *>(debug_PrsSn2Name_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_PrsSn2Name_ldesc), DataType::String6, nullptr},
+        {(uint16_t)ReferenceValueInput::Pressure2, reinterpret_cast<const __FlashStringHelper *>(debug_Pressure2_name), reinterpret_cast<const __FlashStringHelper *>(debug_Pressure2_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_Pressure2_ldesc), DataType::UExpoNew, nullptr},
+        {(uint16_t)ReferenceValueInput::PrsCorrPi2, reinterpret_cast<const __FlashStringHelper *>(debug_PrsCorrPi2_name), reinterpret_cast<const __FlashStringHelper *>(debug_PrsCorrPi2_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_PrsCorrPi2_ldesc), DataType::UReal, nullptr},
+        {(uint16_t)ReferenceValueInput::NomSpdConf, reinterpret_cast<const __FlashStringHelper *>(debug_NomSpdConf_name), reinterpret_cast<const __FlashStringHelper *>(debug_NomSpdConf_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_NomSpdConf_ldesc), DataType::UInteger, nullptr},
+        {(uint16_t)ReferenceValueInput::RS485Adr, reinterpret_cast<const __FlashStringHelper *>(debug_RS485Adr_name), reinterpret_cast<const __FlashStringHelper *>(debug_RS485Adr_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_RS485Adr_ldesc), DataType::UInteger, nullptr},
+        // Additional Parameters
+        {(uint16_t)AdditionalParams::Pressure, reinterpret_cast<const __FlashStringHelper *>(debug_Pressure_name), reinterpret_cast<const __FlashStringHelper *>(debug_Pressure_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_Pressure_ldesc), DataType::UShortInt, nullptr},
+        {(uint16_t)AdditionalParams::CtrName, reinterpret_cast<const __FlashStringHelper *>(debug_CtrName_name), reinterpret_cast<const __FlashStringHelper *>(debug_CtrName_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_CtrName_ldesc), DataType::String6, nullptr},
+        {(uint16_t)AdditionalParams::CtrSoftware, reinterpret_cast<const __FlashStringHelper *>(debug_CtrSoftware_name), reinterpret_cast<const __FlashStringHelper *>(debug_CtrSoftware_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_CtrSoftware_ldesc), DataType::String6, nullptr},
+        {(uint16_t)AdditionalParams::GaugeType, reinterpret_cast<const __FlashStringHelper *>(debug_GaugeType_name), reinterpret_cast<const __FlashStringHelper *>(debug_GaugeType_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_GaugeType_ldesc), DataType::String6, nullptr},
+        {(uint16_t)AdditionalParams::ParamSet, reinterpret_cast<const __FlashStringHelper *>(debug_ParamSet_name), reinterpret_cast<const __FlashStringHelper *>(debug_ParamSet_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_ParamSet_ldesc), DataType::UShortInt, nullptr},
+        {(uint16_t)AdditionalParams::Servicelin, reinterpret_cast<const __FlashStringHelper *>(debug_Servicelin_name), reinterpret_cast<const __FlashStringHelper *>(debug_Servicelin_sdesc), reinterpret_cast<const __FlashStringHelper *>(debug_Servicelin_ldesc), DataType::UShortInt, nullptr}};
+
+    bool getParameterDebugEntry(int number, ParameterDebugEntry *entry)
+    {
         const size_t entryCount = sizeof(ParameterDebugMap) / sizeof(ParameterDebugMap[0]);
+
         // Find the parameter by number
+        ParameterDebugEntry temp;
         for (size_t i = 0; i < entryCount; ++i)
         {
-            if (ParameterDebugMap[i].number == number)
+            // Copy one struct from FLASH (ParameterDebugMap[i]) to RAM (temp)
+            memcpy_P(&temp, &ParameterDebugMap[i], sizeof(ParameterDebugEntry));
+            // check if the the number matches.
+            if (temp.number == number)
             {
-                return &ParameterDebugMap[i];
+                //
+                memcpy_P(&entry, &temp, sizeof(ParameterDebugEntry));
+                return true; // return false to indicate the parameter was found
             }
         }
-        return nullptr; // Not found
+        return false; // return false to indicate the parameter could not be found
     }
 
     // Stores a human redable problem text for possible pump error codes:

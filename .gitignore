@@ -6,6 +6,8 @@ inols*.log
 .piolibdeps
 .pio/build
 
+.vscode/c_cpp_properties.json
+
 # Below lines from https://github.com/arduino/Arduino/blob/master/.gitignore
 app/bin/
 app/pde.jar

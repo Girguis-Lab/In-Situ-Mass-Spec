@@ -1,284 +1,205 @@
 #pragma once
 #include <Arduino.h>
+#include "RingBufCPP.h"
 
 // Base interface so users can swap implementations if they want.
 // You can derive from this class and keep the same method interface.
-/// Concrete implementation that wraps an underlying Serial-like object
-/// and manages RS485 direction pins + RX/TX buffering.
-/// TSerial must be a Print + Stream-like class (e.g. HardwareSerial).
-template <
-    typename TSerial,
-    size_t RX_BUF_SIZE = 128,
-    size_t TX_BUF_SIZE = 128>
-class RS485Serial
+class RS485Serial_Base
 {
 public:
-    RS485Serial(
-        TSerial &serial,
+    RS485Serial_Base() {};
+
+    // Setup / teardown
+    virtual void begin(unsigned long baud = 9600, uint32_t config = SERIAL_8N1);
+    virtual void end();
+
+    // Direction control (explicit override if needed)
+    virtual void enterReceiveMode();
+    virtual void enterSendMode();
+
+    // --- Cooperative task function ---
+    // Call this frequently (e.g. each loop()) to:
+    virtual void task();
+
+    // --- RX API ---
+    virtual int available();
+    virtual int availableForWrite();
+    virtual int read();
+
+    // --- Write API ---
+    // Write is blocking
+    virtual size_t write(const uint8_t *buffer, size_t size);
+    virtual size_t write(uint8_t b);
+
+    // --- Print API ---
+    // Make templated print more efficient by reusing underlying Print::print where possible
+    template <typename T>
+    size_t print(const T &value);
+    template <typename T>
+    size_t println(const T &value);
+};
+
+// Concrete RS485 implementation that wraps an underlying HardwareSerial Object
+// and manages RS485 direction pins + RX/TX buffering.
+class RS485HardwareSerial : public RS485Serial_Base
+{
+public:
+    RS485HardwareSerial(
+        HardwareSerial &serial,
         uint8_t pin485SendEnable,
         uint8_t pin485ReceiveDisable,
-        void (*delayFunc)(unsigned long) = delay)
-        : _serial(serial),
+        unsigned long readTimeoutMs = 6)
+        : serial(serial),
           _pin485SendEnable(pin485SendEnable),
           _pin485ReceiveDisable(pin485ReceiveDisable),
-          _delayFunc(delayFunc)
+          _readTimeoutMs(readTimeoutMs)
     {
-        _rxHead = _rxTail = 0;
-        _txHead = _txTail = 0;
         _sendMode = false;
-        _lastActivityMs = 0;
     }
 
     // Setup / teardown
-    virtual void begin(unsigned long baud = 9600, uint32_t config = SERIAL_8N1)
+    void begin(unsigned long baud = 9600, uint32_t config = SERIAL_8N1) override
     {
         if (_pin485SendEnable != 0)
             pinMode(_pin485SendEnable, OUTPUT);
         if (_pin485ReceiveDisable != 0)
             pinMode(_pin485ReceiveDisable, OUTPUT);
-        enterReceiveMode();          // start in receive mode
-        _serial.begin(baud, config); // hardware serial with config
+        enterReceiveMode();         // start in receive mode
+        serial.begin(baud, config); // hardware serial with config
     }
 
-    virtual void end()
+    void end() override
     {
-        _serial.end();
+        serial.end();
     };
 
-    // Direction control (explicit override if needed)
+    // === Data Flow Direction Control ==== (allows explicit override if needed)
 
-    virtual void enterReceiveMode()
+    void enterReceiveMode() override
     {
-        // Flush outgoing data first
-        _serial.flush();
+        // make sure outgoing messages have sent fully.
+        serial.flush();
 
+        // Disable sending mode
+        _sendMode = false;
         if (_pin485SendEnable != 0)
             digitalWrite(_pin485SendEnable, LOW);
-
         if (_pin485ReceiveDisable != 0)
             digitalWrite(_pin485ReceiveDisable, LOW);
-
-        _sendMode = false;
     }
 
-    virtual void enterSendMode()
+    void enterSendMode() override
     {
         // Drain any in-flight incoming bytes into RX buffer
-        unsigned long startTime = millis();
-        const unsigned long timeoutMs = 2; // small debounce; tune if needed
+        _injestRxBytes();
 
-        while (_serial.available())
-        {
-            int c = _serial.read();
-            if (c >= 0)
-                pushRx(static_cast<uint8_t>(c));
-            _delayFunc(1);
-            if (millis() - startTime > timeoutMs)
-                break;
-        }
-
+        // Enable sending mode
+        _sendMode = true;
         if (_pin485SendEnable != 0)
             digitalWrite(_pin485SendEnable, HIGH);
-
         if (_pin485ReceiveDisable != 0)
             digitalWrite(_pin485ReceiveDisable, HIGH);
-
-        _sendMode = true;
     }
 
-    // --- Cooperative task function ---
-    //
+    // === Cooperative task function ==
     // Call this frequently (e.g. each loop()) to:
-    //  - pull incoming bytes into RX buffer
-    //  - send bytes from TX buffer when possible
-    //  - automatically toggle direction to TX when there is data to send,
-    //    and back to RX when done
-    virtual void task()
+    // - pull incoming bytes into RX buffer
+    void task() override
     {
-        unsigned long now = millis();
-
-        // 1) Always read from hardware into RX buffer when in receive mode
+        // Drain arduino serial into RX buffer when in receive mode
         if (!_sendMode)
-        {
-            while (_serial.available() > 0)
-            {
-                int c = _serial.read();
-                if (c < 0)
-                    break;
-                pushRx(static_cast<uint8_t>(c));
-                _lastActivityMs = now;
-            }
-        }
-
-        // 2) If we have data to transmit and we're not in send mode, switch
-        if (!_sendMode && txAvailable() > 0)
-        {
-            enterSendMode();
-        }
-
-        // 3) If in send mode, send out bytes from TX buffer
-        if (_sendMode)
-        {
-            while (txAvailable() > 0 && _serial.availableForWrite() > 0)
-            {
-                uint8_t b = popTx();
-                _serial.write(b);
-                _lastActivityMs = now;
-            }
-
-            // If we've emptied the TX buffer, flush underlying and go back to RX
-            if (txAvailable() == 0)
-            {
-                _serial.flush();
-                enterReceiveMode();
-            }
-        }
+            _injestRxBytes();
     }
 
-    // --- RX API ---
+    // === RX Methods ===
 
-    virtual int available()
+    int available() override
     {
-        return static_cast<int>(rxAvailable());
+        return rxBuffer.numElements() + serial.available();
     }
 
-    virtual int availableForWrite()
+    int availableForWrite() override
     {
-        return static_cast<int>(TX_BUF_SIZE - txAvailable() - 1);
+        return serial.availableForWrite();
     }
 
-    virtual int read()
+    // read and return a byte from the RX buffer.
+    int read() override
     {
-        if (rxAvailable() == 0)
+        _injestRxBytes();
+        if (available() == 0)
             return -1;
-        return static_cast<int>(popRx());
+        // fetch the last byte from the buffer.
+        uint8_t readByte = -1;
+        rxBuffer.pull(&readByte);
+        return static_cast<int>(readByte);
     }
 
-    virtual int peek()
-    {
-        if (rxAvailable() == 0)
-            return -1;
-        return static_cast<int>(_rxBuffer[_rxTail]);
-    }
+    // === TX Methods ====
 
-    // --- Write / Print API ---
-
-    virtual size_t write(const uint8_t *buffer, size_t size)
+    // Multiple byte write (blocking)
+    size_t write(const uint8_t *bytes, size_t size) override
     {
-        size_t written = 0;
-        for (size_t i = 0; i < size; ++i)
-        {
-            if (!pushTx(buffer[i]))
-                break;
-            ++written;
-        }
+        enterSendMode();
+        size_t written = serial.write(bytes, size);
+        enterReceiveMode();
         return written;
     }
 
-    size_t write(uint8_t b)
+    // Single byte write (blocking)
+    size_t write(uint8_t b) override
     {
-        return pushTx(b) ? 1 : 0;
+        enterSendMode();
+        size_t written = serial.write(b);
+        enterReceiveMode();
+        return written;
     }
 
-    // Make templated print more efficient by reusing underlying Print::print where possible
+    // Reusing underlying serial.print through templating.
     template <typename T>
     size_t print(const T &value)
     {
-        // Use the base RS485Serial::print which calls writeImpl
-        return RS485Serial::print(value);
+        enterSendMode();
+        size_t written = serial.print(value);
+        enterReceiveMode();
+        return written;
     }
 
+    // Reusing underlying serial.println through templating.
     template <typename T>
     size_t println(const T &value)
     {
-        return RS485Serial::println(value);
+        enterSendMode();
+        size_t written = serial.println(value);
+        enterReceiveMode();
+        return written;
     }
 
-protected:
-    // Allow derived classes to override how templated print is implemented
-    template <typename T>
-    size_t writeImpl(const T &value)
+    // Reads all incoming bytes from the arduino serial into the RxBuffer
+    // Includes a timeout in case of serial flooding.
+    size_t _injestRxBytes()
     {
-        // Default implementation converts via underlying Print-like behavior
-        String s(value);
-        return write(reinterpret_cast<const uint8_t *>(s.c_str()), s.length());
+        unsigned long startTime = millis();
+        size_t bytesRead = 0;
+        while (serial.available())
+        {
+            int c = serial.read();
+            rxBuffer.add(static_cast<uint8_t>(c));
+            bytesRead++;
+            if (millis() - startTime > _readTimeoutMs)
+                break;
+        }
+        return bytesRead;
     }
+
+    HardwareSerial &serial;
 
 private:
-    TSerial &_serial;
     uint8_t _pin485SendEnable;
     uint8_t _pin485ReceiveDisable;
-    void (*_delayFunc)(unsigned long);
+    unsigned long _readTimeoutMs;
+    RingBufCPP<uint8_t, 600> rxBuffer;
 
     // RS485 state
     bool _sendMode;
-    unsigned long _lastActivityMs;
-
-    // RX ring buffer
-    uint8_t _rxBuffer[RX_BUF_SIZE];
-    volatile size_t _rxHead;
-    volatile size_t _rxTail;
-
-    // TX ring buffer
-    uint8_t _txBuffer[TX_BUF_SIZE];
-    volatile size_t _txHead;
-    volatile size_t _txTail;
-
-    // --- RX buffer helpers ---
-
-    size_t rxAvailable() const
-    {
-        return (_rxHead + RX_BUF_SIZE - _rxTail) % RX_BUF_SIZE;
-    }
-
-    bool pushRx(uint8_t b)
-    {
-        size_t next = (_rxHead + 1) % RX_BUF_SIZE;
-        if (next == _rxTail)
-        {
-            // Buffer full; drop byte
-            return false;
-        }
-        _rxBuffer[_rxHead] = b;
-        _rxHead = next;
-        return true;
-    }
-
-    uint8_t popRx()
-    {
-        if (_rxTail == _rxHead)
-            return 0;
-        uint8_t b = _rxBuffer[_rxTail];
-        _rxTail = (_rxTail + 1) % RX_BUF_SIZE;
-        return b;
-    }
-
-    // --- TX buffer helpers ---
-
-    size_t txAvailable() const
-    {
-        return (_txHead + TX_BUF_SIZE - _txTail) % TX_BUF_SIZE;
-    }
-
-    bool pushTx(uint8_t b)
-    {
-        size_t next = (_txHead + 1) % TX_BUF_SIZE;
-        if (next == _txTail)
-        {
-            // TX buffer full
-            return false;
-        }
-        _txBuffer[_txHead] = b;
-        _txHead = next;
-        return true;
-    }
-
-    uint8_t popTx()
-    {
-        if (_txTail == _txHead)
-            return 0;
-        uint8_t b = _txBuffer[_txTail];
-        _txTail = (_txTail + 1) % TX_BUF_SIZE;
-        return b;
-    }
 };

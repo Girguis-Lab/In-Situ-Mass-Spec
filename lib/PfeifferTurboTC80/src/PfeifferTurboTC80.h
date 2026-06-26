@@ -2,19 +2,27 @@
 #define PFEIFFER_SERIAL_H
 
 #include <Arduino.h>
-#include <ArduinoLog.h> // This library depebds on arduino log.
+#include <ArduinoLog.h> // This library depends on arduino log.
 #include "PfeifferVacProtocolConsts.h"
 #include "PfeifferVacProtocolFuncs.h"
 #include "PfeifferVacProtocolDatatypes.h"
 #include "RS485Serial.h"
 
+// by default this library uses the arduino delay() function, but this can be overwridden with the passed parameter.
+// if the delay function returns true, the library will inmediately exit any activities that may be holding up the porcessor at the cost of not reciving a full message.
+bool defaultDelayFunc(unsigned long ms)
+{
+    delay(ms);
+    return false;
+}
+
 class PfeifferSerialTC80
 {
 public:
-    typedef void (*DelayFunc)(unsigned long);
+    typedef bool (*DelayFunc)(unsigned long);
     typedef bool (*CheckFunc)();
 
-    PfeifferSerialTC80(RS485Serial<HardwareSerial> &turboSerial, const uint16_t address = 1, Stream &debug = Serial, DelayFunc delayFunc = ::delay)
+    explicit PfeifferSerialTC80(RS485Serial_Base &turboSerial, const uint16_t address = 1, Stream &debug = Serial, DelayFunc delayFunc = defaultDelayFunc)
         : _turboSerial(turboSerial), _debug(debug), _delayFunc(delayFunc)
     {
         sprintf(_address, "%03d", address);
@@ -22,7 +30,7 @@ public:
 
     void begin(unsigned long baud = 9600, uint32_t config = SERIAL_8N1)
     {
-        _turboSerial.begin(baud, config); // RS485Serial handles pin setup and initialization
+        _turboSerial.begin(baud, config); // RS485Serial class handles pin setup and initialization
     }
 
     void setAddress(const uint16_t address)
@@ -40,7 +48,7 @@ public:
     {
         _turboSerial.write(reinterpret_cast<const uint8_t *>(telegram), strlen(telegram));
         _turboSerial.write('\r');
-        // RS485Serial automatically handles direction switching via task()
+        // The RS485Serial class automatically handles direction switching.
     }
 
     void printOutgoingTelegram(const char action, const uint16_t parameter, const char *data = nullptr)
@@ -66,14 +74,13 @@ public:
     }
 
     // Receive a raw telegram (non-blocking, returns String)
-    String _receiveTelegramRaw(unsigned long timeout = 10000)
+    String _receiveTelegramRaw(unsigned long timeout = 20)
     {
         String frame = "";
         unsigned long start = millis();
         while (millis() - start < timeout)
         {
             _turboSerial.task(); // Call task() to handle buffering and direction control
-            _delayFunc(1);       // Small delay to avoid busy wait
             if (_turboSerial.available())
             {
                 char c = _turboSerial.read();
@@ -185,34 +192,38 @@ public:
     // A utility function to output debug messages (assuming _debug is available)
     inline void _printInvalidResponseDebug(const PfeifferVacProtocol::PfeifferTelegram telegram, uint16_t expectedParameter)
     {
-        // Assuming Log.verbose is available or a similar logging mechanism
-        if (strcmp(telegram.address.c_str(), _address) != 0)
+        // Assumes Log.traceln is available or a similar logging mechanism
+        if (telegram.address.length() == 0 && telegram.parameter.length() == 0)
         {
-            Log.traceln("WARNING: Address mismatch in Turbo response. Expected: %s, Received: %s", _address, telegram.address.c_str());
+            return; // no message was recived, ignore.
+        }
+        else if (strcmp(telegram.address.c_str(), _address) != 0)
+        {
+            Log.traceln("!WARN: Address mismatch in Turbo response. Expected: %s, Received: %s", _address, telegram.address.c_str());
         }
         else if (telegram.error == PfeifferVacProtocol::TelegramError::LogicError)
         {
-            Log.traceln("WARNING: Turbo pump internal logic error.");
+            Log.traceln("!WARN: Turbo pump internal logic error.");
         }
         else if (telegram.error == PfeifferVacProtocol::TelegramError::OutOfRange)
         {
-            Log.traceln("WARNING: Given command value was out of range.");
+            Log.traceln("!WARN: Given command value was out of range.");
         }
         else if (telegram.error == PfeifferVacProtocol::TelegramError::InvalidParameter)
         {
-            Log.traceln("WARNING: Parameter %s is not a valid parameter.", (uint8_t)telegram.parameter.toInt());
+            Log.traceln("!WARN: Parameter %s is not a valid parameter.", (uint8_t)telegram.parameter.toInt());
         }
         else if (telegram.error == PfeifferVacProtocol::TelegramError::InvalidChecksum)
         {
-            Log.traceln("WARNING: Checksum invalid or partial Turbo response.");
+            Log.traceln("!WARN: Checksum invalid or partial Turbo response.");
         }
         else if ((uint8_t)telegram.parameter.toInt() != expectedParameter)
         {
-            Log.traceln("WARNING: Unexpected parameter in Turbo response: %s ≠ %d", telegram.parameter.c_str(), expectedParameter);
+            Log.traceln("!WARN: Unexpected parameter in Turbo response: %s ≠ %d", telegram.parameter.c_str(), expectedParameter);
         }
         else
         {
-            Log.traceln("WARNING: Data length mismatch or unexpected content in Turbo response.");
+            Log.traceln("!WARN: Data length mismatch or unexpected content in Turbo response.");
         }
     }
 
@@ -222,7 +233,7 @@ public:
         unsigned long startTime = millis();
         while (millis() - startTime < timeout)
         {
-            const PfeifferVacProtocol::PfeifferTelegram telegram = receiveTelegram(debugPrint, timeout / 10);
+            const PfeifferVacProtocol::PfeifferTelegram telegram = receiveTelegram(debugPrint, timeout / 4);
             if (isValidResponse(telegram, expectedParameter) && telegram.data.length() == 6)
             {
                 isValid = true;
@@ -231,20 +242,25 @@ public:
             else
             {
                 isValid = false;
+
                 _printInvalidResponseDebug(telegram, expectedParameter);
-                _delayFunc(50); // Small delay before retrying
+                // Small delay before retrying:
+                bool exitEarly = _delayFunc(50);
+                // break & return if something happened durring the delay which requires exit, such as a received user command
+                if (exitEarly)
+                    break;
             }
         }
         return false; // Default/invalid return
     }
 
     // 1: u_integer (Native Type: uint32_t)
-    uint32_t receiveUInteger(uint16_t expectedParameter, bool &isValid, bool debugPrint = true, unsigned long timeout = 10000)
+    uint32_t receiveUInteger(uint16_t expectedParameter, bool &isValid, bool debugPrint = true, unsigned long timeout = 1000)
     {
         unsigned long startTime = millis();
         while (millis() - startTime < timeout)
         {
-            const PfeifferVacProtocol::PfeifferTelegram telegram = receiveTelegram(debugPrint, timeout / 10);
+            const PfeifferVacProtocol::PfeifferTelegram telegram = receiveTelegram(debugPrint, timeout / 4);
             if (isValidResponse(telegram, expectedParameter) && telegram.data.length() == 6)
             {
                 isValid = true;
@@ -254,7 +270,11 @@ public:
             {
                 isValid = false;
                 _printInvalidResponseDebug(telegram, expectedParameter);
-                _delayFunc(50); // Small delay before retrying
+                // Small delay before retrying:
+                bool exitEarly = _delayFunc(50);
+                // break & return if something happened durring the delay which requires exit, such as a received user command
+                if (exitEarly)
+                    break;
             }
         }
         return 0; // Default/invalid return
@@ -266,7 +286,7 @@ public:
         unsigned long startTime = millis();
         while (millis() - startTime < timeout)
         {
-            const PfeifferVacProtocol::PfeifferTelegram telegram = receiveTelegram(debugPrint, timeout / 10);
+            const PfeifferVacProtocol::PfeifferTelegram telegram = receiveTelegram(debugPrint, timeout / 4);
             if (isValidResponse(telegram, expectedParameter) && telegram.data.length() == 6)
             {
                 isValid = true;
@@ -276,7 +296,11 @@ public:
             {
                 isValid = false;
                 _printInvalidResponseDebug(telegram, expectedParameter);
-                _delayFunc(50); // Small delay before retrying
+                // Small delay before retrying:
+                bool exitEarly = _delayFunc(50);
+                // break & return if something happened durring the delay which requires exit, such as a received user command
+                if (exitEarly)
+                    break;
             }
         }
         return 0.0f; // Default/invalid return
@@ -288,7 +312,7 @@ public:
         unsigned long startTime = millis();
         while (millis() - startTime < timeout)
         {
-            const PfeifferVacProtocol::PfeifferTelegram telegram = receiveTelegram(debugPrint, timeout / 10);
+            const PfeifferVacProtocol::PfeifferTelegram telegram = receiveTelegram(debugPrint, timeout / 4);
             if (isValidResponse(telegram, expectedParameter) && telegram.data.length() == 1)
             {
                 isValid = true;
@@ -298,7 +322,11 @@ public:
             {
                 isValid = false;
                 _printInvalidResponseDebug(telegram, expectedParameter);
-                _delayFunc(50); // Small delay before retrying
+                // Small delay before retrying:
+                bool exitEarly = _delayFunc(50);
+                // break & return if something happened durring the delay which requires exit, such as a received user command
+                if (exitEarly)
+                    break;
             }
         }
         return false; // Default/invalid return
@@ -310,7 +338,7 @@ public:
         unsigned long startTime = millis();
         while (millis() - startTime < timeout)
         {
-            const PfeifferVacProtocol::PfeifferTelegram telegram = receiveTelegram(debugPrint, timeout / 10);
+            const PfeifferVacProtocol::PfeifferTelegram telegram = receiveTelegram(debugPrint, timeout / 4);
             if (isValidResponse(telegram, expectedParameter) && telegram.data.length() == 3)
             {
                 isValid = true;
@@ -320,7 +348,11 @@ public:
             {
                 isValid = false;
                 _printInvalidResponseDebug(telegram, expectedParameter);
-                _delayFunc(50); // Small delay before retrying
+                // Small delay before retrying:
+                bool exitEarly = _delayFunc(50);
+                // break & return if something happened durring the delay which requires exit, such as a received user command
+                if (exitEarly)
+                    break;
             }
         }
         return 0; // Default/invalid return
@@ -332,7 +364,7 @@ public:
         unsigned long startTime = millis();
         while (millis() - startTime < timeout)
         {
-            const PfeifferVacProtocol::PfeifferTelegram telegram = receiveTelegram(debugPrint, timeout / 10);
+            const PfeifferVacProtocol::PfeifferTelegram telegram = receiveTelegram(debugPrint, timeout / 4);
             if (isValidResponse(telegram, expectedParameter) && telegram.data.length() == 6)
             {
                 isValid = true;
@@ -342,7 +374,11 @@ public:
             {
                 isValid = false;
                 _printInvalidResponseDebug(telegram, expectedParameter);
-                _delayFunc(50); // Small delay before retrying
+                // Small delay before retrying:
+                bool exitEarly = _delayFunc(50);
+                // break & return if something happened durring the delay which requires exit, such as a received user command
+                if (exitEarly)
+                    break;
             }
         }
         return 0.0f; // Default/invalid return
@@ -358,7 +394,7 @@ public:
         unsigned long startTime = millis();
         while (millis() - startTime < timeout)
         {
-            const PfeifferVacProtocol::PfeifferTelegram telegram = receiveTelegram(debugPrint, timeout / 10);
+            const PfeifferVacProtocol::PfeifferTelegram telegram = receiveTelegram(debugPrint, timeout / 4);
             if (isValidResponse(telegram, expectedParameter) && telegram.data.length() == 6)
             {
                 isValid = true;
@@ -369,7 +405,11 @@ public:
             {
                 isValid = false;
                 _printInvalidResponseDebug(telegram, expectedParameter);
-                _delayFunc(50); // Small delay before retrying
+                // Small delay before retrying:
+                bool exitEarly = _delayFunc(50);
+                // break & return if something happened durring the delay which requires exit, such as a received user command
+                if (exitEarly)
+                    break;
             }
         }
         return ""; // Return empty String on invalid response
@@ -381,7 +421,7 @@ public:
         unsigned long startTime = millis();
         while (millis() - startTime < timeout)
         {
-            const PfeifferVacProtocol::PfeifferTelegram telegram = receiveTelegram(debugPrint, timeout / 10);
+            const PfeifferVacProtocol::PfeifferTelegram telegram = receiveTelegram(debugPrint, timeout / 4);
             if (isValidResponse(telegram, expectedParameter) && telegram.data.length() == 16)
             {
                 isValid = true;
@@ -391,7 +431,11 @@ public:
             {
                 isValid = false;
                 _printInvalidResponseDebug(telegram, expectedParameter);
-                _delayFunc(50); // Small delay before retrying
+                // Small delay before retrying:
+                bool exitEarly = _delayFunc(50);
+                // break & return if something happened durring the delay which requires exit, such as a received user command
+                if (exitEarly)
+                    break;
             }
         }
         return "";
@@ -403,7 +447,7 @@ public:
         unsigned long startTime = millis();
         while (millis() - startTime < timeout)
         {
-            const PfeifferVacProtocol::PfeifferTelegram telegram = receiveTelegram(debugPrint, timeout / 10);
+            const PfeifferVacProtocol::PfeifferTelegram telegram = receiveTelegram(debugPrint, timeout / 4);
             if (isValidResponse(telegram, expectedParameter) && telegram.data.length() == 8)
             {
                 isValid = true;
@@ -413,17 +457,22 @@ public:
             {
                 isValid = false;
                 _printInvalidResponseDebug(telegram, expectedParameter);
-                _delayFunc(50); // Small delay before retrying
+                // Small delay before retrying:
+                bool exitEarly = _delayFunc(50);
+                // break & return if something happened durring the delay which requires exit, such as a received user command
+                if (exitEarly)
+                    break;
             }
         }
         return "";
     }
 
     // Queries the log of accumulated errors on the turbo pump and returns them as a comma separated human readable list
-    const String queryLatestError(bool &isValid, bool debugPrint = false, unsigned long timeout = 2000)
+    const String queryLatestError(bool &isValid, bool debugPrint = false, unsigned long timeout = 1000)
     {
         sendQuery(PfeifferVacProtocol::StatusRequest::ErrorCode, debugPrint);
-        String errMsg = receiveString6(PfeifferVacProtocol::StatusRequest::ErrorCode, isValid, debugPrint, timeout / 10);
+        delay(1); // delay to avoid backtalk
+        String errMsg = receiveString6(PfeifferVacProtocol::StatusRequest::ErrorCode, isValid, debugPrint, timeout / 4);
         const PfeifferVacProtocol::ErrorCodeDebugEntry *ErrorDebugEntry = PfeifferVacProtocol::getHumanReadableErrorMessage(errMsg);
         if (ErrorDebugEntry != nullptr)
             return String(ErrorDebugEntry->problem);
@@ -432,13 +481,14 @@ public:
     }
 
     // Queries the log of accumulated errors on the turbo pump and returns them as a comma separated human readable list
-    const String queryErrorHistory(bool &isValid, bool debugPrint = false, unsigned long timeout = 2000)
+    const String queryErrorHistory(bool &isValid, bool debugPrint = false, unsigned long timeout = 1000)
     {
         String errorMessages = "";
         for (int p = PfeifferVacProtocol::StatusRequest::ErrHist1; p <= PfeifferVacProtocol::StatusRequest::ErrHist10; p++)
         {
             sendQuery(p, debugPrint);
-            String errMsg = receiveString6(p, isValid, debugPrint, timeout / 10);
+            delay(1); // delay to avoid backtalk
+            String errMsg = receiveString6(p, isValid, debugPrint, timeout / 4);
             if (!isValid)
             {
                 errorMessages += "failed to query turbo error history,";
@@ -465,7 +515,7 @@ public:
     }
 
 private:
-    RS485Serial<HardwareSerial> &_turboSerial;
+    RS485Serial_Base &_turboSerial;
     Stream &_debug;
     DelayFunc _delayFunc;
     char _address[4]; // 3 digits + null terminator address of the turbo pump

@@ -11,14 +11,14 @@
 class FluidPump
 {
 public:
-    FluidPump(uint8_t pwmPin, uint8_t powerPin, uint8_t reverseDirectionPin)
-        : pwmPin(pwmPin), powerPin(powerPin), reverseDirectionPin(reverseDirectionPin), initialized(false), pumpEnableComplete(false), timeWhenEnabled(0), currentSpeedPercent(0) {}
+    FluidPump(powerPin *pumpPower, uint8_t pwmPin, uint8_t reverseDirectionPin)
+        : pumpPower(pumpPower), pwmPin(pwmPin), reverseDirectionPin(reverseDirectionPin), initialized(false), pumpEnableComplete(false), timeWhenEnabled(0), currentSpeedPercent(0) {}
 
     /* Init sets up the pump for operation, it should be called early on in your code before any other methods are called */
     void init()
     {
+        pumpPower->begin(LOW);
         pinMode(pwmPin, OUTPUT);
-        pinMode(powerPin, OUTPUT);
         pinMode(reverseDirectionPin, OUTPUT);
 
         _setSpeed(0); // Initialize pump pwm to fully off
@@ -31,30 +31,31 @@ public:
     */
     void loopHandler()
     {
-        return; // loop is currently disabled because we are using the analog instead of pwm control
-        if (!initialized)
-            return; // Not initialized or not enabled
-        if (currentSpeedPercent == 0)
-        {
-            timeWhenEnabled = 0;
-            _setSpeed(0);
-            return;
-        }
-        else if (timeWhenEnabled == 0)
-        {
-            // Startup procedure calls for a near 100% duty cycle for a set durration on the PWM line to enable pwm control
-            _setSpeed(100);
-            // record when startup begins
-            timeWhenEnabled = millis();
-            pumpEnableComplete = false;
-            return;
-        }
-        else if (timeWhenEnabled > FLUIDPUMP_PWM_STARTUP_DURRATION && !pumpEnableComplete)
-        {
-            // when the pump enable time is finished, actually set the pump to the desired speed
-            _setSpeed(currentSpeedPercent);
-            pumpEnableComplete = true;
-        }
+        // loop is currently disabled because we are using the analog instead of pwm control
+        // -----------------------------------------------------------
+        // if (!initialized)
+        //     return; // Not initialized or not enabled
+        // if (currentSpeedPercent == 0)
+        // {
+        //     timeWhenEnabled = 0;
+        //     _setSpeed(0);
+        //     return;
+        // }
+        // else if (timeWhenEnabled == 0)
+        // {
+        //     // Startup procedure calls for a near 100% duty cycle for a set durration on the PWM line to enable pwm control
+        //     _setSpeed(100);
+        //     // record when startup begins
+        //     timeWhenEnabled = millis();
+        //     pumpEnableComplete = false;
+        //     return;
+        // }
+        // else if (timeWhenEnabled > FLUIDPUMP_PWM_STARTUP_DURRATION && !pumpEnableComplete)
+        // {
+        //     // when the pump enable time is finished, actually set the pump to the desired speed
+        //     _setSpeed(currentSpeedPercent);
+        //     pumpEnableComplete = true;
+        // }
     }
 
     // Returns the currently set speed of the pump as a percentage of full speed
@@ -103,13 +104,16 @@ public:
     void _setSpeed(uint8_t percent)
     {
         uint8_t pwmValue = map(percent, 0, 100, 0, 255);
-        digitalWrite(powerPin, percent == 0 ? LOW : HIGH); // Turn off power if speed is 0
+        if (percent == 0)
+            pumpPower->turnOff();
+        else
+            pumpPower->turnOn();
         analogWrite(pwmPin, pwmValue);
     }
 
 private:
+    powerPin *pumpPower;
     uint8_t pwmPin;
-    uint8_t powerPin;
     uint8_t reverseDirectionPin;
     bool initialized;
     bool pumpEnableComplete;

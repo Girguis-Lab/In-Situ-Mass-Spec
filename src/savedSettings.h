@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <EEPROM.h>
 #include <ArduinoLog.h>
+#include "includes.h"
 
 // ISMS Settings are stored in EEPROM using a c++ struct.
 // When the ISMS boots up, it will attempt to load the settings from EEPROM.
@@ -46,7 +47,7 @@ saved_settings_t default_settings{
     .autostart_delay = 5000, // Default delay of 5 seconds for autostartup
     .stats_loging_enabled = true,
     .stats_log_interval = 1000,  // 1 second default interval for periodic stats logging
-    .log_level = LOG_LEVEL_INFO, // Default log level is INFO which includes stats logging
+    .log_level = LOG_LEVEL_INFO, // Default log level is INFO which corresponds to DEBUG_LOG_LEVEL_OFF and includes all stats logging
     .fluidpump_rate = 100,       // Default fluid pump rate in percentage of full speed
 };
 
@@ -83,5 +84,5 @@ void load_settings()
         save_settings();
         Log.infoln("| EEPROM: wrote default settings to EEPROM [ struct_initialized: %T, struct_version: %d ]", saved_settings.struct_initialized, saved_settings.struct_version);
     }
-    Log.infoln("| SETTINGS: autostart_on: %T, autostart_delay: %u ms, stats_loging_enabled: %T, stats_log_interval: %lu ms, log_level: %s(%d), fluidpump_rate: %d", saved_settings.autostart_on, saved_settings.autostart_delay, saved_settings.stats_loging_enabled, saved_settings.stats_log_interval, logLevelToString(saved_settings.log_level).c_str(), saved_settings.log_level, saved_settings.fluidpump_rate);
+    Log.infoln("| SETTINGS: autostart_on: %T, autostart_delay: %u ms, stats_loging_enabled: %T, stats_log_interval: %u ms, log_level: %s, fluidpump_rate: %d", saved_settings.autostart_on, saved_settings.autostart_delay, saved_settings.stats_loging_enabled, saved_settings.stats_log_interval, logLevelToString(saved_settings.log_level).c_str(), saved_settings.fluidpump_rate);
 }

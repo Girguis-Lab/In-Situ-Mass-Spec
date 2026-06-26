@@ -119,9 +119,11 @@ namespace PfeifferVacProtocol
             Log.info("Nothing ");
             return;
         }
-        int paramNum = telegram.parameter.toInt();
+
         // Find the command entry by parameter number
-        const ParameterDebugEntry *entry = PfeifferVacProtocol::getParameterDebugEntry(paramNum);
+        ParameterDebugEntry debugEntry;
+        int paramNum = telegram.parameter.toInt();
+        const bool debugEntryFound = PfeifferVacProtocol::getParameterDebugEntry(paramNum, &debugEntry);
 
         Log.verbose("(Addr:%s) ", telegram.address.c_str());
         if (outgoing)
@@ -134,9 +136,9 @@ namespace PfeifferVacProtocol
                 Log.warning("Unknown action '%s' ", telegram.action);
         }
 
-        if (entry)
+        if (debugEntryFound)
         {
-            Log.info(entry->description);
+            Log.info(debugEntry.description);
         }
         Log.trace(" (p%s)", telegram.parameter.c_str());
 
@@ -166,7 +168,7 @@ namespace PfeifferVacProtocol
             Log.info("\n");
             return; // For outgoing queries, we don't have data to interpret, so we can return early after printing the parameter description
         }
-        if (entry)
+        if (debugEntryFound)
         {
             if (telegram.data.length() > 0)
             {
@@ -175,18 +177,18 @@ namespace PfeifferVacProtocol
                 else if (!outgoing)
                     Log.info(" is ");
                 const char *ascii = telegram.data.c_str();
-                switch (entry->datatype)
+                switch (debugEntry.datatype)
                 {
                 case DataType::BooleanOld:
-                    Log.info(String(entry->lookupFuncFunction(BooleanOld(ascii).decode() ? 1 : 0)).c_str());
+                    Log.info((debugEntry.lookupFuncFunction ? String(debugEntry.lookupFuncFunction(BooleanOld(ascii).decode() ? 1 : 0)) : String(BooleanOld(ascii).decode())).c_str());
                     Log.verbose(" (BooleanOld %s)", ascii);
                     break;
                 case DataType::BooleanNew:
-                    Log.info(String(entry->lookupFuncFunction(BooleanNew(ascii).decode() ? 1 : 0)).c_str());
+                    Log.info((debugEntry.lookupFuncFunction ? String(debugEntry.lookupFuncFunction(BooleanNew(ascii).decode() ? 1 : 0)) : String(BooleanNew(ascii).decode())).c_str());
                     Log.verbose(" (BooleanNew %s)", ascii);
                     break;
                 case DataType::UShortInt:
-                    Log.info(String(entry->lookupFuncFunction(UShortInt(ascii).decode())).c_str());
+                    Log.info((debugEntry.lookupFuncFunction ? String(debugEntry.lookupFuncFunction(UShortInt(ascii).decode())) : String(UShortInt(ascii).decode())).c_str());
                     Log.verbose(" (UShortInt %s)", ascii);
                     break;
                 case DataType::UInteger:
@@ -208,7 +210,7 @@ namespace PfeifferVacProtocol
                     break;
                 default:
                     Log.info(ascii);
-                    Log.trace(" (Unknown Datatype %d)", (int)entry->datatype);
+                    Log.trace(" (Unknown Datatype %d)", (int)debugEntry.datatype);
                     break;
                 }
             }
@@ -222,6 +224,7 @@ namespace PfeifferVacProtocol
             Log.info(" Unknown Param %s", telegram.parameter.c_str());
             Log.trace("RawData: %s", telegram.data.length() > 0 ? telegram.data.c_str() : "(no data)");
         }
+        Log.info("\n");
     }
 }
 

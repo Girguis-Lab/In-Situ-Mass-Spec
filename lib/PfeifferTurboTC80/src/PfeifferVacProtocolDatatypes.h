@@ -22,16 +22,6 @@ namespace PfeifferVacProtocol
 
     // ---- Data Type Classes ----
 
-    class DataTypeGeneric
-    {
-    public:
-        DataTypeGeneric(const char *);
-        String encode() const;
-
-    private:
-        float _value;
-    };
-
     /**
      * @brief boolean_old (0) - Logical value (false/true)
      * Length: 6. Example: 000000=false; 111111=true
@@ -40,10 +30,10 @@ namespace PfeifferVacProtocol
     {
     public:
         // Constructor from native type
-        BooleanOld(bool val) : _value(val) {}
+        explicit BooleanOld(const bool val) : _value(val) {}
 
         // Constructor from ASCII string representation (6 chars)
-        BooleanOld(const char *str)
+        explicit BooleanOld(const char *str)
         {
             // Compares the first 6 characters to "111111"
             _value = (strncmp(str, "111111", 6) == 0);
@@ -73,10 +63,10 @@ namespace PfeifferVacProtocol
     {
     public:
         // Constructor from native type
-        UInteger(uint32_t val) : _value(val) {}
+        explicit UInteger(unsigned int val) : _value(val) {}
 
         // Constructor from ASCII string representation (6 chars)
-        UInteger(const char *str)
+        explicit UInteger(const char *str)
         {
             _value = strtoul(str, NULL, 10);
         }
@@ -86,18 +76,18 @@ namespace PfeifferVacProtocol
         {
             // Pad with leading zeros to 6 digits
             char buf[7];
-            snprintf(buf, sizeof(buf), "%06lu", _value);
+            snprintf(buf, sizeof(buf), "%06u", _value);
             return String(buf);
         }
 
         // returns an unsigned long from the UInteger
-        uint32_t decode() const
+        unsigned int decode() const
         {
             return _value;
         }
 
     private:
-        uint32_t _value;
+        unsigned int _value;
     };
 
     /**
@@ -108,10 +98,10 @@ namespace PfeifferVacProtocol
     {
     public:
         // Constructor from native type (float, representing the actual value)
-        UReal(float val) : _value(val) {}
+        explicit UReal(float val) : _value(val) {}
 
         // Constructor from ASCII string representation (6 chars)
-        UReal(const char *str)
+        explicit UReal(const char *str)
         {
             // Read as an integer (e.g., 001571 -> 1571) and divide by 100.0
             uint32_t temp_val = strtoul(str, NULL, 10);
@@ -122,7 +112,7 @@ namespace PfeifferVacProtocol
         String encode() const
         {
             // Multiply by 100 (e.g., 15.71 -> 1571) and format as 6-digit integer
-            uint32_t temp_val = (uint32_t)(_value * 100.0f + 0.5f); // +0.5 for rounding
+            unsigned long temp_val = (uint32_t)(_value * 100.0f + 0.5f); // +0.5 for rounding
             char buf[7];
             snprintf(buf, sizeof(buf), "%06lu", temp_val);
             return String(buf);
@@ -146,7 +136,7 @@ namespace PfeifferVacProtocol
     {
     public:
         // Constructor from native type
-        String6(const char *val)
+        explicit String6(const char *val)
         {
             strncpy(_value, val, 6);
             _value[6] = '\0'; // Ensure null termination
@@ -179,10 +169,10 @@ namespace PfeifferVacProtocol
     {
     public:
         // Constructor from native type
-        BooleanNew(bool val) : _value(val) {}
+        explicit BooleanNew(bool val) : _value(val) {}
 
         // Constructor from ASCII string representation (1 char)
-        BooleanNew(const char *str)
+        explicit BooleanNew(const char *str)
         {
             _value = (str[0] == '1');
         }
@@ -211,10 +201,10 @@ namespace PfeifferVacProtocol
     {
     public:
         // Constructor from native type
-        UShortInt(uint16_t val) : _value(val) {}
+        explicit UShortInt(uint16_t val) : _value(val) {}
 
         // Constructor from ASCII string representation (3 chars)
-        UShortInt(const char *str)
+        explicit UShortInt(const char *str)
         {
             _value = (uint16_t)strtoul(str, NULL, 10);
         }
@@ -224,7 +214,7 @@ namespace PfeifferVacProtocol
         {
             // Pad with leading zeros to 3 digits
             char buf[4] = {'\0'};
-            snprintf(buf, sizeof(buf), "%03u", _value);
+            snprintf(buf, 4, "%03u", _value);
             return String(buf);
         }
 
@@ -246,7 +236,7 @@ namespace PfeifferVacProtocol
     {
     public:
         // Constructor from native type
-        String16(const char *val)
+        explicit String16(const char *val)
         {
             strncpy(_value, val, 16);
             _value[16] = '\0'; // Ensure null termination
@@ -279,7 +269,7 @@ namespace PfeifferVacProtocol
     {
     public:
         // Constructor from native type
-        String8(const char *val)
+        explicit String8(const char *val)
         {
             strncpy(_value, val, 8);
             _value[8] = '\0'; // Ensure null termination
@@ -314,10 +304,10 @@ namespace PfeifferVacProtocol
     {
     public:
         // Constructor from native type (float, representing the actual value)
-        UExpoNew(float val) : _value(val) {}
+        explicit UExpoNew(float val) : _value(val) {}
 
         // Constructor from ASCII string representation (6 chars)
-        UExpoNew(const char *str)
+        explicit UExpoNew(const char *str)
         {
             // MMMM: str[0] to str[3] - Mantissa (with two decimals, e.g., 1000 -> 10.00)
             char mantissa_str[5];

@@ -30,51 +30,68 @@ void print_padded(Stream &s, const __FlashStringHelper *str, int length, char pa
     }
 }
 
-int logLevelToInt(const char *levelStr)
-{
-    if (strncasecmp(levelStr, "SILENT", 6) == 0)
-        return LOG_LEVEL_SILENT;
-    else if (strncasecmp(levelStr, "FATAL", 5) == 0)
-        return LOG_LEVEL_FATAL;
-    else if (strncasecmp(levelStr, "ERROR", 5) == 0)
-        return LOG_LEVEL_ERROR;
-    else if (strncasecmp(levelStr, "WARNING", 7) == 0)
-        return LOG_LEVEL_WARNING;
-    else if (strncasecmp(levelStr, "INFO", 4) == 0)
-        return LOG_LEVEL_INFO;
-    else if (strncasecmp(levelStr, "NOTICE", 6) == 0)
-        return LOG_LEVEL_NOTICE; // NOTICE is an alias for INFO
-    else if (strncasecmp(levelStr, "TRACE", 5) == 0)
-        return LOG_LEVEL_TRACE;
-    else if (strncasecmp(levelStr, "DEBUG", 5) == 0)
-        return LOG_LEVEL_TRACE; // DEBUG is an alias for TRACE
-    else if (strncasecmp(levelStr, "VERBOSE", 7) == 0)
-        return LOG_LEVEL_VERBOSE;
-    else
-        return -1; // Invalid log level
-}
-
 String logLevelToString(int level)
 {
     switch (level)
     {
     case LOG_LEVEL_SILENT:
-        return "SILENT";
+        return "SILENT(THIS SHOULD NOT BE POSSIBLE)";
     case LOG_LEVEL_FATAL:
-        return "FATAL";
+        return "FATAL(THIS SHOULD NOT BE POSSIBLE)";
     case LOG_LEVEL_ERROR:
-        return "ERROR";
+        return "ERROR(THIS SHOULD NOT BE POSSIBLE)";
     case LOG_LEVEL_WARNING:
-        return "WARNING";
-    case LOG_LEVEL_INFO:
-        return "INFO";
-    case LOG_LEVEL_TRACE:
-        return "TRACE";
-    case LOG_LEVEL_VERBOSE:
-        return "VERBOSE";
+        return "WARNING(THIS SHOULD NOT BE POSSIBLE)";
+    case LOG_LEVEL_INFO: // DEBUG_LOG_LEVEL_OFF
+        return "DEBUG_OFF";
+    case LOG_LEVEL_TRACE: // DEBUG_LOG_LEVEL_LOW
+        return "DEBUG_LOW";
+    case LOG_LEVEL_VERBOSE: // DEBUG_LOG_LEVEL_HIGH
+        return "DEBUG_HIGH";
     default:
-        return "UNKNOWN";
+        return "UNKNOWN(THIS SHOULD NOT BE POSSIBLE)";
     }
 }
+
+class powerPin
+{
+public:
+    explicit powerPin(const uint8_t pinNum) : pinNum(pinNum)
+    {
+        state = false;
+        initilized = false;
+    }
+
+    void begin(const uint8_t defaultState)
+    {
+        pinMode(pinNum, OUTPUT);
+        if (defaultState == HIGH)
+            turnOn();
+        else
+            turnOff();
+    }
+
+    void turnOn()
+    {
+        digitalWrite(pinNum, HIGH);
+        state = HIGH;
+    }
+
+    void turnOff()
+    {
+        digitalWrite(pinNum, LOW);
+        state = LOW;
+    }
+
+    uint8_t getState()
+    {
+        return state;
+    }
+
+private:
+    uint8_t state;
+    bool initilized;
+    uint8_t pinNum;
+};
 
 #endif // UTIL_H

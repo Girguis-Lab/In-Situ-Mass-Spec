@@ -1,48 +1,60 @@
 
 /* ISMS code for the ATMEL2560 based ISMS controller
-  This is for the 2025/26 "V3" redesign of the ISMSs with dedicated PCB
-  Use F() for long strings so they get stored in the flash and not RAM
-
-  TODO Edit this comment:
-  Includes external pump control using the comand U SPRATEXXX where XXX is the pumping rate in percent
-  of full capacity (100 is 100% capacity or 312 mL/min, 000 is 0% or pump off, 050 corresponds to 50%
-  capacity or 156 mL/min; 100% is 3.2VDC or 312 mL/min).
-
-  Includes 'autostart' which will automatically start the system (power up SBE, pH probe, KNF1, then
-  spins up turbo).
+  This is for the V3 redesign of the ISMSs with dedicated PCB (Year 2025/26)
+  To compile this project, use Visual Studio Code IDE and install the PlatformIO Extension
+  Use PlatformIO buttons in the bottom toolbar to compile, and upload. Uploads must be done with
+  the USB b port on the circuit board, however serial data comes from the RS232 output
+  (The serial of the USB B port is joined to the TURBO Pump RS485 Serial)
 */
 
 #include "includes.h"
 #include "modernCommands.h"
 
-bool autostarted = false;           // Becomes true once autostart has happened, so we don't do it again
-bool commsBufferOverflowed = false; // flag to mark if the comms serial buffer ever has overflowed (meaning we sent too much data too fast and some got lost)
+bool autostarted = false; // Becomes true once autostart has happened, so we don't do it again
+unsigned long minFreeRam = getTotalRam();
+
+void taskTick()
+{
+  resetWDT();
+  turboSerialRS485.task();
+  unsigned long freeRam = getAvailableRAM();
+  if (freeRam < minFreeRam)
+    minFreeRam = freeRam;
+}
 
 // A non-blocking delay function that allows lazy serial and watchdog resets to keep working while paused in various places.
-void nonBlockDelay(unsigned long ms)
+// returns true if a lazy serial command was executed.
+bool nonBlockDelay(unsigned long ms)
 {
   unsigned long start = micros();
-  do
+  bool commandRecieved = false;
+  bool extendTimeout = false;
+  bool skipTimeoutExtensionForUi = false;
+  // Non-blocking delay, handles rollover
+  while (micros() - start < ms * 1000)
   {
-    // Check if we have sent too much serial data too fast recently.
-    if (COMMS.availableForWrite() == 0)
-    {
-      commsBufferOverflowed = true;
-    }
-    // Check if any serial command is incoming and pause longer to give the user more time to finish their command
+    taskTick();
+    // Check if any serial command is incoming and pause longer to give the user more time to finish typing their command
     if (COMMS.available() != 0)
     {
-      // If the initial request was for longer than 4 seconds, keep that remaining time; otherwise allow up to 4 seconds.
-      unsigned long elapsedMs = (micros() - start) / 1000;
-      unsigned long remainingMs = (ms > elapsedMs) ? (ms - elapsedMs) : 0;
-      unsigned long extendedMs = max(remainingMs, (unsigned long)4000);
-      start = micros(); // Reset the start time to now to give the user more time to finish their command and read the response, while still allowing lazy serial commands to be processed and WDT resets to happen
-      ms = extendedMs;
+      extendTimeout = true;
     }
-    lazy.loop();
-    turboSerialRS485.task();
-    resetWDT();
-  } while (micros() - start < ms * 1000); // Non-blocking delay, handles rollover
+    commandRecieved = commandRecieved || lazy.loop();
+  }
+
+  // pause longer to give the user more time to finish typing their command
+  if (extendTimeout && !skipTimeoutExtensionForUi && !commandRecieved)
+  {
+    start = micros();
+    while (micros() - start < 3000000)
+    {
+      taskTick();
+      commandRecieved = commandRecieved || lazy.loop();
+    }
+  }
+
+  // return if a bool indicating if a user command was processed.
+  return commandRecieved;
 }
 
 void log_value_postfix(float value, float minOk, float maxOk, bool gotValidResponse)
@@ -56,6 +68,8 @@ void log_value_postfix(float value, float minOk, float maxOk, bool gotValidRespo
 
 void setup()
 {
+  // LED1 on to indicate setup done
+  LED1_PWR.turnOn();
   // wdtStart();
   wdtStop();
   resetWDT();
@@ -67,24 +81,21 @@ void setup()
   // Print startup messages
   COMMS.println("| ISMS Initializing... [ Firmware Version " FIRMWARE_VERSION " ]");
   wdtPrintStatus(COMMS); // Print the startup status from the watchdog to the COMMS serial for reference
+  COMMS.print("| Free RAM baseline: ");
+  COMMS.println(getAvailableRAM());
 
   // Setup commands, logging and load saved settings
   lazy.set_commands(all_comms_commands);
   lazy.set_help_callback(lazy_help_callback);
-  Log.begin(LOG_LEVEL_INFO, &COMMS, false);
+  Log.begin(DEBUG_LOG_LEVEL_OFF, &COMMS, false);
   load_settings();
-  Log.setLevel(constrain(saved_settings.log_level, LOG_LEVEL_INFO, LOG_LEVEL_VERBOSE)); // Log levels below info are NOT used, because they may hide expected log messages.
+  Log.setLevel(constrain(saved_settings.log_level, DEBUG_LOG_LEVEL_OFF, DEBUG_LOG_LEVEL_HIGH)); // Log levels below info are NOT used, because they may hide expected log messages.
 
-  // Setup Pins
-  pinMode(PIN_LED1, OUTPUT);         // LED 1: Indicator light
-  pinMode(PIN_LED2, OUTPUT);         // LED 2: Indicator light
-  pinMode(PIN_PWR_PH, OUTPUT);       // Ph probe power pin
-  pinMode(PIN_PWR_ROUGHING, OUTPUT); // Roughing vacuum pump power pin
-
-  // Ensure everything is off to start
-  digitalWrite(PIN_PWR_ROUGHING, LOW);  // Turn off Roughing vacuum pump
-  digitalWrite(PIN_PWR_FLUIDPUMP, LOW); // Turn off fluid pump
-  digitalWrite(PIN_PWR_PH, LOW);        // Turn off Ph probe
+  // Setup Pins and ensure everything is off to start
+  LED1_PWR.begin(LOW);     // LED 1: Status Indicator light
+  LED2_PWR.begin(LOW);     // LED 2: Warning/error Indicator light
+  PH_PWR.begin(LOW);       // Ph probe power pin
+  ROUGHING_PWR.begin(LOW); // Roughing vacuum pump power pin
 
   // Begin turbo pump serial interface and turn the pump off to start (in case of reboot)
   turboTC80.begin();
@@ -94,31 +105,26 @@ void setup()
   fluidPump.init();
   fluidPump.setSpeed(0); // Ensure fluid pump is off
 
-  // LED1 on to indicate setup done
-  digitalWrite(PIN_LED1, HIGH);
+  // Turn off LED1 on to indicate setup done
+  LED1_PWR.turnOff();
 
-  // // initilize system
-  // TODO Finish Autostart
-  // nonBlockDelay(AUTOSTART_DELAY);
-  // if (autostart && !autostarted)
-  // {
-  //   autostarted = true;
-  //   COMMS.println("Autostarting system now.");
-  //   // Power on sequence
-  //   // 1. Power on roughing pump
-  //   digitalWrite(PIN_PWR_ROUGHING, HIGH);
-  //   nonBlockDelay(1000); // Wait 1 second
-  //   // 2. Power on fluid pump
-  //   digitalWrite(PIN_PWR_FLUIDPUMP, HIGH);
-  //   nonBlockDelay(1000); // Wait 1 second
-  //   // 3. Power on PH Probe
-  //   digitalWrite(PIN_PWR_PH, HIGH);
-  //   nonBlockDelay(60000); // Wait 60 seconds
-  //   // 4. Initialize turbo pump
-  //   COMMS.println("System autostart complete.");
-  // }
+  // initilize system
+  nonBlockDelay(saved_settings.autostart_delay);
+  if (saved_settings.autostart_on && !autostarted && !beatActive)
+  {
+    autostarted = true;
+    COMMS.println("Autostarting system now.");
+    // Run the startup command
+    LazySerial::Context ctx(LazySerial::CallingMode::INVOKE, COMMS);
+    cmd_full_startup(ctx);
+    COMMS.println("System autostart complete.");
+  }
 
-  // turboTC80.sendQuery(PfeifferVacProtocol::StatusRequest::DrvCurrent, true);
+  // Warn operator if stats logging is disabled.
+  if (!saved_settings.stats_loging_enabled)
+  {
+    Log.warningln("!WARN: Stats Logging disabled, send STATS_LOGGING <ms> to set stats logging interval.");
+  }
 }
 
 void log_stats()
@@ -127,47 +133,88 @@ void log_stats()
   String warnings = "";
   bool responseIsValid = true;
 
+  Log.info("Fluidpump_Rate:%d%%", fluidPump.getSpeed());
+  log_value_postfix((float)fluidPump.getSpeed(), 20, 100, true);
+  if (nonBlockDelay(20))
+    return; // Yield to allow command checks to run and reset WDT, while ensuring stats logging doesn't cause long pauses
+
   Log.trace("\n");
   turboTC80.sendQuery(PfeifferVacProtocol::StatusRequest::SetRotSpdRpm, false);
   long turboRpmTarget = turboTC80.receiveUInteger(PfeifferVacProtocol::StatusRequest::SetRotSpdRpm, responseIsValid, false);
-  Log.info("Turbo_RPM_Target:%l", turboRpmTarget);
   if (!responseIsValid)
-    warnings += "Turbo_RPM_Target wrong or missing response, ";
+    warnings += "Turbo_RPM_Setpoint wrong or missing response, ";
+  Log.info("Turbo_RPM_Setpoint:%l", turboRpmTarget);
   log_value_postfix((float)turboRpmTarget, 50000, 95000, responseIsValid);
-  nonBlockDelay(0); // Yield to allow command checks to run and reset WDT, while ensuring stats logging doesn't cause long pauses
+  if (nonBlockDelay(20))
+    return; // Yield to allow command checks to run and reset WDT, while ensuring stats logging doesn't cause long pauses
 
   responseIsValid = true;
   Log.trace("\n");
   turboTC80.sendQuery(PfeifferVacProtocol::StatusRequest::ActualSpdRpm, false);
   long turboRpm = turboTC80.receiveUInteger(PfeifferVacProtocol::StatusRequest::ActualSpdRpm, responseIsValid, false);
-  Log.info("Turbo_RPM:%l", turboRpm);
   if (!responseIsValid)
     warnings += "Turbo_RPM wrong or missing response, ";
+  else if (turboRpm > 1 && turboRpm < TC80_TURBO_LOW_SPEED_WARNING_RPM)
+    warnings += "Low Turbopump RPM, ensure RGA filament is OFF to avoid burnout!";
+  Log.info("Turbo_RPM:%l", turboRpm);
   log_value_postfix((float)turboRpm, 50000, 95000, responseIsValid);
+  if (nonBlockDelay(20))
+    return; // Yield to allow command checks to run and reset WDT, while ensuring stats logging doesn't cause long pauses
 
   responseIsValid = true;
   Log.trace("\n");
   turboTC80.sendQuery(PfeifferVacProtocol::StatusRequest::DrvCurrent, false);
   float turboCurrent = turboTC80.receiveUReal(PfeifferVacProtocol::StatusRequest::DrvCurrent, responseIsValid, false);
-  Log.info("Turbo_Current:%FA", turboCurrent);
   if (!responseIsValid)
     warnings += "Turbo_Current wrong or missing response, ";
+  Log.info("Turbo_Current:%FA", turboCurrent);
   log_value_postfix(turboCurrent, 0.2, 5.2, responseIsValid);
+  if (nonBlockDelay(20))
+    return; // Yield to allow command checks to run and reset WDT, while ensuring stats logging doesn't cause long pauses
 
   responseIsValid = true;
   Log.trace("\n");
   turboTC80.sendQuery(PfeifferVacProtocol::StatusRequest::TempRotor, false);
   long turboRotorTemp = turboTC80.receiveUInteger(PfeifferVacProtocol::StatusRequest::TempRotor, responseIsValid, false);
-  Log.info("Turbo_Rotor_Temp:%lC", turboRotorTemp);
   if (!responseIsValid)
     warnings += "Turbo_Rotor_Temp wrong or missing response, ";
+  Log.info("Turbo_Rotor_Temp:%lC", turboRotorTemp);
   log_value_postfix((float)turboRotorTemp, 0, 60, responseIsValid);
+  if (nonBlockDelay(20))
+    return; // Yield to allow command checks to run and reset WDT, while ensuring stats logging doesn't cause long pauses
 
-  Log.info("Fluidpump_Rate:%d%%", fluidPump.getSpeed());
-  log_value_postfix((float)fluidPump.getSpeed(), 20, 100, true);
+  responseIsValid = true;
+  Log.trace("\n");
+  turboTC80.sendQuery(PfeifferVacProtocol::StatusRequest::TempElec, false);
+  long turboElecTemp = turboTC80.receiveUInteger(PfeifferVacProtocol::StatusRequest::TempElec, responseIsValid, false);
+  if (!responseIsValid)
+    warnings += "Turbo_Elec_Temp wrong or missing response, ";
+  Log.info("Turbo_Elec_Temp:%lC", turboElecTemp);
+  log_value_postfix((float)turboElecTemp, 0, 70, responseIsValid);
+  if (nonBlockDelay(20))
+    return; // Yield to allow command checks to run and reset WDT, while ensuring stats logging doesn't cause long pauses
+
+  responseIsValid = true;
+  Log.trace("\n");
+  turboTC80.sendQuery(PfeifferVacProtocol::StatusRequest::TempPmpBot, false);
+  delay(1); // delay to avoid backtalk
+  long turboBottomTemp = turboTC80.receiveUInteger(PfeifferVacProtocol::StatusRequest::TempPmpBot, responseIsValid, false);
+  if (!responseIsValid)
+    warnings += "Turbo_Bottom_Temp wrong or missing response, ";
+  Log.info("Turbo_Bottom_Temp:%lC", turboBottomTemp);
+  log_value_postfix((float)turboBottomTemp, 0, 60, responseIsValid);
+  if (nonBlockDelay(20))
+    return; // Yield to allow command checks to run and reset WDT, while ensuring stats logging doesn't cause long pauses
+
+  Log.info("Roughing_on:%d,", ROUGHING_PWR.getState());
+  Log.info("Fluidpump_on:%d,", FLUIDPUMP_PWR.getState());
+  Log.info("pH_on:%d,", PH_PWR.getState());
+  if (nonBlockDelay(20))
+    return; // Yield to allow command checks to run and reset WDT, while ensuring stats logging doesn't cause long pauses
 
   responseIsValid = true;
   String lastestError = turboTC80.queryLatestError(responseIsValid, false, 5000);
+  // if there is any active turbo pump error, also query the turbo pump error history:
   if (lastestError.length() != 0)
   {
     warnings += "Turbo Error: ," + lastestError + ", ";
@@ -179,32 +226,23 @@ void log_stats()
     }
   }
 
-  // if (commsBufferOverflowed)
-  // {
-  //   // TODO why is this showing up in the logs?
-  //   warnings += "Comms serial overflowed. ";
-  //   commsBufferOverflowed = false; // reset the flag after logging the warning
-  // }
-
-  while (COMMS.getWriteError())
-  {
-    // Wait for space in the serial buffer to log the warning, while still allowing lazy serial commands to be processed and WDT resets to happen
-    nonBlockDelay(100);
-  }
-  commsBufferOverflowed = false;
-
   // check free memory and log a warning if it's low.
   unsigned long freeMemory = getAvailableRAM();
-  if (freeMemory < 500)
+  if (freeMemory < 1000 || minFreeRam < 600)
   {
-    warnings += "Low Memory: " + String(freeMemory) + "/" + String(getTotalRam()) + " bytes remaining, ";
+    warnings += "Low Free Memory: " + String(freeMemory) + "/" + String(getTotalRam()) + " bytes remaining [low since boot: " + String(minFreeRam) + "], ";
   }
 
-  // Log warnings if there were any
+  // Log warnings if there were any after a newline
   Log.warningln("");
   if (warnings.length() > 0)
   {
     Log.warningln("!WARN: %s", warnings.c_str());
+    LED2_PWR.turnOn(); // turn on status LED 2 when warnings occur
+  }
+  else
+  {
+    LED2_PWR.turnOff(); // turn off status LED 2 when no warnings are active
   }
 }
 
@@ -216,12 +254,26 @@ void loop()
 
   // Check if it's time to log stats again, based on the user configured interval in saved settings. If not, return early.
   if (millis() - lastStatsLogTime < saved_settings.stats_log_interval)
+  {
+    // Turn off LED1 on to indicate the ISMS is between logging events
+    LED1_PWR.turnOff();
+    // Return to avoid logging
     return;
+  }
 
-  // Log stats and update the last log time
+  // Log stats and update the last log timestamp
   lastStatsLogTime = millis();
+  // Turn on LED1 on to indicate the ISMS has started a stats log event.
+  LED1_PWR.turnOn();
   if (saved_settings.stats_loging_enabled)
   {
     log_stats();
   }
+  else
+  {
+    nonBlockDelay(100); // delay to give the status LED time to visibly flash.
+  }
+
+  // Turn off LED1 after the ISMS has done one stats log
+  LED1_PWR.turnOff();
 }
