@@ -2,7 +2,7 @@
 #define PFEIFFER_SERIAL_H
 
 #include <Arduino.h>
-#include <ArduinoLog.h> // This library depends on arduino log.
+#include <DebugLog.h> // This library depends on the debug log library.
 #include "PfeifferVacProtocolConsts.h"
 #include "PfeifferVacProtocolFuncs.h"
 #include "PfeifferVacProtocolDatatypes.h"
@@ -56,15 +56,15 @@ public:
         String telegramStr = PfeifferVacProtocol::encodeTelegram(_address, action, parameter, data);
         PfeifferVacProtocol::PfeifferTelegram telegram = PfeifferVacProtocol::decodeTelegram(telegramStr.c_str());
         PfeifferVacProtocol::printTelegramHumanReadable(telegram, true);
-        Log.verbose("[Raw Telegram: '");
-        Log.verbose(telegramStr.c_str());
-        Log.verboseln("']");
+        LOG_TRACE("[Raw Telegram: '");
+        LOG_TRACE(telegramStr.c_str());
+        LOG_TRACE("']\n");
     }
 
     // Send a telegram using action, parameter, and data
     void _sendTelegram(const char action, const uint16_t parameter, const char *data = nullptr, const bool debugPrint = false)
     {
-        if (debugPrint || Log.getLevel() >= LOG_LEVEL_TRACE)
+        if (debugPrint || LOG_GET_LEVEL() >= DebugLogLevel::LVL_DEBUG)
         {
             printOutgoingTelegram(action, parameter, data);
         }
@@ -97,13 +97,13 @@ public:
     {
         String raw = _receiveTelegramRaw(timeout);
         PfeifferVacProtocol::PfeifferTelegram telegram = PfeifferVacProtocol::decodeTelegram(raw.c_str());
-        if (debugPrint || Log.getLevel() >= LOG_LEVEL_TRACE)
+        if (debugPrint || LOG_GET_LEVEL() >= DebugLogLevel::LVL_DEBUG)
         {
             PfeifferVacProtocol::printTelegramHumanReadable(telegram, false);
-            Log.verbose("\n[RAW Received Telegram is '");
-            Log.verbose(raw.c_str());
-            Log.verbose("'] ");
-            Log.info("\n");
+            LOG_TRACE("\n[RAW Received Telegram is '");
+            LOG_TRACE(raw.c_str());
+            LOG_TRACE("'] ");
+            LOG_INFO("\n");
         }
         return telegram;
     }
@@ -116,12 +116,6 @@ public:
     void sendCommand(const uint16_t parameter, const char *data, const bool debugPrint = false)
     {
         _sendTelegram('1', parameter, data, debugPrint);
-    }
-
-    //
-    void sendCommand(const uint16_t parameter, const uint8_t data, const bool debugPrint = false)
-    {
-        _sendTelegram('1', parameter, String(data).c_str(), debugPrint);
     }
 
     // 0: boolean_old
@@ -192,38 +186,43 @@ public:
     // A utility function to output debug messages (assuming _debug is available)
     inline void _printInvalidResponseDebug(const PfeifferVacProtocol::PfeifferTelegram telegram, uint16_t expectedParameter)
     {
-        // Assumes Log.traceln is available or a similar logging mechanism
+        // Assumes LOG_DEBUG is available or a similar logging mechanism
         if (telegram.address.length() == 0 && telegram.parameter.length() == 0)
         {
             return; // no message was recived, ignore.
         }
         else if (strcmp(telegram.address.c_str(), _address) != 0)
         {
-            Log.traceln("!WARN: Address mismatch in Turbo response. Expected: %s, Received: %s", _address, telegram.address.c_str());
+            LOG_DEBUG(F("!WARN: Address mismatch in Turbo response. Expected: "), _address, ", Received: ", telegram.address.c_str(), "\n");
         }
         else if (telegram.error == PfeifferVacProtocol::TelegramError::LogicError)
         {
-            Log.traceln("!WARN: Turbo pump internal logic error.");
+            LOG_DEBUG(F("!WARN: Turbo pump internal logic error.\n"));
         }
         else if (telegram.error == PfeifferVacProtocol::TelegramError::OutOfRange)
         {
-            Log.traceln("!WARN: Given command value was out of range.");
+            LOG_DEBUG(F("!WARN: Given command value was out of range.\n"));
         }
         else if (telegram.error == PfeifferVacProtocol::TelegramError::InvalidParameter)
         {
-            Log.traceln("!WARN: Parameter %s is not a valid parameter.", (uint8_t)telegram.parameter.toInt());
+            LOG_DEBUG(F("!WARN: Parameter "));
+            LOG_DEBUG(telegram.parameter.c_str());
+            LOG_DEBUG(F(" is not a valid parameter.\n"));
         }
         else if (telegram.error == PfeifferVacProtocol::TelegramError::InvalidChecksum)
         {
-            Log.traceln("!WARN: Checksum invalid or partial Turbo response.");
+            LOG_DEBUG("!WARN: Checksum invalid or partial Turbo response.\n");
         }
         else if ((uint8_t)telegram.parameter.toInt() != expectedParameter)
         {
-            Log.traceln("!WARN: Unexpected parameter in Turbo response: %s ≠ %d", telegram.parameter.c_str(), expectedParameter);
+            LOG_DEBUG("!WARN: Unexpected parameter in Turbo response: ");
+            LOG_DEBUG(telegram.parameter.c_str());
+            LOG_DEBUG(" ≠ ");
+            LOG_DEBUG(expectedParameter, "\n");
         }
         else
         {
-            Log.traceln("!WARN: Data length mismatch or unexpected content in Turbo response.");
+            LOG_DEBUG("!WARN: Data length mismatch or unexpected content in Turbo response.\n");
         }
     }
 
@@ -254,8 +253,8 @@ public:
         return false; // Default/invalid return
     }
 
-    // 1: u_integer (Native Type: uint32_t)
-    uint32_t receiveUInteger(uint16_t expectedParameter, bool &isValid, bool debugPrint = true, unsigned long timeout = 1000)
+    // 1: u_integer (Native Type: unsigned long)
+    unsigned long receiveUInteger(uint16_t expectedParameter, bool &isValid, bool debugPrint = true, unsigned long timeout = 1000)
     {
         unsigned long startTime = millis();
         while (millis() - startTime < timeout)

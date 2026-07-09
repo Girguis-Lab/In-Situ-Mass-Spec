@@ -1,17 +1,17 @@
 #include <Arduino.h>
-#include <EEPROM.h>
-#include <ArduinoLog.h>
+#include <PROMPLUS.h>
+#include <DebugLog.h>
 #include "includes.h"
 
-// ISMS Settings are stored in EEPROM using a c++ struct.
-// When the ISMS boots up, it will attempt to load the settings from EEPROM.
-// When settings are changed, the full struct is saved to EEPROM so that the settings persist.
-// Writes are done using the EEPROM.put() function which only updated the bits that have changed,
-// to keep the eeprom wear to a minimum.
-// In the unlikely event that part of the eeprom has been worn out and settings do not save or load correctly,
-// Update the eeprom_start_address variable to point to a part of the eeprom past where the settings struct was stored.
+// ISMS Settings are stored in EEPROM (redundantly via the PROMPLUS library) using a c++ struct.
+// When the ISMS boots up, it will attempt to load the settings saved in EEPROM.
+// When settings are changed, the full struct is saved to EEPROM so that the settings persist by calling save_settings().
+// Writes are done using the PROM.put() function which only updated the bits that have changed,
+// to keep the EEPROM wear to a minimum. In the unlikely event that all three copies stored in the eeprom by the PROMPLUS
+// library have been worn out and settings do not save or load correctly,  Update the eeprom_start_address variable to point
+// to a part of the eeprom past where the settings struct was stored.
 
-size_t eeprom_start_address = 0;
+size_t eeprom_start_address = 50;
 
 /** ISMS Settings struct - contains all settings that should persist through reboots and power cycles - stored in EEPROM
  *  !!! IMPORTANT: To change this struct follow these guidelines:
@@ -33,7 +33,7 @@ struct saved_settings_t
     unsigned long autostart_delay;
     bool stats_loging_enabled;
     unsigned long stats_log_interval;
-    uint8_t log_level;
+    DebugLogLevel log_level;
     int16_t fluidpump_rate;
 };
 
@@ -46,43 +46,76 @@ saved_settings_t default_settings{
     .autostart_on = false,
     .autostart_delay = 5000, // Default delay of 5 seconds for autostartup
     .stats_loging_enabled = true,
-    .stats_log_interval = 1000,  // 1 second default interval for periodic stats logging
-    .log_level = LOG_LEVEL_INFO, // Default log level is INFO which corresponds to DEBUG_LOG_LEVEL_OFF and includes all stats logging
-    .fluidpump_rate = 100,       // Default fluid pump rate in percentage of full speed
+    .stats_log_interval = 1000,           // 1 second default interval for periodic stats logging
+    .log_level = DebugLogLevel::LVL_INFO, // Default log level is INFO which corresponds to DEBUG_LOG_LEVEL_OFF and includes all stats logging
+    .fluidpump_rate = 100,                // Default fluid pump rate in percentage of full speed
 };
 
-saved_settings_t saved_settings;
+saved_settings_t saved_settings = {};
 
 void save_settings()
 {
     // Save the current settings to EEPROM
-    EEPROM.put(eeprom_start_address, saved_settings);
+    PROM.put(eeprom_start_address, saved_settings);
+}
+
+void reset_settings()
+{
+    // Reset to defaults and save
+    saved_settings = default_settings;
+    save_settings();
+
+    // Print out eeprom info
+    LOG_INFO(F("| EEPROM: Wrote default settings to EEPROM [ struct_initialized: "));
+    LOG_INFO(saved_settings.struct_initialized);
+    LOG_INFO(F(", struct_version: "));
+    LOG_INFO(saved_settings.struct_version);
+    LOG_INFO(F(" ]\n"));
 }
 
 void load_settings()
 {
+
+    // use default settings in case eeprom read fails.
+    memcpy(&saved_settings, &default_settings, sizeof(saved_settings));
+
     // Load saved settings from EEPROM, if they are valid (i.e. struct_initialized is true and struct_version matches)
-    EEPROM.get(eeprom_start_address, saved_settings);
-    Log.infoln("| EEPROM: Loading saved settings [ struct_initialized: %T, struct_version: %d ]", saved_settings.struct_initialized, saved_settings.struct_version);
+    PROM.get(eeprom_start_address, saved_settings);
+    LOG_INFO(F("| EEPROM: Loading saved settings [ struct_initialized: "));
+    LOG_INFO(saved_settings.struct_initialized);
+    LOG_INFO(F(", struct_version: "));
+    LOG_INFO(saved_settings.struct_version);
+    LOG_INFO(F(" ]\n"));
 
     // Check if settings are valid - must be initialized AND version must match
     bool settings_valid = (saved_settings.struct_initialized == true) && (saved_settings.struct_version == default_settings.struct_version);
-
     if (!settings_valid)
     {
         if (!saved_settings.struct_initialized)
         {
-            Log.warningln(F("WARN: No ISMS saved settings found in EEPROM, using defaults"));
+            LOG_WARN(F("!WARN: No ISMS saved settings found in EEPROM, saving default values...\n"));
         }
         else if (saved_settings.struct_version != default_settings.struct_version)
         {
-            Log.warningln(F("WARN: ISMS saved settings in EEPROM are invalid (struct version mismatch), reverting to default values..."));
+            LOG_WARN(F("!WARN: ISMS saved settings in EEPROM are invalid (struct version mismatch), saving default values...\n"));
         }
 
-        // Reset to defaults and save
-        saved_settings = default_settings;
-        save_settings();
-        Log.infoln("| EEPROM: wrote default settings to EEPROM [ struct_initialized: %T, struct_version: %d ]", saved_settings.struct_initialized, saved_settings.struct_version);
+        // Reset to defaults
+        reset_settings();
     }
-    Log.infoln("| SETTINGS: autostart_on: %T, autostart_delay: %u ms, stats_loging_enabled: %T, stats_log_interval: %u ms, log_level: %s, fluidpump_rate: %d", saved_settings.autostart_on, saved_settings.autostart_delay, saved_settings.stats_loging_enabled, saved_settings.stats_log_interval, logLevelToString(saved_settings.log_level).c_str(), saved_settings.fluidpump_rate);
+
+    // Print out loaded settings:
+    LOG_INFO(F("| SETTINGS autostart_on: "));
+    LOG_INFO(saved_settings.autostart_on ? "yes" : "no");
+    LOG_INFO(F(", autostart_delay: "));
+    LOG_INFO(saved_settings.autostart_delay);
+    LOG_INFO(F("ms, stats_loging_enabled: "));
+    LOG_INFO(saved_settings.stats_loging_enabled);
+    LOG_INFO(F(", stats_log_interval: "));
+    LOG_INFO(saved_settings.stats_log_interval);
+    LOG_INFO(F("ms, log_level: "));
+    LOG_INFO(logLevelToString(saved_settings.log_level).c_str());
+    LOG_INFO(F(", fluidpump_rate: "));
+    LOG_INFO(saved_settings.fluidpump_rate);
+    LOG_INFO("%\n");
 }

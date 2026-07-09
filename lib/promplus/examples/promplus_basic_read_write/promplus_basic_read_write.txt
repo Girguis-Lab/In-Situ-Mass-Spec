@@ -1,0 +1,25 @@
+// This is the serial print out of the basic_read_write example sketch.
+
+Lets first look at a single write action.
+A single action results in 3 duplicates.
+0x0000: 55,55,55,FF,FF,FF,FF,FF,FF,FF,FF,FF,FF,FF,FF,FF
+0x0010: FF,FF,FF,FF,FF,FF,FF,FF,FF,FF,FF,FF,FF,FF,FF,FF
+
+Next look at multiple writes.
+Duplicate values have been stored for each.
+0x0000: 55,55,55,77,77,77,99,99,99,FF,FF,FF,FF,FF,FF,FF
+0x0010: FF,FF,FF,FF,FF,FF,FF,FF,FF,FF,FF,FF,FF,FF,FF,FF
+
+Reading each value gives the expected results.
+value1: 0x55
+value2: 0x77
+value3: 0x99
+
+Lets manually corrupt the data.
+0x0000: 00,55,55,00,77,77,00,99,99,FF,FF,FF,FF,FF,FF,FF
+0x0010: FF,FF,FF,FF,FF,FF,FF,FF,FF,FF,FF,FF,FF,FF,FF,FF
+
+Reading each value gives the expected results.
+value1: 0x55
+value2: 0x77
+value3: 0x99

@@ -107,65 +107,64 @@ namespace PfeifferVacProtocol
         // print details
         if (outgoing)
         {
-            Log.info("-> Turbo ");
+            LOG_INFO("-> Turbo ");
         }
         else
         {
-            Log.info("<- Turbo ");
+            LOG_INFO("<- Turbo ");
         }
         // return early for empty telegram
         if (telegram.address.length() == 0 || telegram.parameter.length() == 0)
         {
-            Log.info("Nothing ");
+            LOG_INFO("Nothing ");
             return;
         }
 
         // Find the command entry by parameter number
-        ParameterDebugEntry debugEntry;
+        ParameterDebugEntry debugEntry = {};
         int paramNum = telegram.parameter.toInt();
         const bool debugEntryFound = PfeifferVacProtocol::getParameterDebugEntry(paramNum, &debugEntry);
-
-        Log.verbose("(Addr:%s) ", telegram.address.c_str());
+        LOG_TRACE("(Addr: ", telegram.address.c_str(), ")");
         if (outgoing)
         {
             if (telegram.action == (char)PfeifferVacProtocol::Action::Query)
-                Log.info("Query ");
+                LOG_INFO("Query ");
             else if (telegram.action == (char)PfeifferVacProtocol::Action::Command)
-                Log.info("Command set ");
+                LOG_INFO("Command set ");
             else
-                Log.warning("Unknown action '%s' ", telegram.action);
+                LOG_WARN("Unknown action '", telegram.action, "' ");
         }
 
         if (debugEntryFound)
         {
-            Log.info(debugEntry.description);
+            LOG_INFO(debugEntry.description);
         }
-        Log.trace(" (p%s)", telegram.parameter.c_str());
+        LOG_DEBUG(" (p", telegram.parameter.c_str(), ")");
 
         if (telegram.error == TelegramError::InvalidChecksum)
         {
-            Log.info(" checksum error!\n");
+            LOG_INFO(" checksum error!\n");
             return; // For errors return early
         }
         else if (telegram.error == TelegramError::InvalidParameter)
         {
-            Log.info(" invalid parameter!\n");
+            LOG_INFO(" invalid parameter!\n");
             return; // For errors return early
         }
         if (telegram.error == TelegramError::LogicError)
         {
-            Log.info(" turbo pump logic error!\n");
+            LOG_INFO(" turbo pump logic error!\n");
             return; // For errors return early
         }
         if (telegram.error == TelegramError::OutOfRange)
         {
-            Log.info(" value out of range!\n");
+            LOG_INFO(" value out of range!\n");
             return; // For errors return early
         }
 
         if (outgoing && telegram.action == (char)PfeifferVacProtocol::Action::Query)
         {
-            Log.info("\n");
+            LOG_INFO("\n");
             return; // For outgoing queries, we don't have data to interpret, so we can return early after printing the parameter description
         }
         if (debugEntryFound)
@@ -173,58 +172,60 @@ namespace PfeifferVacProtocol
             if (telegram.data.length() > 0)
             {
                 if (outgoing && telegram.action == (char)PfeifferVacProtocol::Action::Command)
-                    Log.info(" to ");
+                    LOG_INFO(" to ");
                 else if (!outgoing)
-                    Log.info(" is ");
+                    LOG_INFO(" is ");
                 const char *ascii = telegram.data.c_str();
                 switch (debugEntry.datatype)
                 {
                 case DataType::BooleanOld:
-                    Log.info((debugEntry.lookupFuncFunction ? String(debugEntry.lookupFuncFunction(BooleanOld(ascii).decode() ? 1 : 0)) : String(BooleanOld(ascii).decode())).c_str());
-                    Log.verbose(" (BooleanOld %s)", ascii);
+                    LOG_INFO((debugEntry.lookupFuncFunction ? String(debugEntry.lookupFuncFunction(BooleanOld(ascii).decode() ? 1 : 0)) : String(BooleanOld(ascii).decode())).c_str());
+                    LOG_TRACE(" (BooleanOld ", ascii, ")");
                     break;
                 case DataType::BooleanNew:
-                    Log.info((debugEntry.lookupFuncFunction ? String(debugEntry.lookupFuncFunction(BooleanNew(ascii).decode() ? 1 : 0)) : String(BooleanNew(ascii).decode())).c_str());
-                    Log.verbose(" (BooleanNew %s)", ascii);
+                    LOG_INFO((debugEntry.lookupFuncFunction ? String(debugEntry.lookupFuncFunction(BooleanNew(ascii).decode() ? 1 : 0)) : String(BooleanNew(ascii).decode())).c_str());
+                    LOG_TRACE(" (BooleanNew ", ascii, ")");
                     break;
                 case DataType::UShortInt:
-                    Log.info((debugEntry.lookupFuncFunction ? String(debugEntry.lookupFuncFunction(UShortInt(ascii).decode())) : String(UShortInt(ascii).decode())).c_str());
-                    Log.verbose(" (UShortInt %s)", ascii);
+                    LOG_INFO((debugEntry.lookupFuncFunction ? String(debugEntry.lookupFuncFunction(UShortInt(ascii).decode())) : String(UShortInt(ascii).decode())).c_str());
+                    LOG_TRACE(" (UShortInt ", ascii, ")");
                     break;
                 case DataType::UInteger:
-                    Log.info("%l", UInteger(ascii).decode());
-                    Log.verbose(" (UInteger %s)", ascii);
+                    LOG_INFO(UInteger(ascii).decode());
+                    LOG_TRACE(" (UInteger ", ascii, ")");
                     break;
                 case DataType::UReal:
-                    Log.info("%F", (double)UReal(ascii).decode());
-                    Log.verbose(" (UReal %s)", ascii);
+                    LOG_INFO(UReal(ascii).decode());
+                    LOG_TRACE(" (UReal ", ascii, ")");
                     break;
                 case DataType::String6:
-                    Log.info(ascii);
+                    LOG_INFO(ascii);
                     break;
                 case DataType::String16:
-                    Log.info(ascii);
+                    LOG_INFO(ascii);
                     break;
                 case DataType::String8:
-                    Log.info(ascii);
+                    LOG_INFO(ascii);
                     break;
                 default:
-                    Log.info(ascii);
-                    Log.trace(" (Unknown Datatype %d)", (int)debugEntry.datatype);
+                    LOG_INFO(ascii);
+                    LOG_DEBUG(" (Unknown Datatype");
+                    LOG_DEBUG(static_cast<int>(debugEntry.datatype));
+                    LOG_DEBUG(")");
                     break;
                 }
             }
             else
             {
-                Log.info("(no data)");
+                LOG_INFO("(no data)");
             }
         }
         else
         {
-            Log.info(" Unknown Param %s", telegram.parameter.c_str());
-            Log.trace("RawData: %s", telegram.data.length() > 0 ? telegram.data.c_str() : "(no data)");
+            LOG_INFO(" Unknown Param ", telegram.parameter.c_str());
+            LOG_DEBUG("RawData: ", telegram.data.length() > 0 ? telegram.data.c_str() : "(no data)");
         }
-        Log.info("\n");
+        LOG_INFO("\n");
     }
 }
 

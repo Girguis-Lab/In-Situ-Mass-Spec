@@ -29,7 +29,7 @@ void handle_onoff_pin_command(powerPin *pwrPin, char *onoff, Stream &stream)
 // forward function delcaration - implemented later in the file.
 void cmd_help(LazySerial::Context &context);
 
-// Command to set the log level of the system. Usage: LOGLEVEL <0-6> where 0 is silent and 6 is verbose.
+// Command to set the log level of the system.
 void cmd_set_debug_loglevel(LazySerial::Context &context)
 {
     LAZY_COMMAND("DEBUG_LOGGING", "<OFF|LOW|HIGH>", "Enable additional logging to serial for troubleshooting purposes.");
@@ -38,7 +38,7 @@ void cmd_set_debug_loglevel(LazySerial::Context &context)
     LAZY_RETURN_USAGE_IF(!ok)
     if (ok)
     {
-        int level = saved_settings.log_level;
+        DebugLogLevel level = saved_settings.log_level;
         if (strcasecmp(levelStr, "OFF") == 0)
         {
             level = DEBUG_LOG_LEVEL_OFF;
@@ -53,13 +53,15 @@ void cmd_set_debug_loglevel(LazySerial::Context &context)
         }
         else
         {
-            context.stream.println(F(ERROR " Invalid log level, use OFF, LOW, or HIGH"));
+            COMMS.println(F(ERROR " Invalid log level, use OFF, LOW, or HIGH"));
             return;
         }
-        Log.setLevel(level);
+
+        LOG_SET_LEVEL(level);
         saved_settings.log_level = level;
         save_settings();
-        Log.infoln(OK "DEBUG_LOGGING Set to %s Level", logLevelToString(saved_settings.log_level).c_str());
+        LOG_INFO(F(OK "DEBUG_LOGGING Set to "));
+        LOG_INFO(logLevelToString(saved_settings.log_level).c_str(), "(", (int)LOG_GET_LEVEL(), ")\n");
     }
 }
 
@@ -88,11 +90,13 @@ void cmd_set_stats_broadcast_interval(LazySerial::Context &context)
     // Print the current state:
     if (!saved_settings.stats_loging_enabled)
     {
-        Log.info("STATS_LOGGING OFF - periodic stats logging disabled");
+        LOG_INFO(OK "STATS_LOGGING OFF - periodic stats logging disabled\n");
     }
     else
     {
-        Log.info("STATS_LOGGING ON - Logging interval set to %u ms", saved_settings.stats_log_interval);
+        LOG_INFO(F(OK "STATS_LOGGING ON - Logging interval set to "));
+        LOG_INFO(saved_settings.stats_log_interval);
+        LOG_INFO(F("ms\n"));
     }
 }
 
@@ -100,16 +104,16 @@ void cmd_set_stats_broadcast_interval(LazySerial::Context &context)
 void cmd_version(LazySerial::Context &context)
 {
     LAZY_COMMAND("VERSION", "", "Prints firmware version");
-    context.stream.println(F(OK "VERSION " FIRMWARE_VERSION " COMPILED AT " __TIMESTAMP__));
+    COMMS.println(F(OK "VERSION " FIRMWARE_VERSION " COMPILED AT " __TIMESTAMP__));
 }
 
 // A command to show the configured pinout for reference.
 void cmd_pinout(LazySerial::Context &context)
 {
     LAZY_COMMAND("PINOUT", "", "Prints configured arduino pinout and I2C/RS485 addresses");
-    context.stream.println(F(OK "PINOUT " LAZY_KEYVAL(PIN_LED1) LAZY_KEYVAL(PIN_LED2) LAZY_KEYVAL(PIN_PWR_ROUGHING) LAZY_KEYVAL(PIN_PWR_PH) LAZY_KEYVAL(PIN_PWR_FLUIDPUMP) LAZY_KEYVAL(PIN_ANALOG_FLUIDPUMP_SPEED)));
-    context.stream.print(F("ADDRESSES: Turbo Pump RS485 Address="));
-    context.stream.println(LAZY_KEYVAL(turboTC80.getAddress()));
+    COMMS.println(F(OK "PINOUT " LAZY_KEYVAL(PIN_LED1) LAZY_KEYVAL(PIN_LED2) LAZY_KEYVAL(PIN_PWR_ROUGHING) LAZY_KEYVAL(PIN_PWR_PH) LAZY_KEYVAL(PIN_PWR_FLUIDPUMP) LAZY_KEYVAL(PIN_ANALOG_FLUIDPUMP_SPEED)));
+    COMMS.print(F("ADDRESSES: Turbo Pump RS485 Address="));
+    COMMS.println(LAZY_KEYVAL(turboTC80.getAddress()));
 }
 
 // Command to set any pin high or low for testing purposes.
@@ -124,8 +128,9 @@ void cmd_gpio(LazySerial::Context &context)
     LAZY_RETURN_USAGE_UNLESS(ok);
 
     powerPin pwrPin(pin);
-    context.stream.print("OK GPIO ");
-    context.stream.print(pin);
+    COMMS.print(OK "GPIO ");
+    COMMS.print(pin);
+    COMMS.print(" ");
     handle_onoff_pin_command(&pwrPin, onoff, context.stream);
 }
 
@@ -134,7 +139,7 @@ void cmd_beat(LazySerial::Context &context)
 {
     LAZY_COMMAND("BEAT", "", "Send to stop autostart for this boot, used to temporarily enforce fully manual control");
     beatActive = true;
-    context.stream.print("OK BEAT");
+    COMMS.println(OK "BEAT");
 }
 
 // --------------------------------------------------
@@ -148,19 +153,19 @@ void cmd_roughing_on_off(LazySerial::Context &context)
     char *onoff;
     bool ok = context.parse_word(&onoff);
     LAZY_RETURN_USAGE_UNLESS(ok);
-    context.stream.print(F(OK "ROUGHING "));
+    COMMS.print(F(OK "ROUGHING "));
     handle_onoff_pin_command(&ROUGHING_PWR, onoff, context.stream);
 }
 
-// A command to turn the pH probe power on or off.
-void cmd_ph_pwr(LazySerial::Context &context)
+// A command to turn the accessory power on or off (usually a PH Probe).
+void cmd_accessory_pwr(LazySerial::Context &context)
 {
-    LAZY_COMMAND("PH", "<ON|OFF>", "Turns the pH probe power on or off");
+    LAZY_COMMAND(ACCESSORY_NAME, "<ON|OFF>", "Turns the " ACCESSORY_NAME " power on or off");
     char *onoff;
     bool ok = context.parse_word(&onoff);
     LAZY_RETURN_USAGE_UNLESS(ok);
-    context.stream.print(F(OK "PH "));
-    handle_onoff_pin_command(&PH_PWR, onoff, context.stream);
+    COMMS.print(F(OK "" ACCESSORY_NAME " "));
+    handle_onoff_pin_command(&ACCESSORY_PWR, onoff, context.stream);
 }
 
 // A command to turn the fluid pump power on or off.
@@ -170,7 +175,7 @@ void cmd_fluidpump_on_off(LazySerial::Context &context)
     char *onoff;
     bool ok = context.parse_word(&onoff);
     LAZY_RETURN_USAGE_UNLESS(ok);
-    context.stream.print(F(OK "FLUIDPUMP "));
+    COMMS.print(F(OK "FLUIDPUMP "));
     if (strcasecmp(onoff, "ON") == 0)
     {
         if (saved_settings.fluidpump_rate == 0)
@@ -182,7 +187,7 @@ void cmd_fluidpump_on_off(LazySerial::Context &context)
         int resultRate = fluidPump.setSpeed(saved_settings.fluidpump_rate);
         if (resultRate == FLUID_PUMP_UNINITIALIZED)
         {
-            context.stream.println(F(ERROR " Fluid pump not initialized"));
+            COMMS.println(F(ERROR " Fluid pump not initialized"));
         }
     }
     else if (strcasecmp(onoff, "OFF") == 0)
@@ -190,7 +195,7 @@ void cmd_fluidpump_on_off(LazySerial::Context &context)
         int resultRate = fluidPump.setSpeed(0);
         if (resultRate == FLUID_PUMP_UNINITIALIZED)
         {
-            context.stream.println(F(ERROR " Fluid pump not initialized"));
+            COMMS.println(F(ERROR " Fluid pump not initialized"));
         }
     }
     else
@@ -214,13 +219,13 @@ void cmd_fluidpump_rate(LazySerial::Context &context)
     int resultRate = fluidPump.setSpeed(rate);
     if (resultRate == FLUID_PUMP_UNINITIALIZED)
     {
-        context.stream.println(F(ERROR " Fluid pump not initialized"));
+        COMMS.println(F(ERROR " Fluid pump not initialized"));
     }
     else
     {
-        context.stream.print(F(OK "FLUIDPUMP_RATE "));
-        context.stream.print(resultRate);
-        context.stream.println(F(" %"));
+        COMMS.print(F(OK "FLUIDPUMP_RATE "));
+        COMMS.print(resultRate);
+        COMMS.println(F(" %"));
     }
 }
 
@@ -259,7 +264,7 @@ void cmd_turbo_speed(LazySerial::Context &context)
     if (param == 0)
     {
         // Send 0 to reset to pfeiffer default speed control mode
-        context.stream.println(F(OK "GOT '0' SO RESETING TO DEFAULT PFEIFFER SPEED CONTROL"));
+        COMMS.println(F(OK "GOT '0' SO RESETING TO DEFAULT PFEIFFER SPEED CONTROL"));
         turboTC80.sendCommand(PfeifferVacProtocol::ControlCommand::SpdSetMode, PfeifferVacProtocol::UShortInt((uint16_t)0)); // turn off custom speed setting mode to go back to pfeiffer default speed control mode
         turboTC80.receiveTelegram(true);
     }
@@ -277,13 +282,13 @@ void cmd_turbo_speed(LazySerial::Context &context)
 void cmd_turbo_limit_pwr(LazySerial::Context &context)
 {
     LAZY_COMMAND("TURBO_LIMIT_PWR", "<0-100>", "Sets the turbo pump power limit as a percentage of full power (Pfeiffer max draw is 5A)");
-    context.stream.print(F(OK "TURBO_LIMIT_PWR "));
+    COMMS.print(F(OK "TURBO_LIMIT_PWR "));
     int percent = 100;
     context.parse_int_minmax(&percent, 10, 100);
-    context.stream.println(percent);
+    COMMS.println(percent);
+    bool isValid;
     turboTC80.sendCommand(PfeifferVacProtocol::ReferenceValueInput::PwrSVal, PfeifferVacProtocol::UShortInt((uint16_t)percent));
-    bool isValid; // TODO check this funciton
-    turboTC80.receiveUInteger(true, isValid);
+    turboTC80.receiveUShortInt(PfeifferVacProtocol::ReferenceValueInput::PwrSVal, isValid, true);
 }
 
 void cmd_turbo_cmd(LazySerial::Context &context)
@@ -305,14 +310,15 @@ void cmd_turbo_cmd(LazySerial::Context &context)
 void cmd_turbo_query(LazySerial::Context &context)
 {
     LAZY_COMMAND("TURBO_QUERY", "<PARAM>", "Query a parameter from the turbo pump with the 3-digit parameter number");
-    COMMS.println(F(OK "TURBO_QUERY"));
+
     uint16_t param = 0;
     bool ok = context.parse_int_minmax(&param, (uint16_t)0, (uint16_t)999);
     LAZY_RETURN_USAGE_UNLESS(ok);
-
+    COMMS.print(F(OK "TURBO_QUERY"));
+    COMMS.println(param);
     // queries always have 'action' set to '0' and a query data of "?"
     turboTC80.sendQuery(param, true);
-    turboTC80.receiveTelegram(true, 1000);
+    turboTC80.receiveTelegram(true);
 }
 
 void cmd_turbo_raw(LazySerial::Context &context)
@@ -321,14 +327,16 @@ void cmd_turbo_raw(LazySerial::Context &context)
     char *command;
     bool ok = context.parse_word(&command);
     LAZY_RETURN_USAGE_UNLESS(ok);
+    COMMS.print(F(OK "TURBO_RAW"));
+    COMMS.println(command);
     turboTC80._sendTelegramRaw(command);
-    turboTC80.receiveTelegram(true, 1000);
+    turboTC80.receiveTelegram(true);
 }
 
 void cmd_turbo_reset(LazySerial::Context &context)
 {
     LAZY_COMMAND("TURBO_RESET", "", "Resets turbo pump parameters for default operation in normal conditions (light gases, default speed control mode, power limit 100%)");
-    context.stream.println(F("OK TURBO_RESET"));
+    COMMS.println(F(OK "TURBO_RESET"));
 
     // Set gas mode to light gases.
     turboTC80.sendCommand(PfeifferVacProtocol::ControlCommand::GasMode, PfeifferVacProtocol::UShortInt((uint8_t)PfeifferVacProtocol::FuncGasMode::LightGases), true);
@@ -341,16 +349,16 @@ void cmd_turbo_reset(LazySerial::Context &context)
     nonBlockDelay(20); // TC80 Likes a delay between queries.
 
     // Turn off custom speed setting mode to go back to pfeiffer default speed control mode
-    turboTC80.sendCommand(PfeifferVacProtocol::ControlCommand::SpdSetMode, PfeifferVacProtocol::UShortInt(1));
+    turboTC80.sendCommand(PfeifferVacProtocol::ControlCommand::SpdSetMode, PfeifferVacProtocol::UShortInt((uint16_t)PfeifferVacProtocol::FuncYesNo::No));
     turboTC80.receiveTelegram(true);
-    nonBlockDelay(20);
+    nonBlockDelay(20); // TC80 Likes a delay between queries.
 
     // Set rotation speed back to 100% speed.                                                                                        // TC80 Likes a delay between queries.
     turboTC80.sendCommand(PfeifferVacProtocol::ReferenceValueInput::SpdSVal, PfeifferVacProtocol::UReal(100.0));
     turboTC80.receiveTelegram(true);
     nonBlockDelay(20); // TC80 Likes a delay between queries.
 
-    // Make sure the pumping station is on and prior errors have been acknowledged.
+    // Make sure the pumping station is on and prior errors have been acknowledged. (note that the "Pumping station" on is the electronics & other hardware, but does not cause the  motor to spin up)
     turboTC80.sendCommand(PfeifferVacProtocol::ControlCommand::PumpgStatn, PfeifferVacProtocol::BooleanOld((bool)PfeifferVacProtocol::FuncPumpingStation::OnAndAckn), true); // Turn on pumping station (acknowledging errors)
     turboTC80.receiveTelegram(true);
 
@@ -360,44 +368,50 @@ void cmd_turbo_reset(LazySerial::Context &context)
 void cmd_turbo_clear_errors(LazySerial::Context &context)
 {
     LAZY_COMMAND("TURBO_CLEAR_ERRORS", "", "Clears turbo pump errors and warning messages");
-    context.stream.println(F("TURBO_CLEAR_ERRORS"));
+    COMMS.println(F(OK "TURBO_CLEAR_ERRORS"));
     turboTC80.sendCommand(PfeifferVacProtocol::ControlCommand::ErrorAckn, PfeifferVacProtocol::BooleanOld(true), true);
     turboTC80.receiveTelegram(true);
-    COMMS.println(F(OK "TURBO_CLEAR_ERRORS COMPLETE"));
+    COMMS.println(F("| TURBO_CLEAR_ERRORS COMPLETE"));
 }
 
 void cmd_full_startup(LazySerial::Context &context)
 {
     LAZY_COMMAND("STARTUP", "", "Run full auto startup sequence.");
-    COMMS.println("|Autostarting system now.");
+    COMMS.println(F(OK "Autostarting system now."));
     // Power on sequence
 
     // 1. Power on roughing pump
     ROUGHING_PWR.turnOn();
-    COMMS.println("|Roughing Pump ON");
+    COMMS.println(F("| Roughing Pump ON"));
     nonBlockDelay(100); // Wait 100ms to avoid current spikes
 
     // 2. Power on fluid pump
     fluidPump.setSpeed(100);
-    COMMS.println("|Fluid Pump ON 100%");
+    COMMS.println(F("| Fluid Pump ON 100%"));
     nonBlockDelay(100); // Wait 100ms to avoid current spikes
 
-    // 3. Power on PH Probe
-    PH_PWR.turnOn();
-    COMMS.println("|PH Probe ON");
+    // 3. Power on PH Probe or Accessory
+    ACCESSORY_PWR.turnOn();
+    COMMS.println(F("| PH Probe ON"));
 
     // !!!! IMPORTANT WAIT 60 Seconds so that roughing pump has sufficiently pumped down vacuum !!!!!
-    COMMS.println("|Waiting 60 seconds for rough out...");
+    COMMS.println(F("| Waiting 60 seconds for rough out..."));
     nonBlockDelay(60000); // Wait 60 seconds !!!!!
 
-    COMMS.println("|Turning ON Turbo Pump...");
-    turboTC80.sendCommand(PfeifferVacProtocol::ControlCommand::GasMode, (uint8_t)PfeifferVacProtocol::FuncGasMode::LightGases, true);
+    if (beatActive)
+        return; // do not finish startup sequence if beat was callled.
+
+    COMMS.println(F("| Turning ON Turbo Pump..."));
+    turboTC80.sendCommand(PfeifferVacProtocol::ControlCommand::GasMode, PfeifferVacProtocol::UShortInt((uint8_t)PfeifferVacProtocol::FuncGasMode::LightGases), true);
     turboTC80.receiveTelegram(true);
-    turboTC80.sendCommand(PfeifferVacProtocol::ControlCommand::MotorPump, (uint8_t)PfeifferVacProtocol::FuncOnOff::On);
+    nonBlockDelay(20); // TC80 Likes a delay between queries.
+    turboTC80.sendCommand(PfeifferVacProtocol::ControlCommand::MotorPump, PfeifferVacProtocol::BooleanOld((uint8_t)PfeifferVacProtocol::FuncOnOff::On), true);
     turboTC80.receiveTelegram(true);
-    turboTC80.sendCommand(PfeifferVacProtocol::ControlCommand::PumpgStatn, (uint8_t)PfeifferVacProtocol::FuncPumpingStation::OnAndAckn, true); // Turn on pumping station (acknowledging errors)
+    nonBlockDelay(20);                                                                                                                                                          // TC80 Likes a delay between queries.
+    turboTC80.sendCommand(PfeifferVacProtocol::ControlCommand::PumpgStatn, PfeifferVacProtocol::BooleanOld((uint8_t)PfeifferVacProtocol::FuncPumpingStation::OnAndAckn), true); // Turn on pumping station (acknowledging errors)
     turboTC80.receiveTelegram(true);
-    context.stream.println("Startup Complete");
+    nonBlockDelay(20); // TC80 Likes a delay between queries.
+    COMMS.println(F("| Startup Complete"));
 }
 
 void cmd_autostart_on_off(LazySerial::Context &context)
@@ -410,17 +424,18 @@ void cmd_autostart_on_off(LazySerial::Context &context)
         if (strcasecmp(param, "ON") == 0)
         {
             saved_settings.autostart_on = true;
-            context.stream.println(F(OK "AUTOSTART ON"));
+            COMMS.println(F(OK "AUTOSTART ON"));
             save_settings();
         }
         else if (strcasecmp(param, "OFF") == 0)
         {
             saved_settings.autostart_on = false;
-            context.stream.println(F(OK "AUTOSTART OFF"));
+            COMMS.println(F(OK "AUTOSTART OFF"));
             save_settings();
         }
         else
         {
+            COMMS.println(F(OK "AUTOSTART SET TO"));
             char *end;
             unsigned long delay = strtoul(param, &end, 10);
             LAZY_RETURN_USAGE_UNLESS(end > param) // check that we parsed some number and not just garbage
@@ -429,14 +444,32 @@ void cmd_autostart_on_off(LazySerial::Context &context)
             save_settings();
         }
     }
-    Log.infoln(F("| AUTOSTART %s, AUTOSTART_DELAY: %u ms"), saved_settings.autostart_on ? "ON" : "OFF", saved_settings.autostart_delay);
+    else
+    {
+        COMMS.println(F(OK "AUTOSTART SET TO"));
+    }
+    LOG_INFO(F("| AUTOSTART"));
+    LOG_INFO(saved_settings.autostart_on ? " ON " : " OFF ");
+    LOG_INFO(F(" AUTOSTART_DELAY: "));
+    LOG_INFO(saved_settings.autostart_delay, "\n");
+    if (!hasParam)
+        COMMS.println(F("| [To manually trigger startup routine, use command: STARTUP]\n"));
+}
+
+void cmd_reset_settings(LazySerial::Context &context)
+{
+    LAZY_COMMAND("RESET_SETTINGS", "", "Resets settings saved on the ISMS to their default values (does not change TURBO pump or RGA parameters)");
+    COMMS.println(F(OK "RESET_SETTINGS"));
+    reset_settings();
+    COMMS.println(F("| RESET_SETTINGS COMPLETE"));
 }
 
 LazySerial::CallbackFunction basic_comms_commands[] = {
     cmd_help,
+    cmd_beat,
     cmd_full_startup,
     cmd_roughing_on_off,
-    cmd_ph_pwr,
+    cmd_accessory_pwr,
     cmd_fluidpump_on_off,
     cmd_fluidpump_rate,
     cmd_turbo_on_off,
@@ -452,6 +485,7 @@ LazySerial::CallbackFunction debug_comms_commands[] = {
     cmd_version,
     cmd_pinout,
     cmd_set_debug_loglevel,
+    cmd_reset_settings,
     cmd_turbo_reset,
     cmd_turbo_query,
     cmd_turbo_cmd,
@@ -461,13 +495,14 @@ LazySerial::CallbackFunction debug_comms_commands[] = {
 
 LazySerial::CallbackFunction all_comms_commands[] = {
     cmd_help,
+    cmd_beat,
     cmd_version,
     cmd_set_debug_loglevel,
     cmd_set_stats_broadcast_interval,
     cmd_autostart_on_off,
     cmd_full_startup,
     cmd_roughing_on_off,
-    cmd_ph_pwr,
+    cmd_accessory_pwr,
     cmd_fluidpump_on_off,
     cmd_fluidpump_rate,
     cmd_turbo_on_off,
@@ -511,6 +546,7 @@ void basic_help_table(LazySerial::Context &context)
     print_padded(COMMS, F("+====== AVAILABLE COMMANDS "), lazy.d_usage_column_width + 3, '=');
     COMMS.println(F("==================="));
     print_cmd_help_table(basic_comms_commands, sizeof(basic_comms_commands) / sizeof(basic_comms_commands[0]));
+    nonBlockDelay(4000); // give the human more time to read commands
 }
 
 /** Prints out the debug/troubleshooting commands and their usage as a table */
@@ -519,6 +555,7 @@ void debug_help_table(LazySerial::Context &context)
     print_padded(COMMS, F("+====== DEBUGGING COMMANDS "), lazy.d_usage_column_width + 3, '=');
     COMMS.println(F("==================="));
     print_cmd_help_table(debug_comms_commands, sizeof(debug_comms_commands) / sizeof(debug_comms_commands[0]));
+    nonBlockDelay(4000); // give the human more time to read commands
 }
 
 // A command to show a help message listing all available commands.

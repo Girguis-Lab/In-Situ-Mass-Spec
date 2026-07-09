@@ -1,5 +1,6 @@
 /*
 
+NOTE: THIS IS A PARTIAL CONVERSION FROM THE OLD CODE AND IS NOT YET COMPLETE!
 
 All responses from the MCU start with ‘M’+’␠’ (ASCII 77 and 32) (this will be omitted from the response description in the following). The main module should always respond.
 If no specific response is required, it will reply “OK”. If the command has not been understood, the MCU will respond with “EC”.
@@ -193,7 +194,7 @@ static void print_ok(Stream &stream)
 
 static void print_ec(Stream &stream)
 {
-    stream.print(F("M EC"));
+    stream.print(("M EC"));
     print_line_end(stream);
 }
 
@@ -202,21 +203,21 @@ static void print_ec(Stream &stream)
 
 void cmd_beat(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U BEAT"), F("Checking that the module is alive - responds with BEAT"));
-    context.stream.print(F("M BEAT"));
+    LAZY_COMMAND(("U BEAT"), "", ("Checking that the module is alive - responds with BEAT"));
+    context.stream.print(("M BEAT"));
     print_line_end(context.stream);
 }
 
 void cmd_firm(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U ?FIRM"), F("Request the firmware version - responds with version string"));
+    LAZY_COMMAND(("U ?FIRM"), "", ("Request the firmware version - responds with version string"));
     context.stream.print("M " FIRMWARE_VERSION);
     print_line_end(context.stream);
 }
 
 void cmd_data(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U ?DATA"), F("Request the data telegram"));
+    LAZY_COMMAND(("U ?DATA"), "", ("Request the data telegram"));
     // Example data telegram - replace with actual data retrieval
     context.stream.print("M DATA ");
     context.stream.print("Pressure:1013.25,");
@@ -245,875 +246,875 @@ static String request_string(const LazySerial::Context &context)
 // Power controls
 void cmd_ptmpon(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U PTMPON"), F("Turn turbo pump on"));
+    LAZY_COMMAND(("U PTMPON"), "", ("Turn turbo pump on"));
     print_ok(context.stream);
 }
-void cmd_ptmpoff(LazySerial::Context &context)
+void cmd_ptmpof(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U PTMPOFF"), F("Turn turbo pump off"));
+    LAZY_COMMAND(("U PTMPOFF"), "", ("Turn turbo pump off"));
     print_ok(context.stream);
 }
 void cmd_prgaon(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U PRGAON"), F("Turn RGA on"));
+    LAZY_COMMAND(("U PRGAON"), "", ("Turn RGA on"));
     print_ok(context.stream);
 }
-void cmd_prgaoff(LazySerial::Context &context)
+void cmd_prgaof(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U PRGAOFF"), F("Turn RGA off"));
+    LAZY_COMMAND(("U PRGAOFF"), "", ("Turn RGA off"));
     print_ok(context.stream);
 }
 void cmd_pknf1on(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U PKNF1ON"), F("Main roughing pump on"));
+    LAZY_COMMAND(("U PKNF1ON"), "", ("Main roughing pump on"));
     print_ok(context.stream);
 }
-void cmd_pknf1off(LazySerial::Context &context)
+void cmd_pknf1of(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U PKNF1OFF"), F("Main roughing pump off"));
+    LAZY_COMMAND(("U PKNF1OFF"), "", ("Main roughing pump off"));
     print_ok(context.stream);
 }
 void cmd_pknf2on(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U PKNF2ON"), F("Aux roughing pump on"));
+    LAZY_COMMAND(("U PKNF2ON"), "", ("Aux roughing pump on"));
     print_ok(context.stream);
 }
-void cmd_pknf2off(LazySerial::Context &context)
+void cmd_pknf2of(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U PKNF2OFF"), F("Aux roughing pump off"));
+    LAZY_COMMAND(("U PKNF2OFF"), "", ("Aux roughing pump off"));
     print_ok(context.stream);
 }
 
 // Fans (1..4) ON/OFF
 void cmd_pfan1on(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U PFAN1ON"), F("Fan1 on"));
+    LAZY_COMMAND(("U PFAN1ON"), "", ("Fan1 on"));
     print_ok(context.stream);
 }
-void cmd_pfan1off(LazySerial::Context &context)
+void cmd_pfan1of(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U PFAN1OFF"), F("Fan1 off"));
+    LAZY_COMMAND(("U PFAN1OFF"), "", ("Fan1 off"));
     print_ok(context.stream);
 }
 void cmd_pfan2on(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U PFAN2ON"), F("Fan2 on"));
+    LAZY_COMMAND(("U PFAN2ON"), "", ("Fan2 on"));
     print_ok(context.stream);
 }
-void cmd_pfan2off(LazySerial::Context &context)
+void cmd_pfan2of(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U PFAN2OFF"), F("Fan2 off"));
+    LAZY_COMMAND(("U PFAN2OFF"), "", ("Fan2 off"));
     print_ok(context.stream);
 }
 void cmd_pfan3on(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U PFAN3ON"), F("Fan3 on"));
+    LAZY_COMMAND(("U PFAN3ON"), "", ("Fan3 on"));
     print_ok(context.stream);
 }
-void cmd_pfan3off(LazySerial::Context &context)
+void cmd_pfan3of(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U PFAN3OFF"), F("Fan3 off"));
+    LAZY_COMMAND(("U PFAN3OFF"), "", ("Fan3 off"));
     print_ok(context.stream);
 }
 void cmd_pfan4on(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U PFAN4ON"), F("Fan4 on"));
+    LAZY_COMMAND(("U PFAN4ON"), "", ("Fan4 on"));
     print_ok(context.stream);
 }
-void cmd_pfan4off(LazySerial::Context &context)
+void cmd_pfan4of(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U PFAN4OFF"), F("Fan4 off"));
+    LAZY_COMMAND(("U PFAN4OFF"), "", ("Fan4 off"));
     print_ok(context.stream);
 }
 
 // Auxiliary valves and devices
 void cmd_paux1on(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U PAUX1ON"), F("Aux vac valve1 on"));
+    LAZY_COMMAND(("U PAUX1ON"), "", ("Aux vac valve1 on"));
     print_ok(context.stream);
 }
-void cmd_paux1off(LazySerial::Context &context)
+void cmd_paux1of(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U PAUX1OFF"), F("Aux vac valve1 off"));
+    LAZY_COMMAND(("U PAUX1OFF"), "", ("Aux vac valve1 off"));
     print_ok(context.stream);
 }
 void cmd_paux2on(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U PAUX2ON"), F("Aux vac valve2 on"));
+    LAZY_COMMAND(("U PAUX2ON"), "", ("Aux vac valve2 on"));
     print_ok(context.stream);
 }
-void cmd_paux2off(LazySerial::Context &context)
+void cmd_paux2of(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U PAUX2OFF"), F("Aux vac valve2 off"));
+    LAZY_COMMAND(("U PAUX2OFF"), "", ("Aux vac valve2 off"));
     print_ok(context.stream);
 }
 void cmd_pphon(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U PPHON"), F("pH meter on"));
+    LAZY_COMMAND(("U PPHON"), "", ("pH meter on"));
     print_ok(context.stream);
 }
-void cmd_pphoff(LazySerial::Context &context)
+void cmd_pphof(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U PPHOFF"), F("pH meter off"));
+    LAZY_COMMAND(("U PPHOFF"), "", ("pH meter off"));
     print_ok(context.stream);
 }
 void cmd_psbeon(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U PSBEON"), F("SBE CTD pump on"));
+    LAZY_COMMAND(("U PSBEON"), "", ("SBE CTD pump on"));
     print_ok(context.stream);
 }
-void cmd_psbeoff(LazySerial::Context &context)
+void cmd_psbeof(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U PSBEOFF"), F("SBE CTD pump off"));
+    LAZY_COMMAND(("U PSBEOFF"), "", ("SBE CTD pump off"));
     print_ok(context.stream);
 }
 void cmd_pheaton(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U PHEATON"), F("Heaters power on"));
+    LAZY_COMMAND(("U PHEATON"), "", ("Heaters power on"));
     print_ok(context.stream);
 }
-void cmd_pheatoff(LazySerial::Context &context)
+void cmd_pheatof(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U PHEATOFF"), F("Heaters power off"));
+    LAZY_COMMAND(("U PHEATOFF"), "", ("Heaters power off"));
     print_ok(context.stream);
 }
 
 // KNF start/stop high-level
 void cmd_pknf0on(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U PKNF0ON"), F("Start KNF considering mode"));
+    LAZY_COMMAND(("U PKNF0ON"), "", ("Start KNF considering mode"));
     print_ok(context.stream);
 }
-void cmd_pknf0off(LazySerial::Context &context)
+void cmd_pknf0of(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U PKNF0OFF"), F("Stop KNF considering mode"));
+    LAZY_COMMAND(("U PKNF0OFF"), "", ("Stop KNF considering mode"));
     print_ok(context.stream);
 }
 
 // External sensors control
 void cmd_eiso(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U EISO"), F("Isolate external sensors"));
+    LAZY_COMMAND(("U EISO"), "", ("Isolate external sensors"));
     print_ok(context.stream);
 }
 void cmd_eph(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U EPH"), F("EPH obsolete"));
-    context.stream.print(F("M EPH EC"));
+    LAZY_COMMAND(("U EPH"), "", ("EPH obsolete"));
+    context.stream.print(("M EPH EC"));
     print_line_end(context.stream);
 } // not valid anymore
 void cmd_et(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U ET"), F("Enable external temperature bus"));
+    LAZY_COMMAND(("U ET"), "", ("Enable external temperature bus"));
     print_ok(context.stream);
 }
 
 // Queries
 void cmd_caltime(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U ?CALTIME"), F("Calibration bag usage times"));
-    context.stream.print(F("M 120,30,0"));
+    LAZY_COMMAND(("U ?CALTIME"), "", ("Calibration bag usage times"));
+    context.stream.print(("M 120,30,0"));
     print_line_end(context.stream);
 }
 void cmd_volt(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U ?VOLT"), F("Voltage V1-V5"));
-    context.stream.print(F("M Reading Voltages\n V1: 12.34 V\n V2: 5.00 V\n V3: 3.30 V\n V4: 0.00 V\n V5: 4.98 V"));
+    LAZY_COMMAND(("U ?VOLT"), "", ("Voltage V1-V5"));
+    context.stream.print(("M Reading Voltages\n V1: 12.34 V\n V2: 5.00 V\n V3: 3.30 V\n V4: 0.00 V\n V5: 4.98 V"));
     print_line_end(context.stream);
 }
 void cmd_extt(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U ?EXTT"), F("Enumerate external temp sensor addresses"));
-    context.stream.print(F("M 28-FF-4C-92-60-1A-03-5A"));
+    LAZY_COMMAND(("U ?EXTT"), "", ("Enumerate external temp sensor addresses"));
+    context.stream.print(("M 28-FF-4C-92-60-1A-03-5A"));
     print_line_end(context.stream);
 }
 void cmd_id(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U ?ID"), F("Get serial number"));
-    context.stream.print(F("M LTDISMS123"));
+    LAZY_COMMAND(("U ?ID"), "", ("Get serial number"));
+    context.stream.print(("M LTDISMS123"));
     print_line_end(context.stream);
 }
 void cmd_l(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U ?L"), F("Request limits/status"));
-    context.stream.print(F("M Limits: Pmin=0,Pmax=5000;Tmin=-10,Tmax=60"));
+    LAZY_COMMAND(("U ?L"), "", ("Request limits/status"));
+    context.stream.print(("M Limits: Pmin=0,Pmax=5000;Tmin=-10,Tmax=60"));
     print_line_end(context.stream);
 }
 void cmd_s(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U ?S"), F("Status byte"));
-    context.stream.print(F("M 0x5A"));
+    LAZY_COMMAND(("U ?S"), "", ("Status byte"));
+    context.stream.print(("M 0x5A"));
     print_line_end(context.stream);
 }
 void cmd_a(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U ?A"), F("Firmware diagnostics"));
-    context.stream.print(F("M Diagnostics: All systems nominal"));
+    LAZY_COMMAND(("U ?A"), "", ("Firmware diagnostics"));
+    context.stream.print(("M Diagnostics: All systems nominal"));
     print_line_end(context.stream);
 }
 
 // Settings commands
 void cmd_setrate_ext(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETRATEEXT"), F("Set external rate"));
+    LAZY_COMMAND(("U SETRATEEXT"), "", ("Set external rate"));
     String req = request_string(context);
-    if (req.indexOf(' ') < 0)
+    if (req.indexO(' ') < 0)
     {
         print_ec(context.stream);
         return;
     }
-    context.stream.print(F("M OK"));
+    context.stream.print(("M OK"));
     print_line_end(context.stream);
 }
 void cmd_setrate_int(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETRATEINT"), F("Set internal rate"));
+    LAZY_COMMAND(("U SETRATEINT"), "", ("Set internal rate"));
     String req = request_string(context);
-    if (req.indexOf(' ') < 0)
+    if (req.indexO(' ') < 0)
     {
         print_ec(context.stream);
         return;
     }
-    context.stream.print(F("M OK"));
+    context.stream.print(("M OK"));
     print_line_end(context.stream);
 }
 void cmd_setrate_pow(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETRATEPOW"), F("Set power rate"));
+    LAZY_COMMAND(("U SETRATEPOW"), "", ("Set power rate"));
     String req = request_string(context);
-    if (req.indexOf(' ') < 0)
+    if (req.indexO(' ') < 0)
     {
         print_ec(context.stream);
         return;
     }
-    context.stream.print(F("M OK"));
+    context.stream.print(("M OK"));
     print_line_end(context.stream);
 }
 void cmd_setrate_sol(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETRATESOL"), F("Set solenoid rate"));
+    LAZY_COMMAND(("U SETRATESOL"), "", ("Set solenoid rate"));
     String req = request_string(context);
-    if (req.indexOf(' ') < 0)
+    if (req.indexO(' ') < 0)
     {
         print_ec(context.stream);
         return;
     }
-    context.stream.print(F("M OK"));
+    context.stream.print(("M OK"));
     print_line_end(context.stream);
 }
 void cmd_setrate_aut(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETRATEAUT"), F("Set autocheck rate"));
+    LAZY_COMMAND(("U SETRATEAUT"), "", ("Set autocheck rate"));
     String req = request_string(context);
-    if (req.indexOf(' ') < 0)
+    if (req.indexO(' ') < 0)
     {
         print_ec(context.stream);
         return;
     }
-    context.stream.print(F("M OK"));
+    context.stream.print(("M OK"));
     print_line_end(context.stream);
 }
 void cmd_setrate_dlr(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETRATEDLR"), F("Set data broadcast rate"));
+    LAZY_COMMAND(("U SETRATEDLR"), "", ("Set data broadcast rate"));
     String req = request_string(context);
-    if (req.indexOf(' ') < 0)
+    if (req.indexO(' ') < 0)
     {
         print_ec(context.stream);
         return;
     }
-    context.stream.print(F("M OK"));
+    context.stream.print(("M OK"));
     print_line_end(context.stream);
 }
 
 void cmd_setdbon(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETDBON"), F("Turn data broadcast on"));
+    LAZY_COMMAND(("U SETDBON"), "", ("Turn data broadcast on"));
     print_ok(context.stream);
 }
-void cmd_setdboff(LazySerial::Context &context)
+void cmd_setdbof(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETDBOFF"), F("Turn data broadcast off"));
+    LAZY_COMMAND(("U SETDBOFF"), "", ("Turn data broadcast off"));
     print_ok(context.stream);
 }
 void cmd_setprwon(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETPRWON"), F("Pressure watch on"));
+    LAZY_COMMAND(("U SETPRWON"), "", ("Pressure watch on"));
     print_ok(context.stream);
 }
-void cmd_setprwoff(LazySerial::Context &context)
+void cmd_setprwof(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETPRWOFF"), F("Pressure watch off"));
+    LAZY_COMMAND(("U SETPRWOFF"), "", ("Pressure watch off"));
     print_ok(context.stream);
 }
 void cmd_setprli(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETPRLI"), F("Set pressure limit"));
+    LAZY_COMMAND(("U SETPRLI"), "", ("Set pressure limit"));
     String req = request_string(context);
-    if (req.indexOf(' ') < 0)
+    if (req.indexO(' ') < 0)
     {
         print_ec(context.stream);
         return;
     }
-    context.stream.print(F("M OK"));
+    context.stream.print(("M OK"));
     print_line_end(context.stream);
 }
 
 void cmd_setresetcoms2(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETRESETCOMS2"), F("Reset COM2"));
-    context.stream.print(F("M C2Reseted"));
+    LAZY_COMMAND(("U SETRESETCOMS2"), "", ("Reset COM2"));
+    context.stream.print(("M C2Reseted"));
     print_line_end(context.stream);
 }
 void cmd_setresetcoms3(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETRESETCOMS3"), F("Reset COM3"));
-    context.stream.print(F("M C3Reseted"));
+    LAZY_COMMAND(("U SETRESETCOMS3"), "", ("Reset COM3"));
+    context.stream.print(("M C3Reseted"));
     print_line_end(context.stream);
 }
 void cmd_setresetp(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETRESETP"), F("Reset power module"));
-    context.stream.print(F("M PowerBoard reseted"));
+    LAZY_COMMAND(("U SETRESETP"), "", ("Reset power module"));
+    context.stream.print(("M PowerBoard reseted"));
     print_line_end(context.stream);
 }
 void cmd_setresets(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETRESETS"), F("Reset solenoid board"));
-    context.stream.print(F("M SolenoidBoard reseted"));
+    LAZY_COMMAND(("U SETRESETS"), "", ("Reset solenoid board"));
+    context.stream.print(("M SolenoidBoard reseted"));
     print_line_end(context.stream);
 }
 
 void cmd_setlog1on(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETLOG1ON"), F("Logging level1 on"));
+    LAZY_COMMAND(("U SETLOG1ON"), "", ("Logging level1 on"));
     print_ok(context.stream);
 }
 void cmd_setlog2on(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETLOG2ON"), F("Logging level2 on"));
+    LAZY_COMMAND(("U SETLOG2ON"), "", ("Logging level2 on"));
     print_ok(context.stream);
 }
-void cmd_setlogoff(LazySerial::Context &context)
+void cmd_setlogof(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETLOGOFF"), F("Logging off"));
+    LAZY_COMMAND(("U SETLOGOFF"), "", ("Logging off"));
     print_ok(context.stream);
 }
 
 void cmd_setfan1aon(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETFAN1AON"), F("Fan1 auto"));
+    LAZY_COMMAND(("U SETFAN1AON"), "", ("Fan1 auto"));
     print_ok(context.stream);
 }
-void cmd_setfan1aoff(LazySerial::Context &context)
+void cmd_setfan1aof(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETFAN1AOFF"), F("Fan1 manual"));
+    LAZY_COMMAND(("U SETFAN1AOFF"), "", ("Fan1 manual"));
     print_ok(context.stream);
 }
 // Fan 2..4
 void cmd_setfan2aon(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETFAN2AON"), F("Fan2 auto"));
+    LAZY_COMMAND(("U SETFAN2AON"), "", ("Fan2 auto"));
     print_ok(context.stream);
 }
-void cmd_setfan2aoff(LazySerial::Context &context)
+void cmd_setfan2aof(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETFAN2AOFF"), F("Fan2 manual"));
+    LAZY_COMMAND(("U SETFAN2AOFF"), "", ("Fan2 manual"));
     print_ok(context.stream);
 }
 void cmd_setfan3aon(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETFAN3AON"), F("Fan3 auto"));
+    LAZY_COMMAND(("U SETFAN3AON"), "", ("Fan3 auto"));
     print_ok(context.stream);
 }
-void cmd_setfan3aoff(LazySerial::Context &context)
+void cmd_setfan3aof(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETFAN3AOFF"), F("Fan3 manual"));
+    LAZY_COMMAND(("U SETFAN3AOFF"), "", ("Fan3 manual"));
     print_ok(context.stream);
 }
 void cmd_setfan4aon(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETFAN4AON"), F("Fan4 auto"));
+    LAZY_COMMAND(("U SETFAN4AON"), "", ("Fan4 auto"));
     print_ok(context.stream);
 }
-void cmd_setfan4aoff(LazySerial::Context &context)
+void cmd_setfan4aof(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETFAN4AOFF"), F("Fan4 manual"));
+    LAZY_COMMAND(("U SETFAN4AOFF"), "", ("Fan4 manual"));
     print_ok(context.stream);
 }
 
 void cmd_setknfmode(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETKNFMODE"), F("Set KNF mode"));
+    LAZY_COMMAND(("U SETKNFMODE"), "", ("Set KNF mode"));
     String req = request_string(context);
-    if (req.indexOf(' ') < 0)
+    if (req.indexO(' ') < 0)
     {
         print_ec(context.stream);
         return;
     }
-    context.stream.print(F("M KNFMode set to 1"));
+    context.stream.print(("M KNFMode set to 1"));
     print_line_end(context.stream);
 }
 void cmd_settwatchon(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETTWATCHON"), F("Temperature watch on"));
+    LAZY_COMMAND(("U SETTWATCHON"), "", ("Temperature watch on"));
     print_ok(context.stream);
 }
-void cmd_settwatchoff(LazySerial::Context &context)
+void cmd_settwatchof(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETTWATCHOFF"), F("Temperature watch off"));
+    LAZY_COMMAND(("U SETTWATCHOFF"), "", ("Temperature watch off"));
     print_ok(context.stream);
 }
 void cmd_setminute(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETMINUTEXXXXX"), F("Set minute millis"));
+    LAZY_COMMAND(("U SETMINUTEXXXXX"), "", ("Set minute millis"));
     String req = request_string(context);
-    if (req.indexOf(' ') < 0)
+    if (req.indexO(' ') < 0)
     {
         print_ec(context.stream);
         return;
     }
-    context.stream.print(F("M Minute set to 1000"));
+    context.stream.print(("M Minute set to 1000"));
     print_line_end(context.stream);
 }
 
 void cmd_setreadeeprom(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETREADEEPROM"), F("Read EEPROM"));
-    context.stream.print(F("M EEPROM: knfmode=1,caltimes=0,0,0"));
+    LAZY_COMMAND(("U SETREADEEPROM"), "", ("Read EEPROM"));
+    context.stream.print(("M EEPROM: knfmode=1,caltimes=0,0,0"));
     print_line_end(context.stream);
 }
 void cmd_setreseteeprom(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETRESETEEPROM"), F("Reset EEPROM defaults"));
-    context.stream.print(F("M OK"));
+    LAZY_COMMAND(("U SETRESETEEPROM"), "", ("Reset EEPROM defaults"));
+    context.stream.print(("M OK"));
     print_line_end(context.stream);
 }
 void cmd_settadd(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETTADD"), F("Set temp sensor address"));
-    context.stream.print(F("M Follow instructions to write new address"));
+    LAZY_COMMAND(("U SETTADD"), "", ("Set temp sensor address"));
+    context.stream.print(("M Follow instructions to write new address"));
     print_line_end(context.stream);
 }
 void cmd_setpk(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETPK"), F("Set secondary pressure correction"));
+    LAZY_COMMAND(("U SETPK"), "", ("Set secondary pressure correction"));
     String req = request_string(context);
-    if (req.indexOf(' ') < 0)
+    if (req.indexO(' ') < 0)
     {
         print_ec(context.stream);
         return;
     }
-    context.stream.print(F("M OK"));
+    context.stream.print(("M OK"));
     print_line_end(context.stream);
 }
 void cmd_setresetce(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETRESETCE"), F("Reset critical error status"));
-    context.stream.print(F("M OK"));
+    LAZY_COMMAND(("U SETRESETCE"), "", ("Reset critical error status"));
+    context.stream.print(("M OK"));
     print_line_end(context.stream);
 }
 void cmd_setl(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETLXXTXXX"), F("Set limit value"));
+    LAZY_COMMAND(("U SETLXXTXXX"), "", ("Set limit value"));
     String req = request_string(context);
-    if (req.indexOf(' ') < 0)
+    if (req.indexO(' ') < 0)
     {
         print_ec(context.stream);
         return;
     }
-    context.stream.print(F("M Will ask for confirmation"));
+    context.stream.print(("M Will ask for confirmation"));
     print_line_end(context.stream);
 }
 void cmd_setld(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETLD"), F("Reset limits to default"));
-    context.stream.print(F("M OK"));
+    LAZY_COMMAND(("U SETLD"), "", ("Reset limits to default"));
+    context.stream.print(("M OK"));
     print_line_end(context.stream);
 }
 void cmd_setwdton(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETWDTON"), F("Watchdog on"));
-    context.stream.print(F("M OK"));
+    LAZY_COMMAND(("U SETWDTON"), "", ("Watchdog on"));
+    context.stream.print(("M OK"));
     print_line_end(context.stream);
 }
-void cmd_setwdtoff(LazySerial::Context &context)
+void cmd_setwdtof(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U SETWDTOFF"), F("Watchdog off"));
-    context.stream.print(F("M OK"));
+    LAZY_COMMAND(("U SETWDTOFF"), "", ("Watchdog off"));
+    context.stream.print(("M OK"));
     print_line_end(context.stream);
 }
 
 // Valve and sampling routing (V1..V4)
 void cmd_v1on(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U V1ON"), F("V1 to 1"));
+    LAZY_COMMAND(("U V1ON"), "", ("V1 to 1"));
     print_ok(context.stream);
 }
-void cmd_v1off(LazySerial::Context &context)
+void cmd_v1of(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U V1OFF"), F("V1 to 0"));
+    LAZY_COMMAND(("U V1OFF"), "", ("V1 to 0"));
     print_ok(context.stream);
 }
 void cmd_v1onl(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U V1ONL"), F("V1 long pulse to 1"));
+    LAZY_COMMAND(("U V1ONL"), "", ("V1 long pulse to 1"));
     print_ok(context.stream);
 }
 void cmd_v1ofl(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U V1OFL"), F("V1 long pulse to 0"));
+    LAZY_COMMAND(("U V1OFL"), "", ("V1 long pulse to 0"));
     print_ok(context.stream);
 }
 // V2..V4 similar
 void cmd_v2on(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U V2ON"), F("V2 to 1"));
+    LAZY_COMMAND(("U V2ON"), "", ("V2 to 1"));
     print_ok(context.stream);
 }
-void cmd_v2off(LazySerial::Context &context)
+void cmd_v2of(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U V2OFF"), F("V2 to 0"));
+    LAZY_COMMAND(("U V2OFF"), "", ("V2 to 0"));
     print_ok(context.stream);
 }
 void cmd_v2onl(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U V2ONL"), F("V2 long to 1"));
+    LAZY_COMMAND(("U V2ONL"), "", ("V2 long to 1"));
     print_ok(context.stream);
 }
 void cmd_v2ofl(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U V2OFL"), F("V2 long to 0"));
+    LAZY_COMMAND(("U V2OFL"), "", ("V2 long to 0"));
     print_ok(context.stream);
 }
 void cmd_v3on(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U V3ON"), F("V3 on"));
+    LAZY_COMMAND(("U V3ON"), "", ("V3 on"));
     print_ok(context.stream);
 }
-void cmd_v3off(LazySerial::Context &context)
+void cmd_v3of(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U V3OFF"), F("V3 off"));
+    LAZY_COMMAND(("U V3OFF"), "", ("V3 off"));
     print_ok(context.stream);
 }
 void cmd_v3onl(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U V3ONL"), F("V3 long on"));
+    LAZY_COMMAND(("U V3ONL"), "", ("V3 long on"));
     print_ok(context.stream);
 }
 void cmd_v3ofl(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U V3OFL"), F("V3 long off"));
+    LAZY_COMMAND(("U V3OFL"), "", ("V3 long off"));
     print_ok(context.stream);
 }
 void cmd_v4on(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U V4ON"), F("V4 on"));
+    LAZY_COMMAND(("U V4ON"), "", ("V4 on"));
     print_ok(context.stream);
 }
-void cmd_v4off(LazySerial::Context &context)
+void cmd_v4of(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U V4OFF"), F("V4 off"));
+    LAZY_COMMAND(("U V4OFF"), "", ("V4 off"));
     print_ok(context.stream);
 }
 void cmd_v4onl(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U V4ONL"), F("V4 long on"));
+    LAZY_COMMAND(("U V4ONL"), "", ("V4 long on"));
     print_ok(context.stream);
 }
 void cmd_v4ofl(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U V4OFL"), F("V4 long off"));
+    LAZY_COMMAND(("U V4OFL"), "", ("V4 long off"));
     print_ok(context.stream);
 }
 
 void cmd_visoms(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U VISOMS"), F("Isolate MS from routing"));
+    LAZY_COMMAND(("U VISOMS"), "", ("Isolate MS from routing"));
     print_ok(context.stream);
 }
 void cmd_visoin(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U VISOIN"), F("Isolate membrane inlet"));
+    LAZY_COMMAND(("U VISOIN"), "", ("Isolate membrane inlet"));
     print_ok(context.stream);
 }
 void cmd_vdir(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U VDIR"), F("Set inlet inline with MS"));
+    LAZY_COMMAND(("U VDIR"), "", ("Set inlet inline with MS"));
     print_ok(context.stream);
 }
 void cmd_vnafi(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U VNAFI"), F("Set nafion dried inlet"));
+    LAZY_COMMAND(("U VNAFI"), "", ("Set nafion dried inlet"));
     print_ok(context.stream);
 }
 void cmd_vnafv(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U VNAFV"), F("Set nafion to roughing vacuum"));
+    LAZY_COMMAND(("U VNAFV"), "", ("Set nafion to roughing vacuum"));
     print_ok(context.stream);
 }
 void cmd_vmson(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U VMSON"), F("Open line to MS, check pressure"));
-    context.stream.print(F("M OP"));
+    LAZY_COMMAND(("U VMSON"), "", ("Open line to MS, check pressure"));
+    context.stream.print(("M OP"));
     print_line_end(context.stream);
 }
-void cmd_vmsonf(LazySerial::Context &context)
+void cmd_vmson(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U VMSONF"), F("Force open line to MS"));
-    context.stream.print(F("M MS on"));
+    LAZY_COMMAND(("U VMSONF"), "", ("Force open line to MS"));
+    context.stream.print(("M MS on"));
     print_line_end(context.stream);
 }
 
 // Heaters and regenerations
 void cmd_hv1on(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U HV1ON"), F("Nafion heater1 on"));
+    LAZY_COMMAND(("U HV1ON"), "", ("Nafion heater1 on"));
     print_ok(context.stream);
 }
-void cmd_hv1off(LazySerial::Context &context)
+void cmd_hv1of(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U HV1OFF"), F("Nafion heater1 off"));
+    LAZY_COMMAND(("U HV1OFF"), "", ("Nafion heater1 off"));
     print_ok(context.stream);
 }
 // hv2/hv3
 void cmd_hi1on(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U HI1ON"), F("Ion chamber heater1 on"));
+    LAZY_COMMAND(("U HI1ON"), "", ("Ion chamber heater1 on"));
     print_ok(context.stream);
 }
-void cmd_hi1off(LazySerial::Context &context)
+void cmd_hi1of(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U HI1OFF"), F("Ion chamber heater1 off"));
+    LAZY_COMMAND(("U HI1OFF"), "", ("Ion chamber heater1 off"));
     print_ok(context.stream);
 }
 
 // Calibrations and sampling
 void cmd_cv0on(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U CV0ON"), F("Close calibration ground relay"));
+    LAZY_COMMAND(("U CV0ON"), "", ("Close calibration ground relay"));
     print_ok(context.stream);
 }
-void cmd_cv0off(LazySerial::Context &context)
+void cmd_cv0of(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U CV0OFF"), F("Open calibration ground relay"));
+    LAZY_COMMAND(("U CV0OFF"), "", ("Open calibration ground relay"));
     print_ok(context.stream);
 }
 void cmd_cv_on(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U CVON"), F("Close calibration solenoid #"));
+    LAZY_COMMAND(("U CVON"), "", ("Close calibration solenoid #"));
     print_ok(context.stream);
 }
-void cmd_cv_off(LazySerial::Context &context)
+void cmd_cv_of(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U CVOFF"), F("Open calibration solenoid #"));
+    LAZY_COMMAND(("U CVOFF"), "", ("Open calibration solenoid #"));
     print_ok(context.stream);
 }
 
 void cmd_cfluid(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U CFLUID"), F("Set sampling to fluid"));
+    LAZY_COMMAND(("U CFLUID"), "", ("Set sampling to fluid"));
     print_ok(context.stream);
 }
 void cmd_cbgnd(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U CBGND"), F("Set sampling to background"));
+    LAZY_COMMAND(("U CBGND"), "", ("Set sampling to background"));
     print_ok(context.stream);
 }
 void cmd_cal(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U CAL"), F("Set sampling path to bag #"));
+    LAZY_COMMAND(("U CAL"), "", ("Set sampling path to bag #"));
     String req = request_string(context);
-    if (req.indexOf(' ') < 0)
+    if (req.indexO(' ') < 0)
     {
         print_ec(context.stream);
         return;
     }
-    context.stream.print(F("M OK"));
+    context.stream.print(("M OK"));
     print_line_end(context.stream);
 }
 
 // Automatic sequences and higher-level commands
 void cmd_astart1(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U ASTART1"), F("Start sequence1"));
-    context.stream.print(F("M OK"));
+    LAZY_COMMAND(("U ASTART1"), "", ("Start sequence1"));
+    context.stream.print(("M OK"));
     print_line_end(context.stream);
-    context.stream.print(F("M START1 finished"));
+    context.stream.print(("M START1 finished"));
     print_line_end(context.stream);
 }
 void cmd_astart2(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U ASTART2"), F("Start sequence2"));
-    context.stream.print(F("M OK"));
+    LAZY_COMMAND(("U ASTART2"), "", ("Start sequence2"));
+    context.stream.print(("M OK"));
     print_line_end(context.stream);
-    context.stream.print(F("M START2 finished"));
+    context.stream.print(("M START2 finished"));
     print_line_end(context.stream);
 }
 void cmd_astandby(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U ASTANDBY"), F("Goto standby"));
-    context.stream.print(F("M OK"));
+    LAZY_COMMAND(("U ASTANDBY"), "", ("Goto standby"));
+    context.stream.print(("M OK"));
     print_line_end(context.stream);
-    context.stream.print(F("M STANDBY mode activated"));
+    context.stream.print(("M STANDBY mode activated"));
     print_line_end(context.stream);
 }
-void cmd_apoweroff(LazySerial::Context &context)
+void cmd_apowerof(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U APOWEROFF"), F("Power off to minimum"));
-    context.stream.print(F("M OK"));
+    LAZY_COMMAND(("U APOWEROFF"), "", ("Power off to minimum"));
+    context.stream.print(("M OK"));
     print_line_end(context.stream);
-    context.stream.print(F("M POWEROFF mode activated"));
+    context.stream.print(("M POWEROFF mode activated"));
     print_line_end(context.stream);
 }
 
 void cmd_acal(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U ACAL"), F("Initiate calibration with bag#"));
+    LAZY_COMMAND(("U ACAL"), "", ("Initiate calibration with bag#"));
     String req = request_string(context);
-    if (req.indexOf(' ') < 0)
+    if (req.indexO(' ') < 0)
     {
         print_ec(context.stream);
         return;
     }
-    context.stream.print(F("M OK"));
+    context.stream.print(("M OK"));
     print_line_end(context.stream);
-    context.stream.print(F("M CAL1 end"));
+    context.stream.print(("M CAL1 end"));
     print_line_end(context.stream);
 }
 void cmd_acal9(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U ACAL9"), F("Full calibration series"));
-    context.stream.print(F("M OK"));
+    LAZY_COMMAND(("U ACAL9"), "", ("Full calibration series"));
+    context.stream.print(("M OK"));
     print_line_end(context.stream);
-    context.stream.print(F("M CAL end"));
+    context.stream.print(("M CAL end"));
     print_line_end(context.stream);
 }
 
 void cmd_anafreg(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U ANAFREG"), F("Nafion regeneration"));
+    LAZY_COMMAND(("U ANAFREG"), "", ("Nafion regeneration"));
     String req = request_string(context);
-    if (req.indexOf(' ') < 0)
+    if (req.indexO(' ') < 0)
     {
         print_ec(context.stream);
         return;
     }
-    context.stream.print(F("M OK"));
+    context.stream.print(("M OK"));
     print_line_end(context.stream);
-    context.stream.print(F("M Nafion Reg finished"));
+    context.stream.print(("M Nafion Reg finished"));
     print_line_end(context.stream);
 }
 void cmd_aionreg(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U AIONREG"), F("Ion chamber regen"));
+    LAZY_COMMAND(("U AIONREG"), "", ("Ion chamber regen"));
     String req = request_string(context);
-    if (req.indexOf(' ') < 0)
+    if (req.indexO(' ') < 0)
     {
         print_ec(context.stream);
         return;
     }
-    context.stream.print(F("M OK"));
+    context.stream.print(("M OK"));
     print_line_end(context.stream);
-    context.stream.print(F("M Ion Reg finished"));
+    context.stream.print(("M Ion Reg finished"));
     print_line_end(context.stream);
 }
 
 void cmd_asample(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U ASAMPLE"), F("Predefined sampling cycle"));
-    context.stream.print(F("M OK"));
+    LAZY_COMMAND(("U ASAMPLE"), "", ("Predefined sampling cycle"));
+    context.stream.print(("M OK"));
     print_line_end(context.stream);
-    context.stream.print(F("M Sampling time set to 10"));
+    context.stream.print(("M Sampling time set to 10"));
     print_line_end(context.stream);
-    context.stream.print(F("M NAF"));
+    context.stream.print(("M NAF"));
     print_line_end(context.stream);
-    context.stream.print(F("M DIR"));
+    context.stream.print(("M DIR"));
     print_line_end(context.stream);
-    context.stream.print(F("M Sampling Finished"));
+    context.stream.print(("M Sampling Finished"));
     print_line_end(context.stream);
 }
 void cmd_asamplexx(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U ASAMPLEXX"), F("Sampling with custom minutes"));
-    context.stream.print(F("M OK"));
+    LAZY_COMMAND(("U ASAMPLEXX"), "", ("Sampling with custom minutes"));
+    context.stream.print(("M OK"));
     print_line_end(context.stream);
-    context.stream.print(F("M Sampling time set to 05"));
+    context.stream.print(("M Sampling time set to 05"));
     print_line_end(context.stream);
-    context.stream.print(F("M NAF"));
+    context.stream.print(("M NAF"));
     print_line_end(context.stream);
-    context.stream.print(F("M DIR"));
+    context.stream.print(("M DIR"));
     print_line_end(context.stream);
-    context.stream.print(F("M Sampling Finished"));
+    context.stream.print(("M Sampling Finished"));
     print_line_end(context.stream);
 }
 
 void cmd_asplfnxx(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U ASPLFNXX"), F("Sample fluids nafion mode"));
-    context.stream.print(F("M OK"));
+    LAZY_COMMAND(("U ASPLFNXX"), "", ("Sample fluids nafion mode"));
+    context.stream.print(("M OK"));
     print_line_end(context.stream);
-    context.stream.print(F("M Sampling time set to 60"));
+    context.stream.print(("M Sampling time set to 60"));
     print_line_end(context.stream);
-    context.stream.print(F("M NAF"));
+    context.stream.print(("M NAF"));
     print_line_end(context.stream);
-    context.stream.print(F("M fluid"));
+    context.stream.print(("M fluid"));
     print_line_end(context.stream);
-    context.stream.print(F("M Sampling Finished"));
+    context.stream.print(("M Sampling Finished"));
     print_line_end(context.stream);
 }
 void cmd_asplfdxx(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U ASPLFDXX"), F("Sample fluids direct mode"));
-    context.stream.print(F("M OK"));
+    LAZY_COMMAND(("U ASPLFDXX"), "", ("Sample fluids direct mode"));
+    context.stream.print(("M OK"));
     print_line_end(context.stream);
-    context.stream.print(F("M Sampling time set to 60"));
+    context.stream.print(("M Sampling time set to 60"));
     print_line_end(context.stream);
-    context.stream.print(F("M DIR"));
+    context.stream.print(("M DIR"));
     print_line_end(context.stream);
-    context.stream.print(F("M fluid"));
+    context.stream.print(("M fluid"));
     print_line_end(context.stream);
-    context.stream.print(F("M Sampling Finished"));
+    context.stream.print(("M Sampling Finished"));
     print_line_end(context.stream);
 }
 void cmd_asplbnxx(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U ASPLBNXX"), F("Sample background nafion"));
-    context.stream.print(F("M OK"));
+    LAZY_COMMAND(("U ASPLBNXX"), "", ("Sample background nafion"));
+    context.stream.print(("M OK"));
     print_line_end(context.stream);
-    context.stream.print(F("M Sampling time set to 60"));
+    context.stream.print(("M Sampling time set to 60"));
     print_line_end(context.stream);
-    context.stream.print(F("M NAF"));
+    context.stream.print(("M NAF"));
     print_line_end(context.stream);
-    context.stream.print(F("M background"));
+    context.stream.print(("M background"));
     print_line_end(context.stream);
-    context.stream.print(F("M Sampling Finished"));
+    context.stream.print(("M Sampling Finished"));
     print_line_end(context.stream);
 }
 void cmd_asplbdxx(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U ASPLBDXX"), F("Sample background direct"));
-    context.stream.print(F("M OK"));
+    LAZY_COMMAND(("U ASPLBDXX"), "", ("Sample background direct"));
+    context.stream.print(("M OK"));
     print_line_end(context.stream);
-    context.stream.print(F("M Sampling time set to 60"));
+    context.stream.print(("M Sampling time set to 60"));
     print_line_end(context.stream);
-    context.stream.print(F("M DIR"));
+    context.stream.print(("M DIR"));
     print_line_end(context.stream);
-    context.stream.print(F("M background"));
+    context.stream.print(("M background"));
     print_line_end(context.stream);
-    context.stream.print(F("M Sampling Finished"));
+    context.stream.print(("M Sampling Finished"));
     print_line_end(context.stream);
 }
 
 void cmd_asplstp(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U ASPLSTP"), F("Stop ASPL sampling"));
+    LAZY_COMMAND(("U ASPLSTP"), "", ("Stop ASPL sampling"));
     print_ok(context.stream);
 }
 void cmd_aabort(LazySerial::Context &context)
 {
-    LAZY_COMMAND(F("U AABORT"), F("Abort current sequence"));
-    context.stream.print(F("M ABORTED"));
+    LAZY_COMMAND(("U AABORT"), "", ("Abort current sequence"));
+    context.stream.print(("M ABORTED"));
     print_line_end(context.stream);
 }
 

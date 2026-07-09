@@ -63,12 +63,12 @@ namespace PfeifferVacProtocol
     {
     public:
         // Constructor from native type
-        explicit UInteger(unsigned int val) : _value(val) {}
+        explicit UInteger(unsigned long val) : _value(val) {}
 
         // Constructor from ASCII string representation (6 chars)
         explicit UInteger(const char *str)
         {
-            _value = strtoul(str, NULL, 10);
+            _value = (unsigned long)strtoul(str, NULL, 10);
         }
 
         // returns the ASCII representation of an UInteger (6 chars)
@@ -76,18 +76,18 @@ namespace PfeifferVacProtocol
         {
             // Pad with leading zeros to 6 digits
             char buf[7];
-            snprintf(buf, sizeof(buf), "%06u", _value);
+            snprintf(buf, sizeof(buf), "%06lu", _value);
             return String(buf);
         }
 
         // returns an unsigned long from the UInteger
-        unsigned int decode() const
+        unsigned long decode() const
         {
             return _value;
         }
 
     private:
-        unsigned int _value;
+        unsigned long _value;
     };
 
     /**
@@ -104,7 +104,7 @@ namespace PfeifferVacProtocol
         explicit UReal(const char *str)
         {
             // Read as an integer (e.g., 001571 -> 1571) and divide by 100.0
-            uint32_t temp_val = strtoul(str, NULL, 10);
+            unsigned long temp_val = strtoul(str, NULL, 10);
             _value = (float)temp_val / 100.0f;
         }
 
@@ -112,7 +112,7 @@ namespace PfeifferVacProtocol
         String encode() const
         {
             // Multiply by 100 (e.g., 15.71 -> 1571) and format as 6-digit integer
-            unsigned long temp_val = (uint32_t)(_value * 100.0f + 0.5f); // +0.5 for rounding
+            unsigned long temp_val = (unsigned long)(_value * 100.0f + 0.5f); // +0.5 for rounding
             char buf[7];
             snprintf(buf, sizeof(buf), "%06lu", temp_val);
             return String(buf);
