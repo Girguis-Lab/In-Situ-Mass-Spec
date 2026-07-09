@@ -28,4 +28,9 @@ The code that runs on the ATMEL microcontroller inside the ISMS lives in the /sr
 ## Contributing
 
 The Girguis Lab is an open-source/open-design facility. We strongly believe that an “open source” approach to disseminating technologies enables more rapid discovery and more efficient use of our community’s limited financial resources. When partnering with commercial entities, we make every effort to encourage “open source” approaches to development, and to ensure that any co-developed technologies are—at the very least—available to academic scientists at a reasonable price.
-Contributions and pull req
+Contributions and pull requests are welcome, however for major changes we seggest you to fork the repo and make your own version. Reach out to us if your group is building or redesigning an ISMS
+
+
+## License
+TODO - Add license
+Please reach out to us at girguislab@oeb.harvard.edu with any questions!
