@@ -1,0 +1,2069 @@
+{
+    "actions": [
+        {
+            "autoExecuteOnConnect": false,
+            "binary": false,
+            "eol": "\r\n",
+            "icon": "Play Property",
+            "repeatCount": 3,
+            "sourceId": 0,
+            "timerIntervalMs": 100,
+            "timerMode": 0,
+            "title": "Startup All",
+            "txData": "STARTUP",
+            "txEncoding": 0
+        },
+        {
+            "autoExecuteOnConnect": false,
+            "binary": false,
+            "eol": "\r\n",
+            "icon": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0iTTIgMjF2LTZoMS41YTkuMyA5LjMgMCAwIDEtLjUtM2E5IDkgMCAwIDEgOS05aDEwdjZoLTEuNWMuMzIuOTQuNSAxLjk1LjUgM2E5IDkgMCAwIDEtOSA5em0zLTljMCAxLjI4LjM0IDIuNDcuOTQgMy41bDMuNDYtMmMtLjI1LS40NC0uNC0uOTUtLjQtMS41YzAtLjY1LjIxLTEuMjUuNTYtMS43NEw2LjMgNy45M0M1LjUgOS4wOCA1IDEwLjUgNSAxMm03IDdjMi41OSAwIDQuODUtMS40MSA2LjA2LTMuNWwtMy40Ni0yYy0uNTIuOS0xLjQ5IDEuNS0yLjYgMS41aC0uMjlsLS4zOCAzLjk3em0wLTEwYzEuMjEgMCAyLjI2LjcyIDIuNzMgMS43NmwzLjY0LTEuNjZBNi45OSA2Ljk5IDAgMCAwIDEyIDV6bTAgMmMtLjU1IDAtMSAuNDUtMSAxcy40NSAxIDEgMXMxLS40NSAxLTFzLS40NS0xLTEtMSIvPjwvc3ZnPg==",
+            "repeatCount": 3,
+            "sourceId": 0,
+            "timerIntervalMs": 100,
+            "timerMode": 0,
+            "title": "Roughing Pump ON",
+            "txData": "ROUGHING ON",
+            "txEncoding": 0
+        },
+        {
+            "autoExecuteOnConnect": false,
+            "binary": false,
+            "eol": "\r\n",
+            "icon": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0iTTIyLjEgMjEuNUwyLjQgMS43TDEuMSAzbDMuNyAzLjdDMy43IDguMiAzIDEwIDMgMTJjMCAxIC4yIDIuMS41IDNIMnY2aDEwYzIgMCAzLjgtLjcgNS4zLTEuOGwzLjUgMy41em0tMTYuMi02Yy0uNi0xLS45LTIuMi0uOS0zLjVjMC0xLjQuNS0yLjggMS4yLTMuOWwzIDNjLS4xLjItLjIuNi0uMi45YzAgLjUuMiAxLjEuNCAxLjV6TTEyIDE5aC0uN2wuNC00aC4zYy4zIDAgLjYtLjEuOS0uMmwzIDNjLTEuMS43LTIuNSAxLjItMy45IDEuMm0wLTEwLjJMNy40IDQuMkM4LjggMy41IDEwLjMgMyAxMiAzaDEwdjZoLTEuNWMuMy45LjUgMiAuNSAzYzAgMS43LS41IDMuMi0xLjIgNC42TDEyLjIgOWMxLjEuMSAyLjEuOCAyLjUgMS43TDE4LjMgOWMtMS0yLjMtMy41LTQtNi4zLTR6Ii8+PC9zdmc+",
+            "repeatCount": 3,
+            "sourceId": 0,
+            "timerIntervalMs": 100,
+            "timerMode": 0,
+            "title": "Roughing Pump OFF",
+            "txData": "ROUGHING OFF",
+            "txEncoding": 0
+        },
+        {
+            "autoExecuteOnConnect": false,
+            "binary": false,
+            "eol": "\r\n",
+            "icon": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0iTTIgMTJjMCA1LjUgNC41IDEwIDEwIDEwczEwLTQuNSAxMC0xMFMxNy41IDIgMTIgMlMyIDYuNSAyIDEybTE4IDBjMCA0LjQtMy42IDgtOCA4cy04LTMuNi04LThzMy42LTggOC04czggMy42IDggOG0tNy41LTVsLS4zIDEuM2wtLjktMy4zYy0xIC4zLTEuNiAxLjMtMS40IDIuNGwuMyAxLjNsLTIuMy0yLjRjLS43LjctLjcgMiAwIDIuN2wxIDFsLTMuMy0uOWMtLjMgMSAuMyAyLjEgMS40IDIuNGwxLjMuM2wtMy4zLjljLjMgMSAxLjMgMS42IDIuNCAxLjRsMS4zLS4zbC0yLjQgMi40Yy44LjcgMiAuNyAyLjcgMGwuOS0uOWwtLjkgMy4zYzEgLjMgMi4xLS4zIDIuNC0xLjRsLjMtMS4zbC45IDMuM2MxLS4zIDEuNi0xLjMgMS40LTIuNGwtLjMtMS4zbDIuNCAyLjRjLjctLjguNy0yIDAtMi43bC0xLTEuMmwzLjMuOWMuMy0xLS4zLTIuMS0xLjQtMi40bC0xLjMtLjNsMy4zLS45Yy0uMy0xLTEuMy0xLjYtMi40LTEuNGwtMS4zLjNsMi40LTIuNGMtLjgtLjctMi0uNy0yLjcgMGwtLjkgMWwuOS0zLjNjLTEuMS0uMi0yLjIuNC0yLjUgMS41bTEgNWMwIC44LS43IDEuNS0xLjUgMS41cy0xLjUtLjctMS41LTEuNXMuNy0xLjUgMS41LTEuNXMxLjUuNyAxLjUgMS41Ii8+PC9zdmc+",
+            "repeatCount": 3,
+            "sourceId": 0,
+            "timerIntervalMs": 100,
+            "timerMode": 0,
+            "title": "Turbo Pump ON",
+            "txData": "TURBO ON",
+            "txEncoding": 0
+        },
+        {
+            "autoExecuteOnConnect": false,
+            "binary": false,
+            "eol": "\r\n",
+            "icon": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0iTTEyIDIycS0yLjA3NSAwLTMuOS0uNzg4dC0zLjE3NS0yLjEzN1QyLjc4OCAxNS45VDIgMTJ0Ljc4OC0zLjl0Mi4xMzctMy4xNzVUOC4xIDIuNzg4VDEyIDJ0My45Ljc4OHQzLjE3NSAyLjEzN1QyMS4yMTMgOC4xVDIyIDEydC0uNzg4IDMuOXQtMi4xMzcgMy4xNzV0LTMuMTc1IDIuMTM4VDEyIDIybTAtMnEzLjM1IDAgNS42NzUtMi4zMjVUMjAgMTJ0LTIuMzI1LTUuNjc1VDEyIDRUNi4zMjUgNi4zMjVUNCAxMnQyLjMyNSA1LjY3NVQxMiAyMG0wLTgiLz48L3N2Zz4=",
+            "repeatCount": 3,
+            "sourceId": 0,
+            "timerIntervalMs": 100,
+            "timerMode": 0,
+            "title": "Turbo Pump OFF",
+            "txData": "TURBO OFF",
+            "txEncoding": 0
+        },
+        {
+            "autoExecuteOnConnect": false,
+            "binary": false,
+            "eol": "\r\n",
+            "icon": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0iTTIwIDE0aDJ2MmgtMmMtMS4zOCAwLTIuNzQtLjM1LTQtMWMtMi41IDEuMy01LjUgMS4zLTggMGMtMS4yNi42NS0yLjYzIDEtNCAxSDJ2LTJoMmMxLjM5IDAgMi43OC0uNDcgNC0xLjMzYzIuNDQgMS43MSA1LjU2IDEuNzEgOCAwYzEuMjIuODYgMi42MSAxLjMzIDQgMS4zM20wIDZoMnYyaC0yYy0xLjM4IDAtMi43NC0uMzUtNC0xYy0yLjUgMS4zLTUuNSAxLjMtOCAwYy0xLjI2LjY1LTIuNjMgMS00IDFIMnYtMmgyYzEuMzkgMCAyLjc4LS40NyA0LTEuMzNjMi40NCAxLjcxIDUuNTYgMS43MSA4IDBjMS4yMi44NiAyLjYxIDEuMzMgNCAxLjMzbTItMTRsLTQtNHYzaC01djJoNXYzIi8+PC9zdmc+",
+            "repeatCount": 3,
+            "sourceId": 0,
+            "timerIntervalMs": 100,
+            "timerMode": 0,
+            "title": "Fluid Pump FORWARD",
+            "txData": "FLUIDPUMP_RATE 100",
+            "txEncoding": 0
+        },
+        {
+            "autoExecuteOnConnect": false,
+            "binary": false,
+            "eol": "\r\n",
+            "icon": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0iTTQgMTRjMS4zOSAwIDIuNzgtLjQ3IDQtMS4zM2MyLjQ0IDEuNzEgNS41NiAxLjcxIDggMGMxLjIyLjg2IDIuNjEgMS4zMyA0IDEuMzNoMnYyaC0yYy0xLjM3IDAtMi43NC0uMzUtNC0xYy0yLjUgMS4zLTUuNSAxLjMtOCAwYy0xLjI2LjY1LTIuNjIgMS00IDFIMnYtMnptNCA0LjY3YzIuNDQgMS43MSA1LjU2IDEuNzEgOCAwYzEuMjIuODYgMi42MSAxLjMzIDQgMS4zM2gydjJoLTJjLTEuMzcgMC0yLjc0LS4zNS00LTFjLTIuNSAxLjMtNS41IDEuMy04IDBjLTEuMjYuNjUtMi42MiAxLTQgMUgydi0yaDJjMS4zOSAwIDIuNzgtLjQ3IDQtMS4zM002IDEwVjdoNVY1SDZWMkwyIDYiLz48L3N2Zz4=",
+            "repeatCount": 3,
+            "sourceId": 0,
+            "timerIntervalMs": 100,
+            "timerMode": 0,
+            "title": "Fluid Pump REVERSED",
+            "txData": "FLUIDPUMP_RATE -100",
+            "txEncoding": 0
+        },
+        {
+            "autoExecuteOnConnect": false,
+            "binary": false,
+            "eol": "\r\n",
+            "icon": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0iTTIwIDEyYy0xLjM5IDAtMi43OC0uNDctNC0xLjMzYy0yLjQ0IDEuNzEtNS41NiAxLjcxLTggMEM2Ljc4IDExLjUzIDUuMzkgMTIgNCAxMkgydjJoMmMxLjM3IDAgMi43NC0uMzUgNC0xYzIuNSAxLjMgNS41IDEuMyA4IDBjMS4yNi42NSAyLjYyIDEgNCAxaDJ2LTIiLz48L3N2Zz4=",
+            "repeatCount": 3,
+            "sourceId": 0,
+            "timerIntervalMs": 100,
+            "timerMode": 0,
+            "title": "Fluid Pump OFF",
+            "txData": "FLUIDPUMP OFF",
+            "txEncoding": 0
+        },
+        {
+            "autoExecuteOnConnect": false,
+            "binary": false,
+            "eol": "\r\n",
+            "icon": "Dew Point",
+            "repeatCount": 3,
+            "sourceId": 0,
+            "timerIntervalMs": 100,
+            "timerMode": 0,
+            "title": "pH ON",
+            "txData": "PH ON",
+            "txEncoding": 0
+        },
+        {
+            "autoExecuteOnConnect": false,
+            "binary": false,
+            "eol": "\r\n",
+            "icon": "Dew Point",
+            "repeatCount": 3,
+            "sourceId": 0,
+            "timerIntervalMs": 100,
+            "timerMode": 0,
+            "title": "pH OFF",
+            "txData": "PH OFF",
+            "txEncoding": 0
+        }
+    ],
+    "changeDrivenTransforms": false,
+    "customizeWorkspaces": true,
+    "groups": [
+        {
+            "datasets": [
+                {
+                    "datasetId": 0,
+                    "displayFormat": "0d",
+                    "displayTickCount": 5,
+                    "fft": false,
+                    "fftMax": 0,
+                    "fftMin": 0,
+                    "fftSamples": 256,
+                    "fftSamplingRate": 100,
+                    "graph": false,
+                    "groupId": 0,
+                    "index": 1,
+                    "led": false,
+                    "ledHigh": 80,
+                    "log": false,
+                    "numericValue": 0,
+                    "plotMax": 0,
+                    "plotMin": 0,
+                    "title": "Fluid Pumping Rate",
+                    "uniqueId": 20004,
+                    "units": "%",
+                    "value": "--.--",
+                    "widget": "meter",
+                    "widgetMax": 100,
+                    "widgetMin": -100,
+                    "xAxis": -1
+                },
+                {
+                    "alarmBands": [
+                        {
+                            "max": 9500,
+                            "min": 0,
+                            "severity": 2
+                        }
+                    ],
+                    "datasetId": 1,
+                    "displayFormat": "0d",
+                    "displayTickCount": 5,
+                    "fft": false,
+                    "fftMax": 0,
+                    "fftMin": 0,
+                    "fftSamples": 256,
+                    "fftSamplingRate": 100,
+                    "graph": false,
+                    "groupId": 0,
+                    "index": 2,
+                    "led": false,
+                    "ledHigh": 80,
+                    "log": false,
+                    "numericValue": 0,
+                    "plotMax": 0,
+                    "plotMin": 0,
+                    "title": "Turbo RPM Setpoint",
+                    "uniqueId": 20001,
+                    "units": "RPM",
+                    "value": "--.--",
+                    "widget": "gauge",
+                    "widgetMax": 95000,
+                    "widgetMin": 0,
+                    "xAxis": -1
+                },
+                {
+                    "alarmBands": [
+                        {
+                            "max": 89500,
+                            "min": 10,
+                            "severity": 2
+                        },
+                        {
+                            "max": 95000,
+                            "min": 90050,
+                            "severity": 2
+                        }
+                    ],
+                    "datasetId": 2,
+                    "displayFormat": "0d",
+                    "displayTickCount": 5,
+                    "fft": false,
+                    "fftMax": 0,
+                    "fftMin": 0,
+                    "fftSamples": 256,
+                    "fftSamplingRate": 100,
+                    "graph": false,
+                    "groupId": 0,
+                    "index": 3,
+                    "led": false,
+                    "ledHigh": 80,
+                    "log": false,
+                    "numericValue": 0,
+                    "plotMax": 0,
+                    "plotMin": 0,
+                    "title": "Turbo RPM",
+                    "uniqueId": 20000,
+                    "units": "RPM",
+                    "value": "--.--",
+                    "widget": "gauge",
+                    "widgetMax": 95000,
+                    "widgetMin": 0,
+                    "xAxis": -1
+                },
+                {
+                    "alarmBands": [
+                        {
+                            "max": 5,
+                            "min": 4.8,
+                            "severity": 2
+                        },
+                        {
+                            "max": 6,
+                            "min": 5,
+                            "severity": 3
+                        }
+                    ],
+                    "datasetId": 3,
+                    "displayFormat": "2d",
+                    "displayTickCount": 5,
+                    "fft": false,
+                    "fftMax": 0,
+                    "fftMin": 0,
+                    "fftSamples": 256,
+                    "fftSamplingRate": 100,
+                    "graph": false,
+                    "groupId": 0,
+                    "index": 4,
+                    "led": false,
+                    "ledHigh": 80,
+                    "log": false,
+                    "numericValue": 0,
+                    "plotMax": 0,
+                    "plotMin": 0,
+                    "title": "Turbo Current Draw",
+                    "uniqueId": 20002,
+                    "units": "Amps",
+                    "value": "--.--",
+                    "widget": "bar",
+                    "widgetMax": 6,
+                    "widgetMin": 0,
+                    "xAxis": -1
+                },
+                {
+                    "alarmBands": [
+                        {
+                            "max": 85,
+                            "min": 60,
+                            "severity": 2
+                        },
+                        {
+                            "max": 100,
+                            "min": 85,
+                            "severity": 3
+                        }
+                    ],
+                    "datasetId": 4,
+                    "displayFormat": "1d",
+                    "displayTickCount": 5,
+                    "fft": false,
+                    "fftMax": 0,
+                    "fftMin": 0,
+                    "fftSamples": 256,
+                    "fftSamplingRate": 100,
+                    "graph": false,
+                    "groupId": 0,
+                    "index": 5,
+                    "led": false,
+                    "ledHigh": 80,
+                    "log": false,
+                    "numericValue": 0,
+                    "plotMax": 0,
+                    "plotMin": 0,
+                    "title": "Turbo Rotor Temperature",
+                    "uniqueId": 20003,
+                    "units": "*C",
+                    "value": "--.--",
+                    "widget": "bar",
+                    "widgetMax": 90,
+                    "widgetMin": 0,
+                    "xAxis": -1
+                },
+                {
+                    "datasetId": 5,
+                    "displayFormat": "0d",
+                    "displayTickCount": 5,
+                    "fft": false,
+                    "fftMax": 0,
+                    "fftMin": 0,
+                    "fftSamples": 256,
+                    "fftSamplingRate": 100,
+                    "graph": false,
+                    "groupId": 0,
+                    "index": 8,
+                    "led": true,
+                    "ledHigh": 1,
+                    "log": false,
+                    "numericValue": 0,
+                    "plotMax": 0,
+                    "plotMin": 0,
+                    "title": "Roughing Pump PWR",
+                    "uniqueId": 20015,
+                    "units": "",
+                    "value": "",
+                    "widget": "",
+                    "widgetMax": 0,
+                    "widgetMin": 0,
+                    "xAxis": -2
+                },
+                {
+                    "datasetId": 6,
+                    "displayFormat": "0d",
+                    "displayTickCount": 5,
+                    "fft": false,
+                    "fftMax": 0,
+                    "fftMin": 0,
+                    "fftSamples": 256,
+                    "fftSamplingRate": 100,
+                    "graph": false,
+                    "groupId": 0,
+                    "index": 9,
+                    "led": true,
+                    "ledHigh": 1,
+                    "log": false,
+                    "numericValue": 0,
+                    "plotMax": 0,
+                    "plotMin": 0,
+                    "title": "Fluid Pump PWR",
+                    "uniqueId": 20016,
+                    "units": "",
+                    "value": "",
+                    "widget": "",
+                    "widgetMax": 0,
+                    "widgetMin": 0,
+                    "xAxis": -2
+                },
+                {
+                    "datasetId": 7,
+                    "displayFormat": "0d",
+                    "displayTickCount": 5,
+                    "fft": false,
+                    "fftMax": 0,
+                    "fftMin": 0,
+                    "fftSamples": 256,
+                    "fftSamplingRate": 100,
+                    "graph": false,
+                    "groupId": 0,
+                    "index": 10,
+                    "led": true,
+                    "ledHigh": 1,
+                    "log": false,
+                    "numericValue": 0,
+                    "plotMax": 0,
+                    "plotMin": 0,
+                    "title": "Cryotrap PWR",
+                    "uniqueId": 20017,
+                    "units": "",
+                    "value": "",
+                    "widget": "",
+                    "widgetMax": 0,
+                    "widgetMin": 0,
+                    "xAxis": -2
+                }
+            ],
+            "title": "Gauges",
+            "uniqueId": 20007,
+            "widget": ""
+        },
+        {
+            "datasets": [
+                {
+                    "datasetId": 0,
+                    "displayFormat": "0d",
+                    "displayTickCount": 5,
+                    "fft": false,
+                    "fftMax": 0,
+                    "fftMin": 0,
+                    "fftSamples": 256,
+                    "fftSamplingRate": 100,
+                    "graph": true,
+                    "groupId": 1,
+                    "index": 1,
+                    "led": false,
+                    "ledHigh": 80,
+                    "log": false,
+                    "numericValue": 0,
+                    "plotMax": 0,
+                    "plotMin": 0,
+                    "title": "Fluid Pump Speed",
+                    "uniqueId": 10003,
+                    "units": "%",
+                    "value": "--.--",
+                    "widget": "",
+                    "widgetMax": 0,
+                    "widgetMin": 0,
+                    "xAxis": -1
+                },
+                {
+                    "datasetId": 1,
+                    "displayFormat": "0d",
+                    "displayTickCount": 5,
+                    "fft": false,
+                    "fftMax": 0,
+                    "fftMin": 0,
+                    "fftSamples": 256,
+                    "fftSamplingRate": 100,
+                    "graph": true,
+                    "groupId": 1,
+                    "index": 3,
+                    "led": false,
+                    "ledHigh": 80,
+                    "log": false,
+                    "numericValue": 0,
+                    "plotMax": 95000,
+                    "plotMin": -1,
+                    "title": "Turbo RPM",
+                    "uniqueId": 10000,
+                    "units": "RPM",
+                    "value": "--.--",
+                    "widget": "",
+                    "widgetMax": 0,
+                    "widgetMin": 0,
+                    "xAxis": -1
+                },
+                {
+                    "datasetId": 2,
+                    "displayFormat": "0d",
+                    "displayTickCount": 5,
+                    "fft": false,
+                    "fftMax": 0,
+                    "fftMin": 0,
+                    "fftSamples": 256,
+                    "fftSamplingRate": 100,
+                    "graph": true,
+                    "groupId": 1,
+                    "index": 4,
+                    "led": false,
+                    "ledHigh": 80,
+                    "log": false,
+                    "numericValue": 0,
+                    "plotMax": 5.5,
+                    "plotMin": 0,
+                    "title": "Turbo Current Draw",
+                    "uniqueId": 10001,
+                    "units": "Amps",
+                    "value": "--.--",
+                    "widget": "",
+                    "widgetMax": 0,
+                    "widgetMin": 0,
+                    "xAxis": -1
+                }
+            ],
+            "title": "Plots",
+            "uniqueId": 20006,
+            "widget": ""
+        },
+        {
+            "datasets": [
+                {
+                    "datasetId": 0,
+                    "displayFormat": "0d",
+                    "displayTickCount": 5,
+                    "fft": false,
+                    "fftMax": 0,
+                    "fftMin": 0,
+                    "fftSamples": 256,
+                    "fftSamplingRate": 100,
+                    "graph": false,
+                    "groupId": 2,
+                    "index": 5,
+                    "led": false,
+                    "ledHigh": 80,
+                    "log": false,
+                    "numericValue": 0,
+                    "plotMax": 90,
+                    "plotMin": 0,
+                    "title": "Turbo Rotor Temp",
+                    "uniqueId": 20010,
+                    "units": "*C",
+                    "value": "",
+                    "widget": "",
+                    "widgetMax": 0,
+                    "widgetMin": 0,
+                    "xAxis": -2
+                },
+                {
+                    "datasetId": 1,
+                    "displayFormat": "0d",
+                    "displayTickCount": 5,
+                    "fft": false,
+                    "fftMax": 0,
+                    "fftMin": 0,
+                    "fftSamples": 256,
+                    "fftSamplingRate": 100,
+                    "graph": false,
+                    "groupId": 2,
+                    "index": 6,
+                    "led": false,
+                    "ledHigh": 80,
+                    "log": false,
+                    "numericValue": 0,
+                    "plotMax": 90,
+                    "plotMin": 0,
+                    "title": "Turbo Electronics Temp",
+                    "uniqueId": 20011,
+                    "units": "*C",
+                    "value": "",
+                    "widget": "",
+                    "widgetMax": 0,
+                    "widgetMin": 0,
+                    "xAxis": -2
+                },
+                {
+                    "datasetId": 2,
+                    "displayFormat": "0d",
+                    "displayTickCount": 5,
+                    "fft": false,
+                    "fftMax": 0,
+                    "fftMin": 0,
+                    "fftSamples": 256,
+                    "fftSamplingRate": 100,
+                    "graph": false,
+                    "groupId": 2,
+                    "index": 7,
+                    "led": false,
+                    "ledHigh": 80,
+                    "log": false,
+                    "numericValue": 0,
+                    "plotMax": 90,
+                    "plotMin": 0,
+                    "title": "Turbo Bottom Temp",
+                    "uniqueId": 20012,
+                    "units": "*C",
+                    "value": "",
+                    "widget": "",
+                    "widgetMax": 0,
+                    "widgetMin": 0,
+                    "xAxis": -2
+                }
+            ],
+            "title": "Turbo Pump Temperature",
+            "uniqueId": 20009,
+            "widget": "multiplot"
+        },
+        {
+            "datasets": [
+                {
+                    "datasetId": 0,
+                    "displayFormat": "0d",
+                    "displayTickCount": 5,
+                    "fft": false,
+                    "fftMax": 0,
+                    "fftMin": 0,
+                    "fftSamples": 256,
+                    "fftSamplingRate": 100,
+                    "graph": false,
+                    "groupId": 3,
+                    "index": 11,
+                    "led": false,
+                    "ledHigh": 80,
+                    "log": false,
+                    "numericValue": 0,
+                    "plotMax": 0,
+                    "plotMin": 0,
+                    "title": "Warnings",
+                    "uniqueId": 0,
+                    "units": "",
+                    "value": "--.--",
+                    "widget": "",
+                    "widgetMax": 0,
+                    "widgetMin": 0,
+                    "xAxis": -1
+                },
+                {
+                    "datasetId": 1,
+                    "displayFormat": "0d",
+                    "displayTickCount": 5,
+                    "fft": false,
+                    "fftMax": 0,
+                    "fftMin": 0,
+                    "fftSamples": 256,
+                    "fftSamplingRate": 100,
+                    "graph": false,
+                    "groupId": 3,
+                    "index": 12,
+                    "led": false,
+                    "ledHigh": 80,
+                    "log": false,
+                    "numericValue": 0,
+                    "plotMax": 0,
+                    "plotMin": 0,
+                    "title": "|",
+                    "uniqueId": 1,
+                    "units": "",
+                    "value": "--.--",
+                    "widget": "",
+                    "widgetMax": 0,
+                    "widgetMin": 0,
+                    "xAxis": -1
+                },
+                {
+                    "datasetId": 2,
+                    "displayFormat": "0d",
+                    "displayTickCount": 5,
+                    "fft": false,
+                    "fftMax": 0,
+                    "fftMin": 0,
+                    "fftSamples": 256,
+                    "fftSamplingRate": 100,
+                    "graph": false,
+                    "groupId": 3,
+                    "index": 13,
+                    "led": false,
+                    "ledHigh": 80,
+                    "log": false,
+                    "numericValue": 0,
+                    "plotMax": 0,
+                    "plotMin": 0,
+                    "title": "|",
+                    "uniqueId": 2,
+                    "units": "",
+                    "value": "--.--",
+                    "widget": "",
+                    "widgetMax": 0,
+                    "widgetMin": 0,
+                    "xAxis": -1
+                },
+                {
+                    "datasetId": 3,
+                    "displayFormat": "0d",
+                    "displayTickCount": 5,
+                    "fft": false,
+                    "fftMax": 0,
+                    "fftMin": 0,
+                    "fftSamples": 256,
+                    "fftSamplingRate": 100,
+                    "graph": false,
+                    "groupId": 3,
+                    "index": 14,
+                    "led": false,
+                    "ledHigh": 80,
+                    "log": false,
+                    "numericValue": 0,
+                    "plotMax": 0,
+                    "plotMin": 0,
+                    "title": "|",
+                    "uniqueId": 3,
+                    "units": "",
+                    "value": "--.--",
+                    "widget": "",
+                    "widgetMax": 0,
+                    "widgetMin": 0,
+                    "xAxis": -1
+                },
+                {
+                    "datasetId": 4,
+                    "displayFormat": "0d",
+                    "displayTickCount": 5,
+                    "fft": false,
+                    "fftMax": 0,
+                    "fftMin": 0,
+                    "fftSamples": 256,
+                    "fftSamplingRate": 100,
+                    "graph": false,
+                    "groupId": 3,
+                    "index": 15,
+                    "led": false,
+                    "ledHigh": 80,
+                    "log": false,
+                    "numericValue": 0,
+                    "plotMax": 0,
+                    "plotMin": 0,
+                    "title": "|",
+                    "uniqueId": 4,
+                    "units": "",
+                    "value": "--.--",
+                    "widget": "",
+                    "widgetMax": 0,
+                    "widgetMin": 0,
+                    "xAxis": -1
+                },
+                {
+                    "datasetId": 5,
+                    "displayFormat": "0d",
+                    "displayTickCount": 5,
+                    "fft": false,
+                    "fftMax": 0,
+                    "fftMin": 0,
+                    "fftSamples": 256,
+                    "fftSamplingRate": 100,
+                    "graph": false,
+                    "groupId": 3,
+                    "index": 16,
+                    "led": false,
+                    "ledHigh": 80,
+                    "log": false,
+                    "numericValue": 0,
+                    "plotMax": 0,
+                    "plotMin": 0,
+                    "title": "|",
+                    "uniqueId": 5,
+                    "units": "",
+                    "value": "--.--",
+                    "widget": "",
+                    "widgetMax": 0,
+                    "widgetMin": 0,
+                    "xAxis": -1
+                },
+                {
+                    "datasetId": 6,
+                    "displayFormat": "0d",
+                    "displayTickCount": 5,
+                    "fft": false,
+                    "fftMax": 0,
+                    "fftMin": 0,
+                    "fftSamples": 256,
+                    "fftSamplingRate": 100,
+                    "graph": false,
+                    "groupId": 3,
+                    "index": 17,
+                    "led": false,
+                    "ledHigh": 80,
+                    "log": false,
+                    "numericValue": 0,
+                    "plotMax": 0,
+                    "plotMin": 0,
+                    "title": "|",
+                    "uniqueId": 6,
+                    "units": "",
+                    "value": "--.--",
+                    "widget": "",
+                    "widgetMax": 0,
+                    "widgetMin": 0,
+                    "xAxis": -1
+                }
+            ],
+            "title": "Warnings",
+            "uniqueId": 20005,
+            "widget": "datagrid"
+        },
+        {
+            "datasets": [
+            ],
+            "groupType": 1,
+            "outputWidgets": [
+                {
+                    "icon": "",
+                    "initialValue": 0,
+                    "outputMax": 100,
+                    "outputMin": -100,
+                    "outputStep": 1,
+                    "outputTxEncoding": 0,
+                    "outputType": 1,
+                    "sourceId": 0,
+                    "title": "Set Fluid Pump %Rate",
+                    "transmitFunction": "/**\n * Default transmit function for output widgets.\n *\n * @param value - Button: 1, Slider/Knob: number, Toggle: 0|1, TextField: string\n * @return String or byte array to send over the active connection.\n */\nfunction transmit(value) {\n  return \"FLUIDPUMP_RATE \" + value + \"\\r\\n\";\n}\n"
+                },
+                {
+                    "icon": "",
+                    "initialValue": 0,
+                    "outputMax": 100,
+                    "outputMin": 0,
+                    "outputStep": 1,
+                    "outputTxEncoding": 0,
+                    "outputType": 3,
+                    "sourceId": 0,
+                    "title": "Send Command",
+                    "transmitFunction": "/**\n * Default transmit function for output widgets.\n *\n * @param value - Button: 1, Slider/Knob: number, Toggle: 0|1, TextField: string\n * @return String or byte array to send over the active connection.\n */\nfunction transmit(value) {\n  return value + \"\\n\";\n}\n"
+                }
+            ],
+            "title": "Output Controls",
+            "uniqueId": 20018,
+            "widget": ""
+        }
+    ],
+    "hexadecimalDelimiters": false,
+    "mqttPublisher": {
+        "cleanSession": true,
+        "customClientId": false,
+        "enabled": false,
+        "hostname": "127.0.0.1",
+        "keepAlive": 60,
+        "mode": 0,
+        "mqttVersion": 2,
+        "notificationTopic": "",
+        "peerVerifyDepth": 10,
+        "peerVerifyMode": 3,
+        "port": 1883,
+        "publishFrequency": 10,
+        "publishNotifications": false,
+        "scriptCode": "",
+        "scriptLanguage": 0,
+        "scriptTopic": "",
+        "sslEnabled": false,
+        "sslProtocol": 5,
+        "topicBase": ""
+    },
+    "nextUniqueId": 20019,
+    "plotTimeRange": 30,
+    "pointCount": 1000,
+    "schemaVersion": 3,
+    "sources": [
+        {
+            "busType": 0,
+            "checksum": "",
+            "checksumAlgorithm": "",
+            "connection": {
+                "autoReconnect": true,
+                "baudRate": 9600,
+                "dataBitsIndex": 3,
+                "deviceId": {
+                    "description": "USB-Serial Controller",
+                    "pid": "2303",
+                    "portName": "cu.usbserial-2110",
+                    "vid": "067B"
+                },
+                "dtr": false,
+                "flowControlIndex": 0,
+                "parityIndex": 0,
+                "portIndex": 4,
+                "stopBitsIndex": 0
+            },
+            "decoder": 0,
+            "decoderMethod": 0,
+            "frameDetection": 0,
+            "frameEnd": "\\n",
+            "frameParserCode": "/**\n * Key-Value Pairs Parser (modified for ISMS output)\n *\n * Parses key-value formatted data into an array of values using a custom keymap.\n *\n * INPUT FORMAT: \"temperature=22.5,humidity=60.3,pressure=1013\"\n * OUTPUT ARRAY: [22.5, 60.3, 1013]\n *\n * Note: Frame delimiters are automatically removed by Serial Studio.\n *       Values are mapped to array indices based on the keyToIndexMap.\n *       Missing keys retain their previous values between frames.\n */\n\n//------------------------------------------------------------------------------\n// Configuration\n//------------------------------------------------------------------------------\n\n/**\n * Maps key names to array indices.\n * Customize this object to match your data format and desired output order.\n */\n //Fluidpump_Rate:0(!),Turbo_RPM_Setpoint:90000,Turbo_RPM:90018,Turbo_Current:0.32A,Turbo_Rotor_Temp:53C,\n //Turbo_Elec_Temp:35C,Turbo_Bottom_Temp:31C,Roughing_on:0,Fluidpump_on:0,pH_on:0,\nconst keyToIndexMap = {\n  Fluidpump_Rate:0,\n  Turbo_RPM_Setpoint: 1,\n  Turbo_RPM: 2,\n  Turbo_Current: 3,\n  Turbo_Rotor_Temp:4,\n  Turbo_Elec_Temp:5,\n  Turbo_Bottom_Temp:6,\n  Roughing_on:7,\n  Fluidpump_on:8,\n  Cryo_on:9,\n  Warn: 10\n};\n\n// Keep track of where the warnings start in the list of comma separated items.\nWARNINGS_INDEX_BEGIN = keyToIndexMap[\"Warn\"]\n\n\n/**\n * Array to hold parsed values with default initialization.\n * Values persist between frames unless updated by incoming data.\n */\nconst parsedValues = new Array(Object.keys(keyToIndexMap).length + 10);\nparsedValues.fill(0,0,Object.keys(keyToIndexMap).length);\nparsedValues.fill(\"\",Object.keys(keyToIndexMap).length,100);\n\n// fill warnings section with spaces\nfor (let i = WARNINGS_INDEX_BEGIN; i < parsedValues.length; i++) {\n     parsedValues[i] = \" \"\n}\n\n//------------------------------------------------------------------------------\n// Frame Parser Function\n//------------------------------------------------------------------------------\n\n/**\n * Parses a key-value frame into an array of values.\n *\n * @param {string} frame - The key-value data from the data source\n * @returns {array} Array of values mapped according to keyToIndexMap\n */\nfunction parse(frame) {\n if(frame.startsWith(\"!WARN:\")){\n     // clear old warnings\n      for (let i = WARNINGS_INDEX_BEGIN; i < parsedValues.length; i++) {\n          parsedValues[i] = \" \"\n      }\n     // fill in the end of the table with any warnings\n     let warningsText = frame.substring(7)\n     let warningsArray = warningsText.split(\",\");\n     for (let i = 0; i < warningsArray.length; i++) {\n         parsedValues[WARNINGS_INDEX_BEGIN + i] = warningsArray[i];\n     }\n } else if(frame.startsWith(\"|\")  || frame.startsWith(\"[\") || frame.startsWith(\"->\") || frame.startsWith(\"<-\")) {\n  // for other info lines, ignore them\n  return [];\n } else {\n  const regex = /([\\w]+):([-\\d.]+)/g;\n  let match;\n  while ((match = regex.exec(frame)) !== null) {\n    const key = match[1];\n    const value = parseFloat(match[2]);\n\n    if (keyToIndexMap.hasOwnProperty(key))\n      parsedValues[keyToIndexMap[key]] = value;\n  }\n\n  \n}\n  return parsedValues;\n}\n",
+            "frameStart": "$",
+            "hexadecimalDelimiters": false,
+            "sourceId": 0,
+            "title": "Device A"
+        }
+    ],
+    "title": "Ifremer ISMS Serial Studio Dashboard",
+    "treeExpansion": {
+        "": false,
+        "ISMS Serial Studio V2": true,
+        "ISMS Serial Studio V2/ ": false,
+        "ISMS Serial Studio V2/Control Loop": false,
+        "ISMS Serial Studio V2/Dashboard Widgets": true,
+        "ISMS Serial Studio V2/Dashboard Widgets/Gauges": true,
+        "ISMS Serial Studio V2/Dashboard Widgets/Gauges/Fluid Pump PWR": false,
+        "ISMS Serial Studio V2/Dashboard Widgets/Gauges/Fluid Pumping Rate": false,
+        "ISMS Serial Studio V2/Dashboard Widgets/Gauges/Roughing Pump PWR": false,
+        "ISMS Serial Studio V2/Dashboard Widgets/Gauges/Turbo Current Draw": false,
+        "ISMS Serial Studio V2/Dashboard Widgets/Gauges/Turbo RPM": false,
+        "ISMS Serial Studio V2/Dashboard Widgets/Gauges/Turbo RPM Setpoint": false,
+        "ISMS Serial Studio V2/Dashboard Widgets/Gauges/Turbo Rotor Temperature": false,
+        "ISMS Serial Studio V2/Dashboard Widgets/Gauges/pH Probe PWR": false,
+        "ISMS Serial Studio V2/Dashboard Widgets/Output Controls": true,
+        "ISMS Serial Studio V2/Dashboard Widgets/Output Controls/Send Command": false,
+        "ISMS Serial Studio V2/Dashboard Widgets/Output Controls/Set Fluid Pump %Rate": false,
+        "ISMS Serial Studio V2/Dashboard Widgets/Plots": true,
+        "ISMS Serial Studio V2/Dashboard Widgets/Plots/Fluid Pump Speed": false,
+        "ISMS Serial Studio V2/Dashboard Widgets/Plots/Turbo Current Draw": false,
+        "ISMS Serial Studio V2/Dashboard Widgets/Plots/Turbo RPM": false,
+        "ISMS Serial Studio V2/Dashboard Widgets/Turbo Pump Temperature": true,
+        "ISMS Serial Studio V2/Dashboard Widgets/Turbo Pump Temperature/Turbo Bottom Temp": false,
+        "ISMS Serial Studio V2/Dashboard Widgets/Turbo Pump Temperature/Turbo Electronics Temp": false,
+        "ISMS Serial Studio V2/Dashboard Widgets/Turbo Pump Temperature/Turbo Rotor Temp": false,
+        "ISMS Serial Studio V2/Dashboard Widgets/Warnings": true,
+        "ISMS Serial Studio V2/Dashboard Widgets/Warnings/Warnings": false,
+        "ISMS Serial Studio V2/Dashboard Widgets/Warnings/|": false,
+        "ISMS Serial Studio V2/Device A": true,
+        "ISMS Serial Studio V2/Device A/Frame Parser": false,
+        "ISMS Serial Studio V2/Fluid Pump FORWARD": false,
+        "ISMS Serial Studio V2/Fluid Pump OFF": false,
+        "ISMS Serial Studio V2/Fluid Pump REVERSED": false,
+        "ISMS Serial Studio V2/MQTT Publisher": false,
+        "ISMS Serial Studio V2/Roughing Pump OFF": false,
+        "ISMS Serial Studio V2/Roughing Pump ON": false,
+        "ISMS Serial Studio V2/Shared Memory": true,
+        "ISMS Serial Studio V2/Shared Memory/Dataset Values": false,
+        "ISMS Serial Studio V2/Startup All": false,
+        "ISMS Serial Studio V2/Turbo Pump OFF": false,
+        "ISMS Serial Studio V2/Turbo Pump ON": false,
+        "ISMS Serial Studio V2/Workspaces": true,
+        "ISMS Serial Studio V2/Workspaces/All Data": false,
+        "ISMS Serial Studio V2/Workspaces/Output Controls": false,
+        "ISMS Serial Studio V2/Workspaces/Overview": false,
+        "ISMS Serial Studio V2/Workspaces/Plots": false,
+        "ISMS Serial Studio V2/Workspaces/Warnings": false,
+        "ISMS Serial Studio V2/pH OFF": false,
+        "ISMS Serial Studio V2/pH ON": false
+    },
+    "widgetSettings": {
+        "10:0:4": {
+            "page": 0
+        },
+        "10:0:5": {
+            "page": 0
+        },
+        "10:2:3": {
+            "page": 1
+        },
+        "10:2:4": {
+            "page": 0
+        },
+        "10:2:5": {
+            "page": 0
+        },
+        "11:0:2": {
+            "page": 0
+        },
+        "11:0:3": {
+            "page": 0
+        },
+        "11:2:1": {
+            "page": 0
+        },
+        "11:2:2": {
+            "page": 0
+        },
+        "11:2:3": {
+            "page": 0
+        },
+        "13:0:1": {
+            "page": 0
+        },
+        "13:2:1": {
+            "page": 0
+        },
+        "13:2:5": {
+            "page": 1
+        },
+        "2:1:-1": {
+            "userShowLegends": true
+        },
+        "2:3:-1": {
+            "holdoff": 0,
+            "sweepEnabled": false,
+            "sweepMode": 0,
+            "sweepTimebase": 0,
+            "triggerEdge": 0,
+            "triggerLevel": 0,
+            "triggerSource": 0,
+            "visibleCurves": null
+        },
+        "9:0:2": {
+            "showAreaUnderPlot": true,
+            "userShowXLabel": false
+        },
+        "9:0:3": {
+            "showAreaUnderPlot": true,
+            "userShowXLabel": false
+        },
+        "9:0:4": {
+            "showAreaUnderPlot": true,
+            "userShowXLabel": false
+        },
+        "9:0:5": {
+            "showAreaUnderPlot": true,
+            "userShowXLabel": false
+        },
+        "9:1:2": {
+            "userShowXLabel": false
+        },
+        "9:1:3": {
+            "userShowXLabel": false
+        },
+        "9:1:4": {
+            "userShowXLabel": false
+        },
+        "9:1:5": {
+            "userShowXLabel": false
+        },
+        "activeGroup": 5000,
+        "externalWindows": {
+            "data": [
+            ]
+        },
+        "layout:-1": {
+            "data": {
+                "autoLayout": true,
+                "windowOrder": [
+                    0,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    1
+                ]
+            }
+        },
+        "layout:-2": {
+            "data": {
+                "autoLayout": true,
+                "windowOrder": [
+                    4,
+                    1,
+                    5,
+                    3,
+                    0,
+                    2,
+                    6,
+                    7,
+                    8,
+                    9
+                ]
+            }
+        },
+        "layout:0": {
+            "data": {
+                "autoLayout": true,
+                "windowOrder": [
+                    5,
+                    6,
+                    7,
+                    8,
+                    9
+                ]
+            }
+        },
+        "layout:1": {
+            "data": {
+                "autoLayout": true,
+                "windowOrder": [
+                    2,
+                    3,
+                    4,
+                    0,
+                    5
+                ]
+            }
+        },
+        "layout:1000": {
+            "data": {
+                "autoLayout": true,
+                "canvasHeight": 704,
+                "canvasWidth": 1498,
+                "geometries": [
+                    {
+                        "height": 352,
+                        "id": 3,
+                        "relativeIndex": 0,
+                        "state": "normal",
+                        "widgetType": 2,
+                        "width": 500,
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "height": 352,
+                        "id": 1,
+                        "relativeIndex": 0,
+                        "state": "normal",
+                        "widgetType": 1,
+                        "width": 500,
+                        "x": 499,
+                        "y": 0
+                    },
+                    {
+                        "height": 352,
+                        "id": 6,
+                        "relativeIndex": 0,
+                        "state": "normal",
+                        "widgetType": 8,
+                        "width": 500,
+                        "x": 998,
+                        "y": 0
+                    },
+                    {
+                        "height": 352,
+                        "id": 4,
+                        "relativeIndex": 0,
+                        "state": "normal",
+                        "widgetType": 5,
+                        "width": 500,
+                        "x": 0,
+                        "y": 351
+                    },
+                    {
+                        "height": 352,
+                        "id": 5,
+                        "relativeIndex": 0,
+                        "state": "normal",
+                        "widgetType": 6,
+                        "width": 500,
+                        "x": 499,
+                        "y": 351
+                    },
+                    {
+                        "height": 352,
+                        "id": 2,
+                        "relativeIndex": 1,
+                        "state": "normal",
+                        "widgetType": 1,
+                        "width": 500,
+                        "x": 998,
+                        "y": 351
+                    }
+                ],
+                "userReordered": false,
+                "windowOrder": [
+                    3,
+                    1,
+                    6,
+                    4,
+                    5,
+                    2
+                ],
+                "windowOrderTyped": [
+                    {
+                        "relativeIndex": 0,
+                        "widgetType": 2
+                    },
+                    {
+                        "relativeIndex": 0,
+                        "widgetType": 1
+                    },
+                    {
+                        "relativeIndex": 0,
+                        "widgetType": 8
+                    },
+                    {
+                        "relativeIndex": 0,
+                        "widgetType": 5
+                    },
+                    {
+                        "relativeIndex": 0,
+                        "widgetType": 6
+                    },
+                    {
+                        "relativeIndex": 1,
+                        "widgetType": 1
+                    }
+                ]
+            }
+        },
+        "layout:1001": {
+            "data": {
+                "autoLayout": true,
+                "canvasHeight": 653,
+                "canvasWidth": 1498,
+                "geometries": [
+                    {
+                        "height": 653,
+                        "id": 1,
+                        "relativeIndex": 0,
+                        "state": "normal",
+                        "widgetType": 1,
+                        "width": 1498,
+                        "x": 0,
+                        "y": 0
+                    }
+                ],
+                "userReordered": false,
+                "windowOrder": [
+                    1
+                ],
+                "windowOrderTyped": [
+                    {
+                        "relativeIndex": 0,
+                        "widgetType": 1
+                    }
+                ]
+            }
+        },
+        "layout:1002": {
+            "data": {
+                "autoLayout": true,
+                "canvasHeight": 653,
+                "canvasWidth": 1498,
+                "geometries": [
+                    {
+                        "height": 327,
+                        "id": 2,
+                        "relativeIndex": 0,
+                        "state": "closed",
+                        "widgetType": 2,
+                        "width": 749,
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "height": 327,
+                        "id": 6,
+                        "relativeIndex": 0,
+                        "state": "normal",
+                        "widgetType": 9,
+                        "width": 749,
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "height": 327,
+                        "id": 7,
+                        "relativeIndex": 1,
+                        "state": "normal",
+                        "widgetType": 9,
+                        "width": 749,
+                        "x": 748,
+                        "y": 0
+                    },
+                    {
+                        "height": 327,
+                        "id": 8,
+                        "relativeIndex": 2,
+                        "state": "normal",
+                        "widgetType": 9,
+                        "width": 749,
+                        "x": 0,
+                        "y": 326
+                    },
+                    {
+                        "height": 327,
+                        "id": 9,
+                        "relativeIndex": 3,
+                        "state": "normal",
+                        "widgetType": 9,
+                        "width": 749,
+                        "x": 748,
+                        "y": 326
+                    }
+                ],
+                "userReordered": false,
+                "windowOrder": [
+                    2,
+                    6,
+                    7,
+                    8,
+                    9
+                ],
+                "windowOrderTyped": [
+                    {
+                        "relativeIndex": 0,
+                        "widgetType": 2
+                    },
+                    {
+                        "relativeIndex": 0,
+                        "widgetType": 9
+                    },
+                    {
+                        "relativeIndex": 1,
+                        "widgetType": 9
+                    },
+                    {
+                        "relativeIndex": 2,
+                        "widgetType": 9
+                    },
+                    {
+                        "relativeIndex": 3,
+                        "widgetType": 9
+                    }
+                ]
+            }
+        },
+        "layout:1003": {
+            "data": {
+                "autoLayout": true,
+                "canvasHeight": 653,
+                "canvasWidth": 1498,
+                "geometries": [
+                    {
+                        "height": 327,
+                        "id": 12,
+                        "relativeIndex": 0,
+                        "state": "normal",
+                        "widgetType": 11,
+                        "width": 749,
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "height": 327,
+                        "id": 13,
+                        "relativeIndex": 1,
+                        "state": "normal",
+                        "widgetType": 11,
+                        "width": 749,
+                        "x": 748,
+                        "y": 0
+                    },
+                    {
+                        "height": 327,
+                        "id": 10,
+                        "relativeIndex": 0,
+                        "state": "normal",
+                        "widgetType": 10,
+                        "width": 500,
+                        "x": 0,
+                        "y": 326
+                    },
+                    {
+                        "height": 327,
+                        "id": 11,
+                        "relativeIndex": 1,
+                        "state": "normal",
+                        "widgetType": 10,
+                        "width": 500,
+                        "x": 499,
+                        "y": 326
+                    },
+                    {
+                        "height": 327,
+                        "id": 14,
+                        "relativeIndex": 0,
+                        "state": "normal",
+                        "widgetType": 13,
+                        "width": 500,
+                        "x": 998,
+                        "y": 326
+                    }
+                ],
+                "userReordered": false,
+                "windowOrder": [
+                    12,
+                    13,
+                    10,
+                    11,
+                    14
+                ],
+                "windowOrderTyped": [
+                    {
+                        "relativeIndex": 0,
+                        "widgetType": 11
+                    },
+                    {
+                        "relativeIndex": 1,
+                        "widgetType": 11
+                    },
+                    {
+                        "relativeIndex": 0,
+                        "widgetType": 10
+                    },
+                    {
+                        "relativeIndex": 1,
+                        "widgetType": 10
+                    },
+                    {
+                        "relativeIndex": 0,
+                        "widgetType": 13
+                    }
+                ]
+            }
+        },
+        "layout:2": {
+            "data": {
+                "autoLayout": true,
+                "windowOrder": [
+                    0
+                ]
+            }
+        },
+        "layout:3": {
+            "data": {
+                "autoLayout": true,
+                "windowOrder": [
+                    0
+                ]
+            }
+        },
+        "layout:4999": {
+            "data": {
+                "autoLayout": true,
+                "canvasHeight": 653,
+                "canvasWidth": 1498,
+                "geometries": [
+                    {
+                        "height": 327,
+                        "id": 1,
+                        "relativeIndex": 0,
+                        "state": "normal",
+                        "widgetType": 1,
+                        "width": 500,
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "height": 327,
+                        "id": 14,
+                        "relativeIndex": 1,
+                        "state": "normal",
+                        "widgetType": 11,
+                        "width": 500,
+                        "x": 499,
+                        "y": 0
+                    },
+                    {
+                        "height": 327,
+                        "id": 13,
+                        "relativeIndex": 0,
+                        "state": "normal",
+                        "widgetType": 11,
+                        "width": 500,
+                        "x": 998,
+                        "y": 0
+                    },
+                    {
+                        "height": 327,
+                        "id": 11,
+                        "relativeIndex": 0,
+                        "state": "normal",
+                        "widgetType": 10,
+                        "width": 500,
+                        "x": 0,
+                        "y": 326
+                    },
+                    {
+                        "height": 327,
+                        "id": 12,
+                        "relativeIndex": 1,
+                        "state": "normal",
+                        "widgetType": 10,
+                        "width": 500,
+                        "x": 499,
+                        "y": 326
+                    },
+                    {
+                        "height": 327,
+                        "id": 15,
+                        "relativeIndex": 0,
+                        "state": "normal",
+                        "widgetType": 13,
+                        "width": 500,
+                        "x": 998,
+                        "y": 326
+                    }
+                ],
+                "userReordered": true,
+                "windowOrder": [
+                    1,
+                    14,
+                    13,
+                    11,
+                    12,
+                    15
+                ],
+                "windowOrderTyped": [
+                    {
+                        "relativeIndex": 0,
+                        "widgetType": 1
+                    },
+                    {
+                        "relativeIndex": 1,
+                        "widgetType": 11
+                    },
+                    {
+                        "relativeIndex": 0,
+                        "widgetType": 11
+                    },
+                    {
+                        "relativeIndex": 0,
+                        "widgetType": 10
+                    },
+                    {
+                        "relativeIndex": 1,
+                        "widgetType": 10
+                    },
+                    {
+                        "relativeIndex": 0,
+                        "widgetType": 13
+                    }
+                ]
+            }
+        },
+        "layout:5000": {
+            "data": {
+                "autoLayout": true,
+                "canvasHeight": 566,
+                "canvasWidth": 1506,
+                "geometries": [
+                    {
+                        "height": 283,
+                        "id": 15,
+                        "relativeIndex": 0,
+                        "state": "normal",
+                        "widgetType": 13,
+                        "width": 302,
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "height": 283,
+                        "id": 13,
+                        "relativeIndex": 0,
+                        "state": "normal",
+                        "widgetType": 11,
+                        "width": 301,
+                        "x": 301,
+                        "y": 0
+                    },
+                    {
+                        "height": 283,
+                        "id": 14,
+                        "relativeIndex": 1,
+                        "state": "normal",
+                        "widgetType": 11,
+                        "width": 301,
+                        "x": 601,
+                        "y": 0
+                    },
+                    {
+                        "height": 283,
+                        "id": 11,
+                        "relativeIndex": 0,
+                        "state": "normal",
+                        "widgetType": 10,
+                        "width": 301,
+                        "x": 901,
+                        "y": 0
+                    },
+                    {
+                        "height": 283,
+                        "id": 12,
+                        "relativeIndex": 1,
+                        "state": "normal",
+                        "widgetType": 10,
+                        "width": 301,
+                        "x": 1201,
+                        "y": 0
+                    },
+                    {
+                        "height": 283,
+                        "id": 1,
+                        "relativeIndex": 0,
+                        "state": "normal",
+                        "widgetType": 1,
+                        "width": 502,
+                        "x": 0,
+                        "y": 282
+                    },
+                    {
+                        "height": 283,
+                        "id": 3,
+                        "relativeIndex": 0,
+                        "state": "normal",
+                        "widgetType": 8,
+                        "width": 502,
+                        "x": 501,
+                        "y": 282
+                    },
+                    {
+                        "height": 283,
+                        "id": 6,
+                        "relativeIndex": 0,
+                        "state": "normal",
+                        "widgetType": 19,
+                        "width": 502,
+                        "x": 1002,
+                        "y": 282
+                    }
+                ],
+                "userReordered": true,
+                "windowOrder": [
+                    15,
+                    13,
+                    14,
+                    11,
+                    12,
+                    1,
+                    3,
+                    6
+                ],
+                "windowOrderTyped": [
+                    {
+                        "relativeIndex": 0,
+                        "widgetType": 13
+                    },
+                    {
+                        "relativeIndex": 0,
+                        "widgetType": 11
+                    },
+                    {
+                        "relativeIndex": 1,
+                        "widgetType": 11
+                    },
+                    {
+                        "relativeIndex": 0,
+                        "widgetType": 10
+                    },
+                    {
+                        "relativeIndex": 1,
+                        "widgetType": 10
+                    },
+                    {
+                        "relativeIndex": 0,
+                        "widgetType": 1
+                    },
+                    {
+                        "relativeIndex": 0,
+                        "widgetType": 8
+                    },
+                    {
+                        "relativeIndex": 0,
+                        "widgetType": 19
+                    }
+                ]
+            }
+        },
+        "layout:5001": {
+            "data": {
+                "autoLayout": true,
+                "canvasHeight": 566,
+                "canvasWidth": 1506,
+                "geometries": [
+                    {
+                        "height": 283,
+                        "id": 1,
+                        "relativeIndex": 0,
+                        "state": "normal",
+                        "widgetType": 1,
+                        "width": 251,
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "height": 283,
+                        "id": 9,
+                        "relativeIndex": 1,
+                        "state": "normal",
+                        "widgetType": 9,
+                        "width": 251,
+                        "x": 250,
+                        "y": 0
+                    },
+                    {
+                        "height": 283,
+                        "id": 10,
+                        "relativeIndex": 2,
+                        "state": "normal",
+                        "widgetType": 9,
+                        "width": 251,
+                        "x": 500,
+                        "y": 0
+                    },
+                    {
+                        "height": 283,
+                        "id": 8,
+                        "relativeIndex": 0,
+                        "state": "normal",
+                        "widgetType": 9,
+                        "width": 251,
+                        "x": 750,
+                        "y": 0
+                    },
+                    {
+                        "height": 283,
+                        "id": 14,
+                        "relativeIndex": 1,
+                        "state": "normal",
+                        "widgetType": 11,
+                        "width": 251,
+                        "x": 1000,
+                        "y": 0
+                    },
+                    {
+                        "height": 283,
+                        "id": 13,
+                        "relativeIndex": 0,
+                        "state": "normal",
+                        "widgetType": 11,
+                        "width": 251,
+                        "x": 1250,
+                        "y": 0
+                    },
+                    {
+                        "height": 283,
+                        "id": 11,
+                        "relativeIndex": 0,
+                        "state": "normal",
+                        "widgetType": 10,
+                        "width": 377,
+                        "x": 0,
+                        "y": 282
+                    },
+                    {
+                        "height": 283,
+                        "id": 12,
+                        "relativeIndex": 1,
+                        "state": "normal",
+                        "widgetType": 10,
+                        "width": 377,
+                        "x": 376,
+                        "y": 282
+                    },
+                    {
+                        "height": 283,
+                        "id": 15,
+                        "relativeIndex": 0,
+                        "state": "normal",
+                        "widgetType": 13,
+                        "width": 376,
+                        "x": 752,
+                        "y": 282
+                    },
+                    {
+                        "height": 283,
+                        "id": 2,
+                        "relativeIndex": 0,
+                        "state": "normal",
+                        "widgetType": 2,
+                        "width": 376,
+                        "x": 1127,
+                        "y": 282
+                    }
+                ],
+                "userReordered": false,
+                "windowOrder": [
+                    1,
+                    9,
+                    10,
+                    8,
+                    14,
+                    13,
+                    11,
+                    12,
+                    15,
+                    2
+                ],
+                "windowOrderTyped": [
+                    {
+                        "relativeIndex": 0,
+                        "widgetType": 1
+                    },
+                    {
+                        "relativeIndex": 1,
+                        "widgetType": 9
+                    },
+                    {
+                        "relativeIndex": 2,
+                        "widgetType": 9
+                    },
+                    {
+                        "relativeIndex": 0,
+                        "widgetType": 9
+                    },
+                    {
+                        "relativeIndex": 1,
+                        "widgetType": 11
+                    },
+                    {
+                        "relativeIndex": 0,
+                        "widgetType": 11
+                    },
+                    {
+                        "relativeIndex": 0,
+                        "widgetType": 10
+                    },
+                    {
+                        "relativeIndex": 1,
+                        "widgetType": 10
+                    },
+                    {
+                        "relativeIndex": 0,
+                        "widgetType": 13
+                    },
+                    {
+                        "relativeIndex": 0,
+                        "widgetType": 2
+                    }
+                ]
+            }
+        },
+        "layout:5003": {
+            "data": {
+                "autoLayout": true,
+                "canvasHeight": 566,
+                "canvasWidth": 1506,
+                "geometries": [
+                    {
+                        "height": 283,
+                        "id": 9,
+                        "relativeIndex": 1,
+                        "state": "normal",
+                        "widgetType": 9,
+                        "width": 753,
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "height": 283,
+                        "id": 10,
+                        "relativeIndex": 2,
+                        "state": "normal",
+                        "widgetType": 9,
+                        "width": 753,
+                        "x": 752,
+                        "y": 0
+                    },
+                    {
+                        "height": 283,
+                        "id": 8,
+                        "relativeIndex": 0,
+                        "state": "normal",
+                        "widgetType": 9,
+                        "width": 753,
+                        "x": 0,
+                        "y": 282
+                    },
+                    {
+                        "height": 283,
+                        "id": 2,
+                        "relativeIndex": 0,
+                        "state": "normal",
+                        "widgetType": 2,
+                        "width": 753,
+                        "x": 752,
+                        "y": 282
+                    }
+                ],
+                "userReordered": false,
+                "windowOrder": [
+                    9,
+                    10,
+                    8,
+                    2
+                ],
+                "windowOrderTyped": [
+                    {
+                        "relativeIndex": 1,
+                        "widgetType": 9
+                    },
+                    {
+                        "relativeIndex": 2,
+                        "widgetType": 9
+                    },
+                    {
+                        "relativeIndex": 0,
+                        "widgetType": 9
+                    },
+                    {
+                        "relativeIndex": 0,
+                        "widgetType": 2
+                    }
+                ]
+            }
+        },
+        "layout:999": {
+            "data": {
+                "autoLayout": true,
+                "canvasHeight": 653,
+                "canvasWidth": 1498,
+                "geometries": [
+                    {
+                        "height": 653,
+                        "id": 1,
+                        "relativeIndex": 0,
+                        "state": "normal",
+                        "widgetType": 1,
+                        "width": 749,
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "height": 653,
+                        "id": 2,
+                        "relativeIndex": 0,
+                        "state": "normal",
+                        "widgetType": 2,
+                        "width": 749,
+                        "x": 748,
+                        "y": 0
+                    }
+                ],
+                "userReordered": false,
+                "windowOrder": [
+                    1,
+                    2
+                ],
+                "windowOrderTyped": [
+                    {
+                        "relativeIndex": 0,
+                        "widgetType": 1
+                    },
+                    {
+                        "relativeIndex": 0,
+                        "widgetType": 2
+                    }
+                ]
+            }
+        },
+        "plugin:custom-gauge": {
+            "gauges": [
+            ]
+        }
+    },
+    "workspaces": [
+        {
+            "icon": "qrc:/icons/panes/overview.svg",
+            "title": "Overview",
+            "widgetRefs": [
+                {
+                    "groupId": 20007,
+                    "relativeIndex": 0,
+                    "widgetType": 13
+                },
+                {
+                    "groupId": 20007,
+                    "relativeIndex": 0,
+                    "widgetType": 10
+                },
+                {
+                    "groupId": 20007,
+                    "relativeIndex": 0,
+                    "widgetType": 11
+                },
+                {
+                    "groupId": 20007,
+                    "relativeIndex": 1,
+                    "widgetType": 11
+                },
+                {
+                    "groupId": 20007,
+                    "relativeIndex": 1,
+                    "widgetType": 10
+                },
+                {
+                    "groupId": 20005,
+                    "relativeIndex": 0,
+                    "widgetType": 1
+                },
+                {
+                    "groupId": 20007,
+                    "relativeIndex": 0,
+                    "widgetType": 8
+                },
+                {
+                    "groupId": 20018,
+                    "relativeIndex": 0,
+                    "widgetType": 19
+                }
+            ],
+            "workspaceId": 5000
+        },
+        {
+            "icon": "qrc:/icons/panes/dashboard.svg",
+            "title": "All Data",
+            "widgetRefs": [
+                {
+                    "groupId": 20005,
+                    "relativeIndex": 0,
+                    "widgetType": 1
+                },
+                {
+                    "groupId": 20006,
+                    "relativeIndex": 1,
+                    "widgetType": 9
+                },
+                {
+                    "groupId": 20006,
+                    "relativeIndex": 2,
+                    "widgetType": 9
+                },
+                {
+                    "groupId": 20006,
+                    "relativeIndex": 0,
+                    "widgetType": 9
+                },
+                {
+                    "groupId": 20007,
+                    "relativeIndex": 1,
+                    "widgetType": 11
+                },
+                {
+                    "groupId": 20007,
+                    "relativeIndex": 0,
+                    "widgetType": 11
+                },
+                {
+                    "groupId": 20007,
+                    "relativeIndex": 0,
+                    "widgetType": 10
+                },
+                {
+                    "groupId": 20007,
+                    "relativeIndex": 1,
+                    "widgetType": 10
+                },
+                {
+                    "groupId": 20007,
+                    "relativeIndex": 0,
+                    "widgetType": 13
+                },
+                {
+                    "groupId": 20009,
+                    "relativeIndex": 0,
+                    "widgetType": 2
+                }
+            ],
+            "workspaceId": 5001
+        },
+        {
+            "title": "Plots",
+            "widgetRefs": [
+                {
+                    "groupId": 20006,
+                    "relativeIndex": 1,
+                    "widgetType": 9
+                },
+                {
+                    "groupId": 20006,
+                    "relativeIndex": 2,
+                    "widgetType": 9
+                },
+                {
+                    "groupId": 20006,
+                    "relativeIndex": 0,
+                    "widgetType": 9
+                },
+                {
+                    "groupId": 20009,
+                    "relativeIndex": 0,
+                    "widgetType": 2
+                }
+            ],
+            "workspaceId": 5003
+        },
+        {
+            "title": "Warnings",
+            "widgetRefs": [
+                {
+                    "groupId": 20005,
+                    "relativeIndex": 0,
+                    "widgetType": 1
+                }
+            ],
+            "workspaceId": 5002
+        },
+        {
+            "title": "Output Controls",
+            "widgetRefs": [
+                {
+                    "groupId": 20018,
+                    "relativeIndex": 0,
+                    "widgetType": 19
+                }
+            ],
+            "workspaceId": 5004
+        }
+    ],
+    "writerVersion": "4.0.2",
+    "writerVersionAtCreation": "4.0.1"
+}
