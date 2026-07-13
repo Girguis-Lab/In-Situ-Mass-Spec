@@ -868,54 +868,54 @@
     "title": "Ifremer ISMS Serial Studio Dashboard",
     "treeExpansion": {
         "": false,
-        "ISMS Serial Studio V2": true,
-        "ISMS Serial Studio V2/ ": false,
-        "ISMS Serial Studio V2/Control Loop": false,
-        "ISMS Serial Studio V2/Dashboard Widgets": true,
-        "ISMS Serial Studio V2/Dashboard Widgets/Gauges": true,
-        "ISMS Serial Studio V2/Dashboard Widgets/Gauges/Fluid Pump PWR": false,
-        "ISMS Serial Studio V2/Dashboard Widgets/Gauges/Fluid Pumping Rate": false,
-        "ISMS Serial Studio V2/Dashboard Widgets/Gauges/Roughing Pump PWR": false,
-        "ISMS Serial Studio V2/Dashboard Widgets/Gauges/Turbo Current Draw": false,
-        "ISMS Serial Studio V2/Dashboard Widgets/Gauges/Turbo RPM": false,
-        "ISMS Serial Studio V2/Dashboard Widgets/Gauges/Turbo RPM Setpoint": false,
-        "ISMS Serial Studio V2/Dashboard Widgets/Gauges/Turbo Rotor Temperature": false,
-        "ISMS Serial Studio V2/Dashboard Widgets/Gauges/pH Probe PWR": false,
-        "ISMS Serial Studio V2/Dashboard Widgets/Output Controls": true,
-        "ISMS Serial Studio V2/Dashboard Widgets/Output Controls/Send Command": false,
-        "ISMS Serial Studio V2/Dashboard Widgets/Output Controls/Set Fluid Pump %Rate": false,
-        "ISMS Serial Studio V2/Dashboard Widgets/Plots": true,
-        "ISMS Serial Studio V2/Dashboard Widgets/Plots/Fluid Pump Speed": false,
-        "ISMS Serial Studio V2/Dashboard Widgets/Plots/Turbo Current Draw": false,
-        "ISMS Serial Studio V2/Dashboard Widgets/Plots/Turbo RPM": false,
-        "ISMS Serial Studio V2/Dashboard Widgets/Turbo Pump Temperature": true,
-        "ISMS Serial Studio V2/Dashboard Widgets/Turbo Pump Temperature/Turbo Bottom Temp": false,
-        "ISMS Serial Studio V2/Dashboard Widgets/Turbo Pump Temperature/Turbo Electronics Temp": false,
-        "ISMS Serial Studio V2/Dashboard Widgets/Turbo Pump Temperature/Turbo Rotor Temp": false,
-        "ISMS Serial Studio V2/Dashboard Widgets/Warnings": true,
-        "ISMS Serial Studio V2/Dashboard Widgets/Warnings/Warnings": false,
-        "ISMS Serial Studio V2/Dashboard Widgets/Warnings/|": false,
-        "ISMS Serial Studio V2/Device A": true,
-        "ISMS Serial Studio V2/Device A/Frame Parser": false,
-        "ISMS Serial Studio V2/Fluid Pump FORWARD": false,
-        "ISMS Serial Studio V2/Fluid Pump OFF": false,
-        "ISMS Serial Studio V2/Fluid Pump REVERSED": false,
-        "ISMS Serial Studio V2/MQTT Publisher": false,
-        "ISMS Serial Studio V2/Roughing Pump OFF": false,
-        "ISMS Serial Studio V2/Roughing Pump ON": false,
-        "ISMS Serial Studio V2/Shared Memory": true,
-        "ISMS Serial Studio V2/Shared Memory/Dataset Values": false,
-        "ISMS Serial Studio V2/Startup All": false,
-        "ISMS Serial Studio V2/Turbo Pump OFF": false,
-        "ISMS Serial Studio V2/Turbo Pump ON": false,
-        "ISMS Serial Studio V2/Workspaces": true,
-        "ISMS Serial Studio V2/Workspaces/All Data": false,
-        "ISMS Serial Studio V2/Workspaces/Output Controls": false,
-        "ISMS Serial Studio V2/Workspaces/Overview": false,
-        "ISMS Serial Studio V2/Workspaces/Plots": false,
-        "ISMS Serial Studio V2/Workspaces/Warnings": false,
-        "ISMS Serial Studio V2/pH OFF": false,
-        "ISMS Serial Studio V2/pH ON": false
+        "Ifremer ISMS Serial Studio Dashboard": true,
+        "Ifremer ISMS Serial Studio Dashboard/ ": false,
+        "Ifremer ISMS Serial Studio Dashboard/Control Loop": false,
+        "Ifremer ISMS Serial Studio Dashboard/Dashboard Widgets": true,
+        "Ifremer ISMS Serial Studio Dashboard/Dashboard Widgets/Gauges": true,
+        "Ifremer ISMS Serial Studio Dashboard/Dashboard Widgets/Gauges/Cryotrap PWR": false,
+        "Ifremer ISMS Serial Studio Dashboard/Dashboard Widgets/Gauges/Fluid Pump PWR": false,
+        "Ifremer ISMS Serial Studio Dashboard/Dashboard Widgets/Gauges/Fluid Pumping Rate": false,
+        "Ifremer ISMS Serial Studio Dashboard/Dashboard Widgets/Gauges/Roughing Pump PWR": false,
+        "Ifremer ISMS Serial Studio Dashboard/Dashboard Widgets/Gauges/Turbo Current Draw": false,
+        "Ifremer ISMS Serial Studio Dashboard/Dashboard Widgets/Gauges/Turbo RPM": false,
+        "Ifremer ISMS Serial Studio Dashboard/Dashboard Widgets/Gauges/Turbo RPM Setpoint": false,
+        "Ifremer ISMS Serial Studio Dashboard/Dashboard Widgets/Gauges/Turbo Rotor Temperature": false,
+        "Ifremer ISMS Serial Studio Dashboard/Dashboard Widgets/Output Controls": true,
+        "Ifremer ISMS Serial Studio Dashboard/Dashboard Widgets/Output Controls/Send Command": false,
+        "Ifremer ISMS Serial Studio Dashboard/Dashboard Widgets/Output Controls/Set Fluid Pump %Rate": false,
+        "Ifremer ISMS Serial Studio Dashboard/Dashboard Widgets/Plots": true,
+        "Ifremer ISMS Serial Studio Dashboard/Dashboard Widgets/Plots/Fluid Pump Speed": false,
+        "Ifremer ISMS Serial Studio Dashboard/Dashboard Widgets/Plots/Turbo Current Draw": false,
+        "Ifremer ISMS Serial Studio Dashboard/Dashboard Widgets/Plots/Turbo RPM": false,
+        "Ifremer ISMS Serial Studio Dashboard/Dashboard Widgets/Turbo Pump Temperature": true,
+        "Ifremer ISMS Serial Studio Dashboard/Dashboard Widgets/Turbo Pump Temperature/Turbo Bottom Temp": false,
+        "Ifremer ISMS Serial Studio Dashboard/Dashboard Widgets/Turbo Pump Temperature/Turbo Electronics Temp": false,
+        "Ifremer ISMS Serial Studio Dashboard/Dashboard Widgets/Turbo Pump Temperature/Turbo Rotor Temp": false,
+        "Ifremer ISMS Serial Studio Dashboard/Dashboard Widgets/Warnings": true,
+        "Ifremer ISMS Serial Studio Dashboard/Dashboard Widgets/Warnings/Warnings": false,
+        "Ifremer ISMS Serial Studio Dashboard/Dashboard Widgets/Warnings/|": false,
+        "Ifremer ISMS Serial Studio Dashboard/Device A": true,
+        "Ifremer ISMS Serial Studio Dashboard/Device A/Frame Parser": false,
+        "Ifremer ISMS Serial Studio Dashboard/Fluid Pump FORWARD": false,
+        "Ifremer ISMS Serial Studio Dashboard/Fluid Pump OFF": false,
+        "Ifremer ISMS Serial Studio Dashboard/Fluid Pump REVERSED": false,
+        "Ifremer ISMS Serial Studio Dashboard/MQTT Publisher": false,
+        "Ifremer ISMS Serial Studio Dashboard/Roughing Pump OFF": false,
+        "Ifremer ISMS Serial Studio Dashboard/Roughing Pump ON": false,
+        "Ifremer ISMS Serial Studio Dashboard/Shared Memory": true,
+        "Ifremer ISMS Serial Studio Dashboard/Shared Memory/Dataset Values": false,
+        "Ifremer ISMS Serial Studio Dashboard/Startup All": false,
+        "Ifremer ISMS Serial Studio Dashboard/Turbo Pump OFF": false,
+        "Ifremer ISMS Serial Studio Dashboard/Turbo Pump ON": false,
+        "Ifremer ISMS Serial Studio Dashboard/Workspaces": true,
+        "Ifremer ISMS Serial Studio Dashboard/Workspaces/All Data": false,
+        "Ifremer ISMS Serial Studio Dashboard/Workspaces/Output Controls": false,
+        "Ifremer ISMS Serial Studio Dashboard/Workspaces/Overview": false,
+        "Ifremer ISMS Serial Studio Dashboard/Workspaces/Plots": false,
+        "Ifremer ISMS Serial Studio Dashboard/Workspaces/Warnings": false,
+        "Ifremer ISMS Serial Studio Dashboard/pH OFF": false,
+        "Ifremer ISMS Serial Studio Dashboard/pH ON": false
     },
     "widgetSettings": {
         "10:0:4": {
@@ -1492,88 +1492,88 @@
         "layout:5000": {
             "data": {
                 "autoLayout": true,
-                "canvasHeight": 566,
-                "canvasWidth": 1506,
+                "canvasHeight": 462,
+                "canvasWidth": 1041,
                 "geometries": [
                     {
-                        "height": 283,
+                        "height": 231,
                         "id": 15,
                         "relativeIndex": 0,
                         "state": "normal",
                         "widgetType": 13,
-                        "width": 302,
+                        "width": 209,
                         "x": 0,
                         "y": 0
                     },
                     {
-                        "height": 283,
+                        "height": 231,
                         "id": 13,
                         "relativeIndex": 0,
                         "state": "normal",
                         "widgetType": 11,
-                        "width": 301,
-                        "x": 301,
+                        "width": 208,
+                        "x": 208,
                         "y": 0
                     },
                     {
-                        "height": 283,
+                        "height": 231,
                         "id": 14,
                         "relativeIndex": 1,
                         "state": "normal",
                         "widgetType": 11,
-                        "width": 301,
-                        "x": 601,
+                        "width": 208,
+                        "x": 415,
                         "y": 0
                     },
                     {
-                        "height": 283,
+                        "height": 231,
                         "id": 11,
                         "relativeIndex": 0,
                         "state": "normal",
                         "widgetType": 10,
-                        "width": 301,
-                        "x": 901,
+                        "width": 208,
+                        "x": 622,
                         "y": 0
                     },
                     {
-                        "height": 283,
+                        "height": 231,
                         "id": 12,
                         "relativeIndex": 1,
                         "state": "normal",
                         "widgetType": 10,
-                        "width": 301,
-                        "x": 1201,
+                        "width": 208,
+                        "x": 829,
                         "y": 0
                     },
                     {
-                        "height": 283,
+                        "height": 231,
                         "id": 1,
                         "relativeIndex": 0,
                         "state": "normal",
                         "widgetType": 1,
-                        "width": 502,
+                        "width": 347,
                         "x": 0,
-                        "y": 282
+                        "y": 230
                     },
                     {
-                        "height": 283,
+                        "height": 231,
                         "id": 3,
                         "relativeIndex": 0,
                         "state": "normal",
                         "widgetType": 8,
-                        "width": 502,
-                        "x": 501,
-                        "y": 282
+                        "width": 347,
+                        "x": 346,
+                        "y": 230
                     },
                     {
-                        "height": 283,
+                        "height": 231,
                         "id": 6,
                         "relativeIndex": 0,
                         "state": "normal",
                         "widgetType": 19,
-                        "width": 502,
-                        "x": 1002,
-                        "y": 282
+                        "width": 347,
+                        "x": 692,
+                        "y": 230
                     }
                 ],
                 "userReordered": true,
@@ -1626,108 +1626,108 @@
         "layout:5001": {
             "data": {
                 "autoLayout": true,
-                "canvasHeight": 566,
-                "canvasWidth": 1506,
+                "canvasHeight": 462,
+                "canvasWidth": 1041,
                 "geometries": [
                     {
-                        "height": 283,
+                        "height": 231,
                         "id": 1,
                         "relativeIndex": 0,
                         "state": "normal",
                         "widgetType": 1,
-                        "width": 251,
+                        "width": 209,
                         "x": 0,
                         "y": 0
                     },
                     {
-                        "height": 283,
+                        "height": 231,
                         "id": 9,
                         "relativeIndex": 1,
                         "state": "normal",
                         "widgetType": 9,
-                        "width": 251,
-                        "x": 250,
+                        "width": 208,
+                        "x": 208,
                         "y": 0
                     },
                     {
-                        "height": 283,
+                        "height": 231,
                         "id": 10,
                         "relativeIndex": 2,
                         "state": "normal",
                         "widgetType": 9,
-                        "width": 251,
-                        "x": 500,
+                        "width": 208,
+                        "x": 415,
                         "y": 0
                     },
                     {
-                        "height": 283,
+                        "height": 231,
                         "id": 8,
                         "relativeIndex": 0,
                         "state": "normal",
                         "widgetType": 9,
-                        "width": 251,
-                        "x": 750,
+                        "width": 208,
+                        "x": 622,
                         "y": 0
                     },
                     {
-                        "height": 283,
+                        "height": 231,
                         "id": 14,
                         "relativeIndex": 1,
                         "state": "normal",
                         "widgetType": 11,
-                        "width": 251,
-                        "x": 1000,
+                        "width": 208,
+                        "x": 829,
                         "y": 0
                     },
                     {
-                        "height": 283,
+                        "height": 231,
                         "id": 13,
                         "relativeIndex": 0,
                         "state": "normal",
                         "widgetType": 11,
-                        "width": 251,
-                        "x": 1250,
-                        "y": 0
+                        "width": 209,
+                        "x": 0,
+                        "y": 230
                     },
                     {
-                        "height": 283,
+                        "height": 231,
                         "id": 11,
                         "relativeIndex": 0,
                         "state": "normal",
                         "widgetType": 10,
-                        "width": 377,
-                        "x": 0,
-                        "y": 282
+                        "width": 208,
+                        "x": 208,
+                        "y": 230
                     },
                     {
-                        "height": 283,
+                        "height": 231,
                         "id": 12,
                         "relativeIndex": 1,
                         "state": "normal",
                         "widgetType": 10,
-                        "width": 377,
-                        "x": 376,
-                        "y": 282
+                        "width": 208,
+                        "x": 415,
+                        "y": 230
                     },
                     {
-                        "height": 283,
+                        "height": 231,
                         "id": 15,
                         "relativeIndex": 0,
                         "state": "normal",
                         "widgetType": 13,
-                        "width": 376,
-                        "x": 752,
-                        "y": 282
+                        "width": 208,
+                        "x": 622,
+                        "y": 230
                     },
                     {
-                        "height": 283,
+                        "height": 231,
                         "id": 2,
                         "relativeIndex": 0,
                         "state": "normal",
                         "widgetType": 2,
-                        "width": 376,
-                        "x": 1127,
-                        "y": 282
+                        "width": 208,
+                        "x": 829,
+                        "y": 230
                     }
                 ],
                 "userReordered": false,
@@ -1787,51 +1787,80 @@
                 ]
             }
         },
+        "layout:5002": {
+            "data": {
+                "autoLayout": true,
+                "canvasHeight": 462,
+                "canvasWidth": 1041,
+                "geometries": [
+                    {
+                        "height": 462,
+                        "id": 1,
+                        "relativeIndex": 0,
+                        "state": "normal",
+                        "widgetType": 1,
+                        "width": 1041,
+                        "x": 0,
+                        "y": 0
+                    }
+                ],
+                "userReordered": false,
+                "windowOrder": [
+                    1
+                ],
+                "windowOrderTyped": [
+                    {
+                        "relativeIndex": 0,
+                        "widgetType": 1
+                    }
+                ]
+            }
+        },
         "layout:5003": {
             "data": {
                 "autoLayout": true,
-                "canvasHeight": 566,
-                "canvasWidth": 1506,
+                "canvasHeight": 462,
+                "canvasWidth": 1041,
                 "geometries": [
                     {
-                        "height": 283,
+                        "height": 231,
                         "id": 9,
                         "relativeIndex": 1,
                         "state": "normal",
                         "widgetType": 9,
-                        "width": 753,
+                        "width": 521,
                         "x": 0,
                         "y": 0
                     },
                     {
-                        "height": 283,
+                        "height": 231,
                         "id": 10,
                         "relativeIndex": 2,
                         "state": "normal",
                         "widgetType": 9,
-                        "width": 753,
-                        "x": 752,
+                        "width": 521,
+                        "x": 520,
                         "y": 0
                     },
                     {
-                        "height": 283,
+                        "height": 231,
                         "id": 8,
                         "relativeIndex": 0,
                         "state": "normal",
                         "widgetType": 9,
-                        "width": 753,
+                        "width": 521,
                         "x": 0,
-                        "y": 282
+                        "y": 230
                     },
                     {
-                        "height": 283,
+                        "height": 231,
                         "id": 2,
                         "relativeIndex": 0,
                         "state": "normal",
                         "widgetType": 2,
-                        "width": 753,
-                        "x": 752,
-                        "y": 282
+                        "width": 521,
+                        "x": 520,
+                        "y": 230
                     }
                 ],
                 "userReordered": false,
@@ -1857,6 +1886,35 @@
                     {
                         "relativeIndex": 0,
                         "widgetType": 2
+                    }
+                ]
+            }
+        },
+        "layout:5004": {
+            "data": {
+                "autoLayout": true,
+                "canvasHeight": 462,
+                "canvasWidth": 1041,
+                "geometries": [
+                    {
+                        "height": 462,
+                        "id": 6,
+                        "relativeIndex": 0,
+                        "state": "normal",
+                        "widgetType": 19,
+                        "width": 1041,
+                        "x": 0,
+                        "y": 0
+                    }
+                ],
+                "userReordered": false,
+                "windowOrder": [
+                    6
+                ],
+                "windowOrderTyped": [
+                    {
+                        "relativeIndex": 0,
+                        "widgetType": 19
                     }
                 ]
             }
