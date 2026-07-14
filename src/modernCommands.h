@@ -392,7 +392,7 @@ void cmd_full_startup(LazySerial::Context &context)
 
     // 3. Power on PH Probe or Accessory
     ACCESSORY_PWR.turnOn();
-    COMMS.println(F("| PH Probe ON"));
+    COMMS.println(F("| " ACCESSORY_NAME " ON"));
 
     // !!!! IMPORTANT WAIT 60 Seconds so that roughing pump has sufficiently pumped down vacuum !!!!!
     COMMS.println(F("| Waiting 60 seconds for rough out..."));
