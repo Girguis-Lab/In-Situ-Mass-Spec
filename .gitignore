@@ -1,6 +1,8 @@
 # Compiler Logs
 inols*.log
 
+~$*
+
 #PlatformIO
 .pioenvs
 .piolibdeps
