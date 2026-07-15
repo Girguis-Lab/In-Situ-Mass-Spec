@@ -43,7 +43,7 @@ powerPin FLUIDPUMP_PWR(53);          // CFP_ON
 #define OK "| OK "
 #define ERROR "| ERROR"
 #define COMMS_BAUDRATE 9600
-#define ACCESSORY_NAME "pH" // [MODEL CHANGE] Typically "pH" if the probe is attached or "Cryo" if the cryopump is attached.
+#define ACCESSORY_NAME "Cryo" // [MODEL CHANGE] Typically "pH" if the probe is attached or "Cryo" if the cryopump is attached.
 // #define INCLUDE_OUT_OF_NORMAL_RANGE_MARKS true // comment out to disable the exclamation marks (!) in the stats logging output for values that fall outside the expected operating range
 
 // --- LOGGING CONSTANTS ---- Maps the Arduinolog library levels to the 3 levels used in this code.
@@ -52,12 +52,12 @@ powerPin FLUIDPUMP_PWR(53);          // CFP_ON
 #define DEBUG_LOG_LEVEL_HIGH DebugLogLevel::LVL_TRACE
 
 // uncomment the following to use with ISMS V3
-#define COMMS Serial1       // [MODEL CHANGE]
-#define TURBO_SERIAL Serial // [MODEL CHANGE]
+// #define COMMS Serial1       // [MODEL CHANGE]
+// #define TURBO_SERIAL Serial // [MODEL CHANGE]
 
 // uncomment the following to use with pre-2026 ISMS versions
-// #define COMMS Serial         // [MODEL CHANGE]
-// #define TURBO_SERIAL Serial1 // [MODEL CHANGE]
+#define COMMS Serial         // [MODEL CHANGE]
+#define TURBO_SERIAL Serial1 // [MODEL CHANGE]
 
 // globals
 bool beatActive = false; // used to know if the "BEAT" command was sent indicating any autostart routines should not run this time around.
