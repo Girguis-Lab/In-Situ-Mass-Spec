@@ -53,7 +53,7 @@ public:
         // else if (timeWhenEnabled > FLUIDPUMP_PWM_STARTUP_DURRATION && !pumpEnableComplete)
         // {
         //     // when the pump enable time is finished, actually set the pump to the desired speed
-        //     _setSpeed(currentSpeedPercent);
+        //     _setSpeed(abs(currentSpeedPercent));
         //     pumpEnableComplete = true;
         // }
     }
@@ -64,8 +64,8 @@ public:
         return currentSpeedPercent;
     }
 
-    // Set pump speed as a percentage of full speed (0-100)
-    int16_t setSpeed(int16_t percent)
+    // Set pump speed as a percentage of full speed (-100 - 100)
+    int setSpeed(int percent)
     {
         if (!initialized)
             return FLUID_PUMP_UNINITIALIZED; // Not initialized
@@ -101,9 +101,9 @@ public:
     }
 
     // Set raw PWM speed as percentage, enabling or disabling pump power as necessary (0-100)
-    void _setSpeed(uint8_t percent)
+    void _setSpeed(int percent)
     {
-        uint8_t pwmValue = map(percent, 0, 100, 0, 255);
+        uint8_t pwmValue = map(abs(percent), 0, 100, 0, 255);
         if (percent == 0)
             pumpPower->turnOff();
         else
