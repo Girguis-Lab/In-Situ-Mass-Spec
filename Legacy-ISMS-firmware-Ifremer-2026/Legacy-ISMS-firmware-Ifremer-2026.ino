@@ -50,7 +50,23 @@ double z = round((y / 100) * 255);
 // pfeifferTurbo
 char Telegram[30] = {'\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n'}; // 30 is the maximum length
 char TeleResponse[30] = {'\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n'};
-char dataArray[16] = {'\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', 13};
+char dataArray[16] = {
+    '\n',
+    '\n',
+    '\n',
+    '\n',
+    '\n',
+    '\n',
+    '\n',
+    '\n',
+    '\n',
+    '\n',
+    '\n',
+    '\n',
+    '\n',
+    '\n',
+    '\n',
+    '\n'};
 char turboError[7] = {'\n', '\n', '\n', '\n', '\n', '\n', '\n'};
 boolean turboInError = false;
 unsigned long turboInfo[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // 0 is current speed, 1 is overtemp drive, 2 is overtemp pump, 3 is drive current, 4 is drive voltage, 5 is eltemp, 6 is temp bottom pump, 7 is power stage temp, 8 is motor temp, 9 is set speed
@@ -226,23 +242,23 @@ boolean pfeifferTurboMain()
 
 const char commands[3][15] = {
     // '0','0','1','1','0' will have to be added afterwards. because it is always the same, no need to take up space
-    {'0', '1', '0', '0', '6', '1', '1', '1', '1', '1', '1', '0', '1', '5', 13}, // 0 is switching pumping station on
-    {'0', '2', '3', '0', '6', '1', '1', '1', '1', '1', '1', '0', '1', '9', 13}, // 1 is swithcing motor on
-    {'0', '1', '0', '0', '6', '0', '0', '0', '0', '0', '0', '0', '0', '9', 13}  // 2 is switching motor off
+    {'0', '1', '0', '0', '6', '1', '1', '1', '1', '1', '1', '0', '1', '5', '\r'}, // 0 is switching pumping station on
+    {'0', '2', '3', '0', '6', '1', '1', '1', '1', '1', '1', '0', '1', '9', '\r'}, // 1 is swithcing motor on
+    {'0', '1', '0', '0', '6', '0', '0', '0', '0', '0', '0', '0', '0', '9', '\r'}  // 2 is switching motor off
 };
 
 const char getInfo[10][11] = {
     // '0','0','1','0','0' will have to be added afterwards. because it is alwazs the same, no need to take up space
-    {'3', '9', '8', '0', '2', '=', '?', '1', '1', '5', 13}, // get speed in RPM
-    {'3', '0', '4', '0', '2', '=', '?', '1', '0', '2', 13}, // get over temp drive
-    {'3', '0', '5', '0', '2', '=', '?', '1', '0', '3', 13}, // get over temp pump
-    {'3', '1', '0', '0', '2', '=', '?', '0', '9', '9', 13}, // get drive current
-    {'3', '1', '3', '0', '2', '=', '?', '1', '0', '2', 13}, // get drive voltage
-    {'3', '2', '6', '0', '2', '=', '?', '1', '0', '6', 13}, // get electronic temps
-    {'3', '3', '0', '0', '2', '=', '?', '1', '0', '1', 13}, // get pump bottom temp
-    {'3', '2', '4', '0', '2', '=', '?', '1', '0', '4', 13}, // get power stage temp
-    {'3', '4', '6', '0', '2', '=', '?', '1', '0', '8', 13}, // get motor temp
-    {'3', '9', '7', '0', '2', '=', '?', '1', '1', '4', 13}  // get setSpeed
+    {'3', '9', '8', '0', '2', '=', '?', '1', '1', '5', '\r'}, // get speed in RPM
+    {'3', '0', '4', '0', '2', '=', '?', '1', '0', '2', '\r'}, // get over temp drive
+    {'3', '0', '5', '0', '2', '=', '?', '1', '0', '3', '\r'}, // get over temp pump
+    {'3', '1', '0', '0', '2', '=', '?', '0', '9', '9', '\r'}, // get drive current
+    {'3', '1', '3', '0', '2', '=', '?', '1', '0', '2', '\r'}, // get drive voltage
+    {'3', '2', '6', '0', '2', '=', '?', '1', '0', '6', '\r'}, // get electronic temps
+    {'3', '3', '0', '0', '2', '=', '?', '1', '0', '1', '\r'}, // get pump bottom temp
+    {'3', '2', '4', '0', '2', '=', '?', '1', '0', '4', '\r'}, // get power stage temp
+    {'3', '4', '6', '0', '2', '=', '?', '1', '0', '8', '\r'}, // get motor temp
+    {'3', '9', '7', '0', '2', '=', '?', '1', '1', '4', '\r'}  // get setSpeed
 };
 
 boolean getPfeifferTurboStatus()
@@ -356,7 +372,7 @@ boolean pfeifferTurboGetError()
   { // for now we assume that no error will output Err000
     Serial.print(F("M TurboError "));
     Serial.print(turboError);
-    Serial.write(13);
+    Serial.write('\r');
     turboInError = true;
     return true;
   }
@@ -474,21 +490,21 @@ void resetTelegram()
 {
   for (int i = 0; i < 30; i++)
   {
-    Telegram[i] = 13;
+    Telegram[i] = '\r';
   }
 }
 boolean sendCommandTelegram()
 {
   int i = 0;
   resetWDT();
-  while (Telegram[i] != 13)
+  while (Telegram[i] != '\r')
   {
     // Serial.write(Telegram[i]);//ref
     Serial1.write(Telegram[i]);
     i++;
   }
-  // Serial.write(13);//ref
-  Serial1.write(13);
+  // Serial.write('\r');//ref
+  Serial1.write('\r');
   // check response
   // if it is a command, it should receive exactly the same
   // if it is a data request, you get a data back
@@ -504,7 +520,7 @@ boolean sendCommandTelegram()
     i = (int)(getDataLength(TeleResponse));
     //  Serial.print("received ");Serial.println(i);
     // int x=0;
-    // while(true){Serial.print(TeleResponse[x]);if(TeleResponse[x++]==13)break;}//ref;if//ref
+    // while(true){Serial.print(TeleResponse[x]);if(TeleResponse[x++]=='\r')break;}//ref;if//ref
     if (i > 0)
     {
       // check if length is same as sent
@@ -526,7 +542,7 @@ boolean sendCommandTelegram()
       {
         Serial.print(TeleResponse[i + 10]);
       }
-      Serial.write(13);
+      Serial.write('\r');
       return false;
     }
     else
@@ -541,14 +557,14 @@ unsigned long sendRequestTelegram()
   // Serial.println("sending request to turbo");
   int i = 0;
   resetWDT();
-  while (Telegram[i] != 13)
+  while (Telegram[i] != '\r')
   {
     // Serial.print(Telegram[i]);Serial.print(" ");//ref
     Serial1.write(Telegram[i]);
     i++;
   }
-  // Serial.write(13);//ref
-  Serial1.write(13);
+  // Serial.write('\r');//ref
+  Serial1.write('\r');
   // check response
   // if it is a command, it should receive exactly the same
   // if it is a data request, you get a data back
@@ -568,7 +584,7 @@ unsigned long sendRequestTelegram()
     if (i > 0)
     {
       // int x=0;
-      // while(true){Serial.print(TeleResponse[x]);if(TeleResponse[x++]==13)break;}//ref;if//ref
+      // while(true){Serial.print(TeleResponse[x]);if(TeleResponse[x++]=='\r')break;}//ref;if//ref
       // retrieve the data
       char tmp[i + 1];
       tmp[i] = '\0';
@@ -591,14 +607,14 @@ void sendRequestTelegram(char dataTmp[], byte dataL)
   // Serial.println("sending request to turbo");
   int i = 0;
   resetWDT();
-  while (Telegram[i] != 13)
+  while (Telegram[i] != '\r')
   {
     // Serial.write(Telegram[i]);Serial.print(" ");//ref
     Serial1.write(Telegram[i]);
     i++;
   }
-  // Serial.print(13);//ref
-  Serial1.write(13);
+  // Serial.print('\r');//ref
+  Serial1.write('\r');
   // check response
   // if it is a command, it should receive exactly the same
   // if it is a data request, you get a data back
@@ -612,7 +628,7 @@ void sendRequestTelegram(char dataTmp[], byte dataL)
     // get data lenght
     // Serial.print("received ");Serial.println(i);
     // int x=0;
-    // while(true){Serial.print(TeleResponse[x]);if(TeleResponse[x++]==13)break;}//ref;if//ref
+    // while(true){Serial.print(TeleResponse[x]);if(TeleResponse[x++]=='\r')break;}//ref;if//ref
 
     i = (int)(getDataLength(TeleResponse));
     if (i > 0)
