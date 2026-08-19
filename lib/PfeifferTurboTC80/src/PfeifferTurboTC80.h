@@ -100,10 +100,10 @@ public:
         if (debugPrint || LOG_GET_LEVEL() >= DebugLogLevel::LVL_DEBUG)
         {
             PfeifferVacProtocol::printTelegramHumanReadable(telegram, false);
-            LOG_TRACE("\n[RAW Received Telegram is '");
+            LOG_TRACE("[RAW Received Telegram is '");
             LOG_TRACE(raw.c_str());
             LOG_TRACE("'] ");
-            LOG_INFO("\n");
+            LOG_INFO("\n\n");
         }
         return telegram;
     }
