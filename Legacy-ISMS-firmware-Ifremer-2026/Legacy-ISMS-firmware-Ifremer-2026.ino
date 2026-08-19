@@ -48,26 +48,26 @@ double z = round((y / 100) * 255);
 // boolean wtdEnabled=false;
 
 // pfeifferTurbo
-char Telegram[30] = {'\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n'}; // 30 is the maximum length
-char TeleResponse[30] = {'\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n'};
+char Telegram[30] = {'\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0'}; // 30 is the maximum length
+char TeleResponse[30] = {'\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0'};
 char dataArray[16] = {
-    '\n',
-    '\n',
-    '\n',
-    '\n',
-    '\n',
-    '\n',
-    '\n',
-    '\n',
-    '\n',
-    '\n',
-    '\n',
-    '\n',
-    '\n',
-    '\n',
-    '\n',
-    '\n'};
-char turboError[7] = {'\n', '\n', '\n', '\n', '\n', '\n', '\n'};
+    '\0',
+    '\0',
+    '\0',
+    '\0',
+    '\0',
+    '\0',
+    '\0',
+    '\0',
+    '\0',
+    '\0',
+    '\0',
+    '\0',
+    '\0',
+    '\0',
+    '\0',
+    '\0'};
+char turboError[7] = {'0', '0', '0', '0', '0', '0', '\0'};
 boolean turboInError = false;
 unsigned long turboInfo[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // 0 is current speed, 1 is overtemp drive, 2 is overtemp pump, 3 is drive current, 4 is drive voltage, 5 is eltemp, 6 is temp bottom pump, 7 is power stage temp, 8 is motor temp, 9 is set speed
 
@@ -257,7 +257,7 @@ const char getInfo[10][11] = {
     {'3', '2', '6', '0', '2', '=', '?', '1', '0', '6', '\r'}, // get electronic temps
     {'3', '3', '0', '0', '2', '=', '?', '1', '0', '1', '\r'}, // get pump bottom temp
     {'3', '2', '4', '0', '2', '=', '?', '1', '0', '4', '\r'}, // get power stage temp
-    {'3', '4', '6', '0', '2', '=', '?', '1', '0', '8', '\r'}, // get motor temp
+    {'3', '8', '4', '0', '2', '=', '?', '1', '1', '0', '\r'}, // get motor temp
     {'3', '9', '7', '0', '2', '=', '?', '1', '1', '4', '\r'}  // get setSpeed
 };
 
@@ -372,7 +372,7 @@ boolean pfeifferTurboGetError()
   { // for now we assume that no error will output Err000
     Serial.print(F("M TurboError "));
     Serial.print(turboError);
-    Serial.write('\r');
+    Serial.write('\n');
     turboInError = true;
     return true;
   }
@@ -424,7 +424,6 @@ boolean pfeifferTurboGetInfo()
     }
     turboInfo[i] = sendRequestTelegram();
   }
-  turboInfo[0] = turboInfo[0] / 10;
   flushS1();
   return true;
 }
@@ -542,7 +541,7 @@ boolean sendCommandTelegram()
       {
         Serial.print(TeleResponse[i + 10]);
       }
-      Serial.write('\r');
+      Serial.write('\n');
       return false;
     }
     else
@@ -592,6 +591,7 @@ unsigned long sendRequestTelegram()
       {
         tmp[i] = TeleResponse[i + 10];
       }
+      // Serial.println(tmp); // DEBUG
       return (unsigned long)(atol(tmp));
     }
     else
