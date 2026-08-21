@@ -1,0 +1,175 @@
+@startuml
+skinparam wrapWidth 200
+skinparam defaultTextAlignment center
+skinparam backgroundColor #FFD1DC
+skinparam packageBackgroundColor #FFD1DC
+skinparam rectangle<<stub>> {
+  BackgroundColor transparent
+  BorderColor transparent
+  FontColor transparent
+}
+
+package "Topside" as PKG_TOPSIDE {
+  rectangle "LAPTOP" as LAPTOP #gray
+  rectangle "USB to RS232 (to RGA COMMS DB9)" as USB_RGA #gray
+  rectangle "USB to RS232 (to MAIN COMMS DB9)" as USB_MAIN #gray
+  rectangle "RGA COMMS DB9 (with fake RS232 handshake jumpers)" as RGA_COMMS_DB9 #gray
+  rectangle "MAIN COMMS DB9" as MAIN_COMMS_DB9 #gray
+  rectangle "POWER SUPPLY A (24-48v @ 4A)" as PS_A #red
+  rectangle "POWER SUPPLY B (24-48v @ 4A)" as PS_B #red
+  rectangle "Topside connection" as TOPSIDE_CONN #gray
+}
+
+package "External" as PKG_EXTERNAL {
+  hexagon "SubConn 8-pin (M)" as SC8 #black {
+    circle "1" as SC8_1
+    circle "2" as SC8_2
+    circle "3" as SC8_3
+    circle "4" as SC8_4
+    circle "5" as SC8_5
+    circle "6" as SC8_6
+    circle "7" as SC8_7
+    circle "8" as SC8_8
+  }
+  hexagon "SubConn 16-pin" as SC16 #red {
+    circle "1" as SC16_1
+    circle "2" as SC16_2
+    circle "3" as SC16_3
+    circle "4" as SC16_4
+    circle "5" as SC16_5
+    circle "6" as SC16_6
+    circle "7" as SC16_7
+    circle "8" as SC16_8
+    circle "9" as SC16_9
+    circle "10" as SC16_10
+    circle "11" as SC16_11
+    circle "12" as SC16_12
+    circle "13" as SC16_13
+    circle "14" as SC16_14
+    circle "15" as SC16_15
+    circle "16" as SC16_16
+    SC16_1 
+  }
+  package "Fluid Pump" as PKG_EXTERNAL_FLUIDPUMP {
+    hexagon "FLUID PUMP (12v power, 5v signals, SubConn 5-pin)" as FLUIDPUMP #blue {
+      circle "1" as FLUIDPUMP_1
+      circle "2" as FLUIDPUMP_2
+      circle "3" as FLUIDPUMP_3
+      circle "4" as FLUIDPUMP_4
+      circle "5" as FLUIDPUMP_5
+    }
+    rectangle " " as STUB1 <<stub>>
+  }
+  package "pH Logger" as PKG_EXTERNAL_PHLOGGER {
+    hexagon "pH LOGGER (Optional, 5v, SubConn 6-pin)" as PHLOGGER #green {
+      circle "1" as PHLOGGER_1
+      circle "2" as PHLOGGER_2
+      circle "3" as PHLOGGER_3
+      circle "4" as PHLOGGER_4
+      circle "5" as PHLOGGER_5
+      circle "6" as PHLOGGER_6
+    }
+    rectangle " " as STUB2 <<stub>>
+    rectangle " " as STUB3 <<stub>>
+  }
+}
+
+package "Main Housing" as PKG_MAINHOUSING {
+  package "Main PCB" as PKG_MAINHOUSING_MAINPCB {
+    rectangle "Main PCB" as MAINPCB #white
+  }
+  package "ROUGHING PUMP" as PKG_MAINHOUSING_ROUGHINGPUMP {
+    rectangle "ROUGHING PUMP (24v)" as ROUGHPUMP #yellow
+    rectangle "DB9 (with autostart jumpers)" as DB9_AUTOSTART #yellow
+  }
+  package "TURBO PUMP" as PKG_MAINHOUSING_TURBOPUMP {
+    rectangle "TURBO PUMP (24v)" as TURBOPUMP #orange
+    rectangle "DB15" as DB15DEV #orange
+  }
+  package "RGA" as PKG_MAINHOUSING_RGA {
+    rectangle "RGA (24v)" as RGADEV #magenta
+    rectangle "DB9 (with fake RS232 handshake jumpers)" as DB9_RGA #magenta
+    rectangle "Barrel Jack" as BARRELJACK #magenta
+  }
+}
+
+' -- wires --
+SC16_1 -[#black,thickness=3]-> MAINPCB : Main Power V+ 1 (VIN1)
+SC16_2 -[#white,thickness=3]-> MAINPCB : Main Power V+ 2 (VIN2)
+SC16_3 -[#red,thickness=3]-> MAINPCB : Main Power GND (VIN-)
+SC16_4 -[#green,thickness=3]-> MAINPCB : tx/rx Arduino (tx)
+SC16_5 -[#orange,thickness=3]-> MAINPCB : tx/rx Arduino (rx)
+SC16_6 -[#blue,thickness=3]-> DB9_RGA : tx/rx RGA (tx)
+SC16_7 -[#white;#black,thickness=3,dashed]-> DB9_RGA : tx/rx RGA (rx)
+SC16_8 -[#red;#black,thickness=3,dashed]-> MAINPCB : Communication GND (shared)
+SC16_9 -[#green;#black,thickness=3,dashed]-> MAINPCB : Fluid Pump GND (Shared)
+SC16_10 -[#orange;#black,thickness=3,dashed]-> MAINPCB : Fluid Pump Analog (0-5 V)
+SC16_11 -[#blue;#black,thickness=3,dashed]-> MAINPCB : Fluid Pump Power (+12v)
+SC16_12 -[#black;#white,thickness=3,dashed]-> MAINPCB : Fluid Pump Fwd/Rev (0/5v)
+SC16_13 -[#red;#white,thickness=3,dashed]-> MAINPCB : LX/TX: pH Power V- (GND)
+SC16_14 -[#green;#white,thickness=3,dashed]-> MAINPCB : LX: USB Data (-) TX: RS485 Data
+SC16_15 -[#blue;#white,thickness=3,dashed]-> MAINPCB : LX/TX: pH Power V+    (+5 VDC)
+SC16_16 -[#black;#red,thickness=3,dashed]-> MAINPCB : LX:USB Data (+)    TX: pH Analog Signal (0-3.3v)
+SC16_1 -[#black,thickness=3]-> SC8_1 : Main Power V+ 1 (VIN1)
+SC16_2 -[#white,thickness=3]-> SC8_2 : Main Power V+ 2 (VIN2)
+SC16_3 -[#red,thickness=3]-> SC8_3 : Main Power GND (VIN-)
+SC16_4 -[#green,thickness=3]-> SC8_4 : tx/rx Arduino (tx)
+SC16_5 -[#orange,thickness=3]-> SC8_5 : tx/rx Arduino (rx)
+SC16_6 -[#blue,thickness=3]-> SC8_6 : tx/rx RGA (tx)
+SC16_7 -[#white;#black,thickness=3,dashed]-> SC8_7 : tx/rx RGA (rx)
+SC16_8 -[#red;#black,thickness=3,dashed]-> SC8_8 : Communication GND (shared)
+SC16_9 -[#black,thickness=3]-> FLUIDPUMP_1 : Fluid Pump GND (Shared)
+SC16_10 -[#white,thickness=3]-> FLUIDPUMP_2 : Fluid Pump Analog (0-5 V)
+SC16_11 -[#red,thickness=3]-> FLUIDPUMP_3 : Fluid Pump Power (+12v)
+SC16_12 -[#orange,thickness=3]-> FLUIDPUMP_5 : Fluid Pump Fwd/Rev (0/5v)
+SC16_13 -[#black,thickness=3]-> PHLOGGER_1 : LX/TX: pH Power V- (GND)
+SC16_14 -[#white,thickness=3]-> PHLOGGER_2 : LX: USB Data (-) TX: RS485 Data
+SC16_15 -[#red,thickness=3]-> PHLOGGER_3 : LX/TX: pH Power V+    (+5 VDC)
+SC16_16 -[#green,thickness=3]-> PHLOGGER_4 : LX:USB Data (+)    TX: pH Analog Signal (0-3.3v)
+TOPSIDE_CONN -[#black,thickness=3]-> SC8_1 : Main Power V+1 (VIN1)
+TOPSIDE_CONN -[#white,thickness=3]-> SC8_2 : Main Power V+2 (VIN2)
+TOPSIDE_CONN -[#red,thickness=3]-> SC8_3 : Main Power GND (VIN-)
+TOPSIDE_CONN -[#green,thickness=3]-> SC8_4 : Arduino TX
+TOPSIDE_CONN -[#orange,thickness=3]-> SC8_5 : Arduino RX
+TOPSIDE_CONN -[#blue,thickness=3]-> SC8_6 : RGA TX
+TOPSIDE_CONN -[#white;#black,thickness=3,dashed]-> SC8_7 : RGA RX
+TOPSIDE_CONN -[#red;#black,thickness=3,dashed]-> SC8_8 : Comm GND (shared)
+TOPSIDE_CONN -[#black,thickness=3]-> PS_A : Main Power V+1 (VIN1)
+TOPSIDE_CONN -[#white,thickness=3]-> PS_B : Main Power V+2 (VIN2)
+TOPSIDE_CONN -[#red,thickness=3]-> PS_A : Main Power GND (VIN-)
+TOPSIDE_CONN -[#red,thickness=3]-> PS_B : Main Power GND (VIN-)
+TOPSIDE_CONN -[#green,thickness=3]-> MAIN_COMMS_DB9 : Arduino RS232 TX
+TOPSIDE_CONN -[#orange,thickness=3]-> MAIN_COMMS_DB9 : Arduino RS232 RX
+TOPSIDE_CONN -[#red;#black,thickness=3,dashed]-> MAIN_COMMS_DB9 : Comm GND (shared)
+TOPSIDE_CONN -[#blue,thickness=3]-> RGA_COMMS_DB9 : RGA TX
+TOPSIDE_CONN -[#white;#black,thickness=3,dashed]-> RGA_COMMS_DB9 : RGA RX
+TOPSIDE_CONN -[#red;#black,thickness=3,dashed]-> RGA_COMMS_DB9 : Comm GND (shared)
+TOPSIDE_CONN -[#red;#black,thickness=3,dashed]-> PS_B : Comm GND (shared)
+MAIN_COMMS_DB9 -[#black,thickness=3]-> USB_MAIN
+USB_MAIN -[#black,thickness=3]-> LAPTOP
+RGA_COMMS_DB9 -[#black,thickness=3]-> USB_RGA
+USB_RGA -[#black,thickness=3]-> LAPTOP
+BARRELJACK -[#red,thickness=3]-> RGADEV : 24VA
+BARRELJACK -[#black,thickness=3]-> RGADEV : GND
+DB9_RGA -[#black,thickness=3]-> RGADEV : Serial Data
+MAINPCB -[#red,thickness=3]-> BARRELJACK : 24VA
+MAINPCB -[#black,thickness=3]-> BARRELJACK : GND
+DB9_AUTOSTART -[#red,thickness=3]-> ROUGHPUMP : 24VB
+DB9_AUTOSTART -[#black,thickness=3]-> ROUGHPUMP : GND
+MAINPCB -[#red,thickness=3]-> DB9_AUTOSTART : 24VB
+MAINPCB -[#black,thickness=3]-> DB9_AUTOSTART : GND
+DB15DEV -[#red,thickness=3]-> TURBOPUMP : 24VA
+DB15DEV -[#brown,thickness=3]-> TURBOPUMP : RS485-A
+DB15DEV -[#orange,thickness=3]-> TURBOPUMP : RS485-B
+DB15DEV -[#black,thickness=3]-> TURBOPUMP : GND
+MAINPCB -[#red,thickness=3]-> DB15DEV : 24VA
+MAINPCB -[#brown,thickness=3]-> DB15DEV : RS485-A
+MAINPCB -[#orange,thickness=3]-> DB15DEV : RS485-B
+MAINPCB -[#black,thickness=3]-> DB15DEV : GND
+
+' -- unused/stub pin wires --
+STUB1 -[#green,thickness=3]-> FLUIDPUMP_4 : UNUSED STUB   Fluid Pump Tachometer
+STUB2 -[#orange,thickness=3]-> PHLOGGER_5 : UNUSED STUB     LX: Shield      TX: RS485 Data
+STUB3 -[#blue,thickness=3]-> PHLOGGER_6 : UNUSED STUB       pin for Compatibility
+
+@enduml

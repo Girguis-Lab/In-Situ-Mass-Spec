@@ -1,0 +1,25 @@
+@startuml
+!pragma layout elk
+skinparam linetype polyline
+skinparam backgroundColor LightPink
+
+title line color mix
+rectangle foo
+foo -[#red,thickness=3]-> bar1          : wireRed
+foo -[#red;#black,thickness=3]-> bar2   : wireRedStripeBlack
+foo -[#white;#black,thickness=3]-> bar3 : wireWhiteBlack
+foo -[#white,thickness=3]-> bar4 : wireWhite
+foo -[#red;#white,thickness=3]-> bar5 : wireRedWhite
+foo -[#red;#black,thickness=3]-> bar6 : wireRedBlack
+foo -[#orange;#black,thickness=3]-> bar7 : wireOrangeBlack
+foo -[#orange,thickness=3]-> bar8 : wireOrange
+foo -[#green;#white,thickness=3]-> bar9 : wireGreenWhite
+foo -[#green;#black,thickness=3]-> bar10 : wireGreenBlack
+foo -[#green,thickness=3]-> bar11 : wireGreen
+foo -[#brown,thickness=3]-> bar12 : wireBrown
+foo -[#blue;#white,thickness=3]-> bar13 : wireBlueWhite
+foo -[#blue;#black,thickness=3]-> bar14 : wireBlueBlack
+foo -[#blue,thickness=3]-> bar15 : wireBlue
+foo -[#black;#white,thickness=3]-> bar16 : wireBlackWhite
+foo -[#black,thickness=3]-> bar17 : wireBlack
+@enduml

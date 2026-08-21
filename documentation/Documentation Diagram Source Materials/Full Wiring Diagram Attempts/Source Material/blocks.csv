@@ -1,0 +1,21 @@
+Block,Block Color,Associated Component Group
+LAPTOP,gray,Topside
+USB to RS232 (to RGA COMMS DB9),gray,Topside
+USB to RS232 (to MAIN COMMS DB9),gray,Topside
+RGA COMMS DB9 (with fake RS232 handshake jumpers),gray,Topside
+MAIN COMMS DB9,gray,Topside
+POWER SUPPLY A (24-48v @ 4A),red,Topside
+POWER SUPPLY B (24-48v @ 4A),red,Topside
+Topside connection,gray,Topside
+SubConn 8-pin (M),black,External
+SubConn 16-pin,red,External
+"FLUID PUMP (12v power, 5v signals, SubConn 5-pin)",blue,External > Fluid Pump
+"pH LOGGER (Optional, 5v, SubConn 6-pin)",green,External > pH Logger
+Main PCB,white,Main Housing > Main PCB
+ROUGHING PUMP (24v),yellow,Main Housing > ROUGHING PUMP
+DB9 (with autostart jumpers),yellow,Main Housing > ROUGHING PUMP
+TURBO PUMP (24v),orange,Main Housing > TURBO PUMP
+DB15,orange,Main Housing > TURBO PUMP
+RGA (24v),magenta,Main Housing > RGA
+DB9 (with fake RS232 handshake jumpers),magenta,Main Housing > RGA
+Barrel Jack,magenta,Main Housing > RGA
