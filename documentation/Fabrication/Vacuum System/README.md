@@ -195,4 +195,4 @@ End Cut:
 
 All done! We'll install it between the two vacuum pumps after the sled is assembled.
 
-## Next build section: [Main Sled Build](<../Main Sled/Main Sled Build.md>)
+## Next build section: [Main Sled Build](<../Main Sled/README.md>)

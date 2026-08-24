@@ -58,7 +58,7 @@ Cut a roughly 101mm length of the PEEK plastic 1/8" OD tubing - this will serve 
 
 ![p00006](<./Build Images/Inlet Assembly/p00006.png>)
 
-Connect the PEEK tubing to the inlet adapter fitting using brass swagelok ferrules (brass or stainless steel nut is ok and Yorlock is cross compatible with swagelok components/ferrules) 
+Connect the PEEK tubing to the inlet adapter fitting using brass swagelok ferrules (brass or stainless steel nut is ok and Yorlock is cross compatible with swagelok components/ferrules)
 
 > [!IMPORTANT]
 >
@@ -139,10 +139,10 @@ Completed sled.
 
 ### Connecting Inlet to Vacuum
 
-As of writing this part was the least settled. Two options exist: 
+As of writing this part was the least settled. Two options exist:
 
 - A) Add a lenth of small diameter capilary tubing between the inlet and vacuum chamber to reduce the total gas load on the RGA and hopefully achive tighter mass spectra peeks
-- B) Go straight from inlet to vacuum chamber side port 
+- B) Go straight from inlet to vacuum chamber side port
 
 In either case, the length of PEEK tubing that provides electrical insulation must still be there along with a union Swagelok tube fitting to connect the PEEK tubing to the capilary or a length of stainless tubin that can take a tighter bend than the pure PEEK tubing to go into the vacuum chamber side port.
 
@@ -154,4 +154,4 @@ Option A Shown here:
 >
 > Cap the vacuum chamber for now at the side port using a swagelok fitting plug. Once you have established that the capped vacuum is tight, then go back and finnish installing this connection
 
-## Next build section: [Wiring](<../Wiring/Wiring Guide.md>)
+## Next build section: [Wiring](<../Wiring/README.md>)
