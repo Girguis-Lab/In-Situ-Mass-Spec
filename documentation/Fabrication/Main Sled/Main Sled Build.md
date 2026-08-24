@@ -2,119 +2,14 @@
 
 The ISMS is built onto a sled that slides into the main housing and is attached to the housing endcap with the inlet and other ports.
 
-### Assembling High Vacuum Stack
-
-Parts required:
-
-- See vacuum parts list section in main parts spreadsheet
-
-
-
-### Bending Vacuum Tubing Run
-
-Parts & tools required:
-
-- 1/4" OD x  Stainless steel continuous straight tubing - about 4ft long.
-- 1/4" tubing bend tool
-- Protractor, Pen & Paper
-- Clamps and a flat work surface.
-
-These are the steps to create the tubing run that goes between the Roughing inlet and Turbo Pump outlet shown here: https://cad.onshape.com/documents/b6c7e603ca3691b93cbc85d9/w/9ed404cfa2f2ee86ebc2e394/e/7f697bb443b9acb569f2a20e
-
-1. Starting from one end of the tube, mark off the following distances (all relative to the 'start' end of the tube>)
-   | **Distance from start** | **Bend amount AFTER each mark**                              |
-   | ----------------------- | ------------------------------------------------------------ |
-   | 82mm                    | 15° - PLANE A                                                |
-   | 139mm                   | -15° - PLANE A                                               |
-   | 186mm                   | 8.43° - PLANE B (PLANE B is perpendicular to PLANE A, Rotated 90° along the axis of the tube) |
-   | 332mm                   | 45° - PLANE B                                                |
-   | 395mm                   | -90° - PLANE B                                               |
-   | 460mm                   | 90° - PLANE B                                                |
-   | 526mm                   | -90° - PLANE B                                               |
-   | 600mm                   | 45° - PLANE B                                                |
-   | 659mm                   | 90° - PLANE C - (perpendicular to both plane A & B; axially rotated 59° CCW relative to PLANE B (or 31° CCW relative to PLANE A)) |
-   | 764mm                   | -90° - PLANE C                                               |
-   | 807mm                   | END CUT                                                      |
-
-
-
-![Step1](<./Build Images/Tubing Bending Steps/Step1.jpeg>)
-
-Bends 1 & 2:
-
-![Step2&3](<./Build Images/Tubing Bending Steps/Step2&3.jpeg>)
-
-Bend 3 (Clamping):
-
-![Step4A (Clamp)](<./Build Images/Tubing Bending Steps/Step4A (Clamp).jpeg>)
-
-Bend 3 (Jig):
-
-![Step4B (Jig)](<./Build Images/Tubing Bending Steps/Step4B (Jig).jpeg>)
-
-Bend 3 (Actual Bend):
-
-![Step4C (Bend)](<./Build Images/Tubing Bending Steps/Step4C (Bend).jpeg>)
-
-
-Bend 4:
-
-![Step5](<./Build Images/Tubing Bending Steps/Step5.jpeg>)
-
-Bend 4 (Finished):
-
-![Step5 (Finished)](<./Build Images/Tubing Bending Steps/Step5 (Finished).jpeg>)
-
-Bend 5 (Finished):
-
-![Step6 (finished)](<./Build Images/Tubing Bending Steps/Step6 (finished).jpeg>)
-
-Bend 6:
-
-![Step7](<./Build Images/Tubing Bending Steps/Step7.jpeg>)
-
-Bend 7 (finished):
-
-![Step8(finished)](<./Build Images/Tubing Bending Steps/Step8(finished).jpeg>)
-
-Bend 8 (finished):
-
-![Step9(finished)](<./Build Images/Tubing Bending Steps/Step9(finished).jpeg>)
-
-Bend 9 (Compound Angle setup):
-
-![Step10A(Compound Angle)](<./Build Images/Tubing Bending Steps/Step10A(Compound Angle).jpeg>)
-
-Bend 9 (Compound Angle, actual 90* bend):
-
-![Step10B(CompoundAngle)](<./Build Images/Tubing Bending Steps/Step10B(CompoundAngle).jpeg>)
-
-Bend 10:
-
-![Step10(finished)](<./Build Images/Tubing Bending Steps/Step10(finished).jpeg>)
-
-Bend 10 (another view):
-
-![Step11](<./Build Images/Tubing Bending Steps/Step11.jpeg>)
-
-End Cut:
-
-![Step12(end cut)](<./Build Images/Tubing Bending Steps/Step12(end cut).jpeg>)
-
-
-
-
-
-
-
 ### Assembling Inlet
 
 Parts required:
 
-- Inlet Base (Ti>)
-- Inlet cap (Ti>)
+- Inlet Base (Ti)
+- Inlet cap (Ti)
 - Frit
-- Membrane Material (backed teflon or mesh reinforced PDMS>)
+- Membrane Material (backed teflon or mesh reinforced PDMS)
 
 Tools Requried:
 
@@ -131,7 +26,7 @@ Screw the 1/4" NPT to Swagelok 1/4 tube fittings into the inlet top cap fluid po
 
 ![p00002](<./Build Images/Inlet Assembly/p00002.png>)
 
-Lightly grease o-rings and Add to their respective grooves (o-ring sizes smallest to largest:  >)
+Lightly grease o-rings and Add to their respective grooves (o-ring sizes smallest to largest:  TODO fill in )
 
 Add frit in center of inlet base, taking note of any bevel on the edge of the frit, which should go DOWN if present so the surface of the frit and machined base surface (shown in blue) are as flush as possible.
 
@@ -151,7 +46,23 @@ Sandwich the Membrane on top of the frit - centered so it does not touch the gre
 
 ![p00004](<./Build Images/Inlet Assembly/p00004.png>)
 
+Screw the BSPP to 1/8" tubing (yorlock brand) fiting into the vacuum side port and tighten so the rubber gasket makes a good seal.
+
+> [!IMPORTANT]
+>
+> Since this side will be part of the vacuum chamber, wear gloves and avoid getting any residues on the interior of the inlet or fittings, also do NOT use Teflon tape as this is not a tappered NPT fitting.
+
 ![p00005](<./Build Images/Inlet Assembly/p00005.png>)
+
+Cut a roughly 101mm length of the PEEK plastic 1/8" OD tubing - this will serve as electrical isolation between the internal sled/vacuum chamber ground and the metal of the inlet/main housing/ocean. This isolation is nescesary for some host sub vehicles to detect electrical problems.
+
+![p00006](<./Build Images/Inlet Assembly/p00006.png>)
+
+Connect the PEEK tubing to the inlet adapter fitting using brass swagelok ferrules (brass or stainless steel nut is ok and Yorlock is cross compatible with swagelok components/ferrules) 
+
+> [!IMPORTANT]
+>
+> While 1/8" swagelok/yorlock fittings should be tightened 3/4" turn past "finger tight" (See [Swagelok Fitting Installation](https://stavanger.swagelok.com/en/resources/tube-fitting-installation)), PEEK tubing is especially fragile, so err on the side of less tight and tighten as needed once you are able to test the capped vacuum performance. Replace if overtightened or visibly strained and try again with new brass ferrules - the brass is slightly softer than stainless ferules so that should help with over-tightening.
 
 ### Assembling Primary Housing Endcap
 
@@ -161,7 +72,7 @@ Screw in prevco dual seal vent plug ensuring both o-rings are present and lightl
 
 ![p00002](<./Build Images/Endcap Assembly/p00002.png>)
 
-Screw in zincoid sacrificial anode (Do not use tefgel or other insulating material between annode and endcap threads.>)
+Screw in zincoid sacrificial anode (Do not use tef-gel or other insulating material between anode and endcap threads as this defeats the purpose)
 
 ![p00003](<./Build Images/Endcap Assembly/p00003.png)Screw in subcon 16pin male bulkhead with red FEMALE locking sleve (not the male variant pictured here) and dummy plug.
 
@@ -171,13 +82,13 @@ Screw in zincoid sacrificial anode (Do not use tefgel or other insulating materi
 
 ![p00004](<./Build Images/Endcap Assembly/p00004.png>)
 
-Apply teff-Gel to the surfaces marked in teal  (but not inside the o-ring grooves) to prevent cathodic electron transfer between the inlet base and the main enclosure end cap.
+Apply teff-Gel to the surfaces marked in teal  (but not inside the o-ring grooves) to prevent galvanic corrosion/electron exchange between the inlet base and the main enclosure end cap while in seawater.
 
 ![p00005](<./Build Images/Endcap Assembly/p00005.png>)
 
 Add lightly greased o-rings to inlet avoiding getting tef-gel on the o-rings.
 
-![p00005](<./Build Images/Endcap Assembly/p00005.png>)
+![p00006](<./Build Images/Endcap Assembly/p00006.png>)
 
 Apply a generous amount of teff-Gel to the threads of the 1/4-20 x 1" bolts with washers and affix to main end cap, making sure tubing ports are facing in a direction suitable to route the external fluid path.
 
@@ -226,4 +137,21 @@ Attach main end cap with 5 screws to the end ring (Note how these screws screw I
 
 Completed sled.
 
-### Go to next build section: *Wiring*
+### Connecting Inlet to Vacuum
+
+As of writing this part was the least settled. Two options exist: 
+
+- A) Add a lenth of small diameter capilary tubing between the inlet and vacuum chamber to reduce the total gas load on the RGA and hopefully achive tighter mass spectra peeks
+- B) Go straight from inlet to vacuum chamber side port 
+
+In either case, the length of PEEK tubing that provides electrical insulation must still be there along with a union Swagelok tube fitting to connect the PEEK tubing to the capilary or a length of stainless tubin that can take a tighter bend than the pure PEEK tubing to go into the vacuum chamber side port.
+
+Option A Shown here:
+
+![Option A](<./Inlet Connection/Option A.png>)
+
+> [!TIP]
+>
+> Cap the vacuum chamber for now at the side port using a swagelok fitting plug. Once you have established that the capped vacuum is tight, then go back and finnish installing this connection
+
+## Next build section: [Wiring](<../Wiring/Wiring Guide.md>)

@@ -41,3 +41,5 @@ Also connectors could be redesigned to accommodate the Fwd/Rev fluid pump 5v out
 ### Commissioning a new board
 
 see [100818 DVT.docx](<./PCB commisioning and functionality testing Documentation from Acbotics Research/100818 DVT.docx>)
+
+## Next Build Section: [Vacuum System](../Vacuum System/Vacuum System Assembly.md)

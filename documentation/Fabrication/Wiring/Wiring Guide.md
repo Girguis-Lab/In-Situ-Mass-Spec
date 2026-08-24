@@ -87,7 +87,7 @@ Follow the wire color pin order to make each connector pigtail. Color coding is 
 
 ​	4x1 PIN female Microfit 3.0
 
-Currently the pH probe is not connected because we are using a standalone pH logger (PyroScience AquapHOx-LX) that doesn't need power or data. Theoretically realtime data can be got from the AquapHOx-LX, but it requires a USB host intermediary like a raspberry pi to read the serial data (format found in the [protocol docs]) if wired per the USB output wires shown here: [AquapHOx-LX Subconn Pinout](</Users/ky/Documents/Github/ISMS_Github/documentation/Fabrication/Wiring/Build Images/AquapHOx-LX Subconn Pinout.png>)
+Currently the pH probe is not connected because we are using a standalone pH logger (PyroScience AquapHOx-LX) that doesn't need power or data. Theoretically realtime data can be got from the AquapHOx-LX, but it requires a USB host intermediary like a raspberry pi to read the serial data (format found in the [protocol docs]) if wired per the USB output wires shown here: ![AquapHOx-LX Subconn Pinout](<./Build Images/External/AquapHOx-LX Subconn Pinout.png>)
 
 ##### RGA Power:
 
@@ -181,8 +181,32 @@ The terminal block plate sits over the turbo pump and connects the 16pin subconn
 
 Note that the pH probe connections remain empty due to the afformentioned lack of need for power or communication with the aquapHOx LX pH logger. If a non-standalone pH probe is added in the future these wires can be used for that (or another accesory like a cryopump). They would connect to the pH probe power and serial plug on the PCB shown in [ISMS PCB Pinouts Annotated.png](<./Build Images/Internal/ISMS PCB Pinouts Annotated.png) (assuming the pH probe was 5v powered and used ttl serial communication>)
 
+## Topside Wiring
+
+For now we'll ignore the wiring in between the ISMS and focus on the connectors a topside operator or vechicle needs to power and communicate with the ISMS and onboard RGA. In the next section we'll connect those connectors to something!
+
+### Power plugs
+
+### ISMS Comms Serial Plug
+
+### RGA Comms Serial Plug
+
 ## External Wiring
 
-See  [ISMS V3 SubCon Octopus Cable Key.pdf](<./ISMS V3 SubCon Octopus Cable Key.pdf>) for external connection wiring: ![ISMS Octopus cable wiring diagram](<./Build Images/External/ISMS Octopus cable wiring diagram.png>)
+See  [ISMS V3 SubCon Octopus Cable Key.pdf](<./ISMS V3 SubCon Octopus Cable Key.pdf>) for external connection wiring:
+
+![ISMS Octopus cable wiring diagram](<./Build Images/External/ISMS Octopus cable wiring diagram.png>)
 
 TODO: finish section
+
+### Testing with quick connectors
+
+{TODO add photo of testing wire harness on table}
+
+### Potting
+
+Use the molds and putty!
+
+
+
+## Next Build Section: [Fluid Pump](<../Fluid Pump/Fluid Pump Build.md>)
