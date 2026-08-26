@@ -72,7 +72,7 @@ Use m3 Screws to fasten the end cap onto the flange with the face o-ring (lightl
 
 4. Splice electrical connections
 
-Following the wire color chart for the external side fluid pump in the [ISMS V3 SubCon Octopus Cable Key.pdf](<../Wiring/ISMS V3 SubCon Octopus Cable Key.pdf), splice each wire from the fluid pump to the Subconn Bulkhead with individual heat shink to prevent shorts. You can unplug the wires from the pump drive electronics for soldering. Tie back the unused wires and string using heat shrink and seal with glue to avoid shorts.
+Following the wire color chart for the external side fluid pump in the [SubCon Octopus Cable Key.pdf](<../Wiring/SubCon Octopus Cable Key.pdf), splice each wire from the fluid pump to the Subconn Bulkhead with individual heat shink to prevent shorts. You can unplug the wires from the pump drive electronics for soldering. Tie back the unused wires and string using heat shrink and seal with glue to avoid shorts.
 
 Pass cable through tubing and reconnect to pump drive connector on other end. Connect pump to diapragm end cap flange screw holes with 2 M3 x 16mm screws in the pocket holes.
 

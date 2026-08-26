@@ -74,7 +74,10 @@ Screw in prevco dual seal vent plug ensuring both o-rings are present and lightl
 
 Screw in zincoid sacrificial anode (Do not use tef-gel or other insulating material between anode and endcap threads as this defeats the purpose)
 
-![p00003](<./Build Images/Endcap Assembly/p00003.png)Screw in subcon 16pin male bulkhead with red FEMALE locking sleve (not the male variant pictured here) and dummy plug.
+![p00003](<./Build Images/Endcap Assembly/p00003.png)Screw in subcon 16pin male bulkhead with red FEMALE locking sleve (NOT the male variant pictured here).
+Make sure the o-ring provided with the Subcon bulkhead is lightly greased and dust/hair free before inserting.
+
+Fill the 16 pin dummy plug holes with some Molykote 111 grease and push onto the bulkhead to protect the bulkhead pins.
 
 
 
