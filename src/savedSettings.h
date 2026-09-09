@@ -1,3 +1,12 @@
+// Operator settings that persist across reboots and power cycles.
+//
+// Defines the settings struct, its compiled-in defaults, the single global
+// instance the rest of the firmware reads, and the routines that move it in
+// and out of EEPROM. Settings are changed by serial command and are relied on
+// at boot -- autostart in particular -- so an instrument keeps behaving the
+// same way after an unattended reset. Header-only, and defines objects, so it
+// is included exactly once (from includes.h).
+
 #include <Arduino.h>
 #include <PROMPLUS.h>
 #include <DebugLog.h>
@@ -11,17 +20,24 @@
 // library have been worn out and settings do not save or load correctly,  Update the eeprom_start_address variable to point
 // to a part of the eeprom past where the settings struct was stored.
 
+// Byte offset in EEPROM where the settings struct is stored. Move it past the
+// old location if those cells ever wear out, as described above.
 size_t eeprom_start_address = 50;
 
-/** ISMS Settings struct - contains all settings that should persist through reboots and power cycles - stored in EEPROM
- *  !!! IMPORTANT: To change this struct follow these guidelines:
- *   - If all you change is the names of existing struct fields, nothing else is needed.
- *   - If you do anythhing else to the struct (e.g. change types of existing fields, add new fields,
- *     remove fields, change the order of fields, etc), you must increment the struct_version field
- *     in the default_settings variable below so that the system knows to reset to default settings
- *     instead of reading a potentially incompatible/miss-alinged struct from EEPROM.
- *   - Make sure to set a default value in the default_settings variable below for any relavant fields you add to the struct!
- */
+// ISMS settings struct - contains all settings that should persist through
+// reboots and power cycles - stored in EEPROM.
+//
+// !!! IMPORTANT: To change this struct follow these guidelines:
+//  - If all you change is the names of existing struct fields, nothing else is
+//    needed.
+//  - If you do anythhing else to the struct (e.g. change types of existing
+//    fields, add new fields, remove fields, change the order of fields, etc),
+//    you must increment the struct_version field in the default_settings
+//    variable below so that the system knows to reset to default settings
+//    instead of reading a potentially incompatible/miss-alinged struct from
+//    EEPROM.
+//  - Make sure to set a default value in the default_settings variable below
+//    for any relavant fields you add to the struct!
 struct saved_settings_t
 {
     // Metadata fields to determine if the saved settings are valid and compatible with the current code
@@ -29,12 +45,12 @@ struct saved_settings_t
     uint8_t struct_version;  // Used to determine if the structure of the saved settings in the firmware has changed from that saved in arduino EEPROM in a non-backwards compatible way.
 
     // ISMS Settings
-    bool autostart_on;
-    unsigned long autostart_delay;
-    bool stats_loging_enabled;
-    unsigned long stats_log_interval;
-    DebugLogLevel log_level;
-    int16_t fluidpump_rate;
+    bool autostart_on;                // Run the startup sequence after boot.
+    unsigned long autostart_delay;    // Milliseconds to wait before autostart.
+    bool stats_loging_enabled;        // Broadcast the periodic stats telegram.
+    unsigned long stats_log_interval; // Milliseconds between stats telegrams.
+    DebugLogLevel log_level;          // Verbosity, per the DEBUG_LOGGING command.
+    int16_t fluidpump_rate;           // Fluid pump speed, -100 to 100 percent.
 };
 
 // Default settings to use if there are no valid saved settings in EEPROM
@@ -51,14 +67,26 @@ saved_settings_t default_settings{
     .fluidpump_rate = 100,                // Default fluid pump rate in percentage of full speed
 };
 
+// The live settings the whole firmware reads. Zeroed until load_settings()
+// runs in setup(), so nothing should be read out of it before then.
 saved_settings_t saved_settings = {};
 
+// Writes the live settings to EEPROM.
+//
+// PROMPLUS keeps three redundant copies and rewrites only the bytes that
+// actually changed, so this is cheap enough for every command that edits a
+// setting to call it immediately.
 void save_settings()
 {
     // Save the current settings to EEPROM
     PROM.put(eeprom_start_address, saved_settings);
 }
 
+// Restores the compiled-in defaults and persists them to EEPROM.
+//
+// Called by load_settings() when what EEPROM holds cannot be trusted, and by
+// the RESET_SETTINGS serial command. Logs the metadata it wrote so an operator
+// can confirm the reset took effect.
 void reset_settings()
 {
     // Reset to defaults and save
@@ -73,6 +101,15 @@ void reset_settings()
     LOG_INFO(F(" ]\n"));
 }
 
+// Loads the saved settings from EEPROM, falling back to the defaults whenever
+// they cannot be trusted.
+//
+// Seeds the live settings with the defaults first, so even a failed read
+// leaves the firmware with a usable configuration, then reads EEPROM and
+// discards the result if it was never initialized or was written by a
+// different struct version -- rewriting the defaults in that case rather than
+// acting on a misaligned struct. Logs every loaded value for the operator's
+// record. Call once from setup(), before any setting is read.
 void load_settings()
 {
 

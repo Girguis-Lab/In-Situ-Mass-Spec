@@ -1,18 +1,36 @@
-
-/* ISMS code for the ATMEL2560 based ISMS controller
-  This is for the V3 redesign of the ISMSs with dedicated PCB (Year 2025/26)
-  To compile this project, use Visual Studio Code IDE and install the PlatformIO Extension
-  Use PlatformIO buttons in the bottom toolbar to compile, and upload. Uploads must be done with
-  the USB b port on the circuit board, however serial data comes from the RS232 output
-  (The serial of the USB B port is joined to the TURBO Pump RS485 Serial)
-*/
+// Entry point and main loop for the ATMEL2560 based ISMS controller.
+//
+// This is the V3 redesign of the ISMSs with dedicated PCB (Year 2025/26).
+//
+// Brings the instrument up in setup() -- watchdog, operator serial port, saved
+// settings, switched power rails, turbo pump, fluid pump, and the optional
+// automatic startup sequence -- then spends loop() broadcasting the periodic
+// stats telegram that operators and the topside software read. Also provides
+// nonBlockDelay(), the cooperative delay that every waiting routine in this
+// firmware uses so that serial commands keep being answered and the watchdog
+// keeps being petted no matter how long an operation takes.
+//
+// To compile this project, use Visual Studio Code IDE and install the
+// PlatformIO Extension. Use PlatformIO buttons in the bottom toolbar to
+// compile, and upload. Uploads must be done with the USB b port on the circuit
+// board, however serial data comes from the RS232 output (the serial of the
+// USB B port is joined to the TURBO Pump RS485 Serial).
 
 #include "includes.h"
 #include "modernCommands.h"
 
 bool autostarted = false; // Becomes true once autostart has happened, so we don't do it again
+// Lowest free RAM seen since boot, so the stats telegram can warn about a slow
+// leak or a deep call path even after the memory has been reclaimed.
 unsigned long minFreeRam = getTotalRam();
 
+// Services the background work that must keep happening no matter what else is
+// running.
+//
+// Pets the watchdog, lets the turbo pump's RS485 driver turn the transceiver
+// around and drain its buffers, and tracks the low-water mark of free RAM.
+// Called from the innermost loop of nonBlockDelay(), so it runs every few
+// microseconds while any part of the firmware is waiting.
 void taskTick()
 {
   resetWDT();
@@ -22,8 +40,19 @@ void taskTick()
     minFreeRam = freeRam;
 }
 
-// A non-blocking delay function that allows lazy serial and watchdog resets to keep working while paused in various places.
-// returns true if a lazy serial command was executed.
+// Waits roughly `ms` milliseconds without stalling the firmware's background
+// work, and reports whether an operator command arrived while waiting.
+//
+// Spins on micros() -- which handles counter rollover -- calling taskTick()
+// and polling the command line for the whole interval, so the watchdog is
+// still petted and commands are still answered inside even a 60 second wait.
+// If characters are still sitting in the receive buffer when the interval
+// ends, the wait is extended by 3 more seconds to give a human time to finish
+// typing; that courtesy is skipped for CR-terminated input, which identifies
+// the topside GUI rather than a person at a keyboard.
+//
+// Returns true if a command was executed during the wait. Callers use this to
+// abandon a long sequence the operator has just overridden.
 bool nonBlockDelay(unsigned long ms)
 {
   unsigned long start = micros();
@@ -59,6 +88,14 @@ bool nonBlockDelay(unsigned long ms)
   return commandRecieved;
 }
 
+// Prints the separator that follows one value in the stats telegram, flagging
+// the value first if it looks wrong.
+//
+// When INCLUDE_OUT_OF_NORMAL_RANGE_MARKS is defined, a "(!)" marker is emitted
+// before the comma if `gotValidResponse` is false or if `value` falls outside
+// the exclusive range (`minOk`, `maxOk`), which makes a bad reading easy to
+// pick out of a long log. The trailing comma is always printed, so the
+// telegram's field layout does not change when the marks are compiled out.
 void log_value_postfix(float value, float minOk, float maxOk, bool gotValidResponse)
 {
 #ifdef INCLUDE_OUT_OF_NORMAL_RANGE_MARKS
@@ -70,6 +107,16 @@ void log_value_postfix(float value, float minOk, float maxOk, bool gotValidRespo
   COMMS.print(",");
 }
 
+// Initializes the instrument once, at power-on or after a reset.
+//
+// Starts the watchdog, brings up the operator serial port and waits 5 seconds
+// so the first messages are not lost to a link that is still settling, reports
+// why the board last reset, registers the serial commands, then loads the
+// saved settings and applies the saved log level. Every switched rail and both
+// pumps are explicitly driven off, so a reboot mid-deployment does not leave
+// the instrument in a half-running state. Finally, runs the full startup
+// sequence if autostart is enabled and BEAT has not already cancelled it, and
+// warns the operator if the periodic stats telegram is switched off.
 void setup()
 {
   // LED1 on to indicate setup done
@@ -134,6 +181,24 @@ void setup()
   }
 }
 
+// Broadcasts one stats telegram on the operator serial port and updates the
+// warning LED.
+//
+// Prints the fluid pump rate, then queries the turbo pump for its speed
+// setpoint, actual speed, drive current, and rotor, electronics and pump
+// bottom temperatures, then the state of the switched power rails -- each
+// value followed by log_value_postfix(), so readings outside their normal band
+// stand out. Along the way it accumulates plain-language warnings for missing
+// or malformed pump replies, readings that indicate trouble (a low turbo RPM
+// risks burning out the RGA filament), any active turbo pump error and its
+// history, and low free RAM. Those warnings are logged after the values, and
+// LED2 is lit for as long as any of them is active.
+//
+// Yields through nonBlockDelay() between queries so commands are still
+// answered and the watchdog still petted while the telegram is assembled, and
+// returns early -- cutting the telegram short -- if one of those yields
+// executed a command, on the assumption that the operator's request matters
+// more than a complete line of stats.
 void log_stats()
 {
 
@@ -295,7 +360,16 @@ void log_stats()
   }
 }
 
-unsigned long lastStatsLogTime = 0;
+unsigned long lastStatsLogTime = 0; // millis() when the last stats telegram was sent.
+
+// Broadcasts the stats telegram on the interval held in the saved settings.
+//
+// Waits a millisecond through nonBlockDelay() on every pass, so serial
+// commands are serviced and the watchdog is petted even when no telegram is
+// due, then logs stats once the configured interval has elapsed. LED1 is lit
+// for the duration of each logging event, giving a visible heartbeat; when
+// stats logging is disabled it is flashed briefly instead so the board still
+// looks alive.
 void loop()
 {
   // always wait at least 1 ms between stats logs to allow lazy serial commands to be processed and WDT resets to happen, while ensuring stats logging doesn't cause long pauses

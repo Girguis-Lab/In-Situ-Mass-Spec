@@ -1,3 +1,19 @@
+// Build configuration and shared globals for the ISMS V3 firmware.
+//
+// Pulls in the Arduino core, the third-party logging and command-line
+// libraries, and the in-house turbo pump driver, then declares everything the
+// rest of the firmware shares: pin assignments, firmware version, serial port
+// and baud rate, the mapping from operator-facing log levels onto the
+// DebugLog library's, and the global powerPin, LazySerial, PfeifferSerialTC80
+// and FluidPump instances.
+//
+// This is the file to edit when building for different hardware: lines tagged
+// [MODEL CHANGE] mark the choices that differ between ISMS revisions and
+// accessory fit-outs, notably which hardware serial port carries the operator
+// link and which carries the turbo pump's RS485 bus. Because it defines
+// objects rather than only declaring them, it can be included by a single
+// translation unit.
+
 #pragma once
 
 // -- Arduino Standard Includes --
@@ -20,6 +36,9 @@
 #include "savedSettings.h"
 
 // --- Forward function declarations ----
+// Defined in main.cpp. Declared here because the turbo pump driver below is
+// constructed with it as its delay callback, so that waiting on the pump still
+// services serial commands and pets the watchdog.
 bool nonBlockDelay(unsigned long ms);
 
 // -- PINS --
@@ -61,6 +80,8 @@ powerPin FLUIDPUMP_PWR(53);          // CFP_ON
 
 // globals
 bool beatActive = false; // used to know if the "BEAT" command was sent indicating any autostart routines should not run this time around.
+// The operator command line, reading from and writing to the COMMS port with a
+// 128 byte input buffer. Commands are registered in setup().
 LazySerial::LazySerial<128> lazy(COMMS);
 
 // -- TURBO PUMP CONTROLLER CONFIG --
@@ -70,6 +91,9 @@ LazySerial::LazySerial<128> lazy(COMMS);
 #define TC80_SERIAL_CONFIG SERIAL_8N1
 #define TC80_RESPONSE_TIMEOUT 1000 // milliseconds to wait for a response from the TC80
 #define TC80_TURBO_LOW_SPEED_WARNING_RPM 70000
+// Half-duplex RS485 link to the turbo pump controller. Owns the transceiver's
+// direction pins and needs its task() called often -- see taskTick() -- to
+// turn the line around and drain its buffers.
 RS485HardwareSerial turboSerialRS485(TURBO_SERIAL, PIN_TC80_RS485_ENABLE_SEND, PIN_TC80_RS485_DISABLE_RECEIVE, 10);
 PfeifferSerialTC80 turboTC80(turboSerialRS485, 1, COMMS, nonBlockDelay); // Turbo pump controller object (address 1, using HardwareSerial1)
 

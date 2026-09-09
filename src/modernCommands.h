@@ -1,10 +1,30 @@
+// Serial command handlers for the ISMS V3 operator interface.
+//
+// Every command an operator can type on the COMMS port is implemented here as
+// a LazySerial callback: power switching, fluid pump and turbo pump control,
+// the automated startup sequence, and the settings that persist in EEPROM.
+//
+// Each handler opens with LAZY_COMMAND(), which declares the command's name,
+// usage string, and description. That macro is what makes one function serve
+// several purposes: LazySerial calls the same handler to match incoming text,
+// to print a usage error, and to harvest metadata for the help tables, and the
+// macro returns early in every mode but the last.
+//
+// The arrays near the bottom split the handlers into the everyday command set
+// and the debugging set that HELP DEBUG reveals, plus the combined list that
+// LazySerial actually matches against - make sure to add future commands
+// to BOTH a everyday/debug list AND the combined list.
+
 #pragma once
 #include "includes.h"
 
 // --------- Helper Functions -----------
 
-// handle ON/OFF commands that directly control an arduino pin
-// If the *onoff string passed is "ON" or "OFF" (case insensitive), the passed pin number is set HIGH or LOW respectively.
+// Applies an ON/OFF argument to a pin, for commands that do nothing else.
+//
+// Drives `pwrPin` high for "ON" or "1" and low for "OFF" or "0", matched case
+// insensitively, and echoes the resulting state to `stream`. Any other value
+// of `onoff` prints a usage error and leaves the pin untouched.
 void handle_onoff_pin_command(powerPin *pwrPin, char *onoff, Stream &stream)
 {
 
@@ -26,10 +46,18 @@ void handle_onoff_pin_command(powerPin *pwrPin, char *onoff, Stream &stream)
 
 // --------- User Commands -----------
 
-// forward function delcaration - implemented later in the file.
+// forward function delcaration - implemented later in the file. HELP is listed
+// in the command tables below, but it can only be implemented after the tables
+// it prints have been defined.
 void cmd_help(LazySerial::Context &context);
 
-// Command to set the log level of the system.
+// DEBUG_LOGGING <OFF|LOW|HIGH>: sets how much troubleshooting detail is
+// written to the operator serial port, and saves the choice to EEPROM.
+//
+// The three operator-facing levels map onto the DebugLog library's INFO, DEBUG
+// and TRACE levels. Nothing below INFO is ever selected, because those levels
+// would also suppress the periodic stats telegram that the topside software
+// depends on.
 void cmd_set_debug_loglevel(LazySerial::Context &context)
 {
     LAZY_COMMAND("DEBUG_LOGGING", "<OFF|LOW|HIGH>", "Enable additional logging to serial for troubleshooting purposes.");
@@ -65,6 +93,13 @@ void cmd_set_debug_loglevel(LazySerial::Context &context)
     }
 }
 
+// STATS_INTERVAL <MS|OFF>: sets how often the periodic stats telegram is
+// broadcast, in milliseconds, or turns it off entirely, saving the choice to
+// EEPROM.
+//
+// Prints the resulting state whether or not it changed, including when no
+// argument was supplied, so the command doubles as a way to read the current
+// interval back.
 void cmd_set_stats_broadcast_interval(LazySerial::Context &context)
 {
     LAZY_COMMAND("STATS_INTERVAL", "<MS|OFF>", "Sets how often the system broadcasts stats to serial in milliseconds. Send OFF to disable stats logging.");
@@ -100,14 +135,21 @@ void cmd_set_stats_broadcast_interval(LazySerial::Context &context)
     }
 }
 
-// A command to print the firmware version, compile date, and time for reference.
+// VERSION: prints the firmware version together with the date and time this
+// binary was compiled, so an instrument in the field can be matched back to
+// the source it was built from.
 void cmd_version(LazySerial::Context &context)
 {
     LAZY_COMMAND("VERSION", "", "Prints firmware version");
     COMMS.println(F(OK "VERSION " FIRMWARE_VERSION " COMPILED AT " __TIMESTAMP__));
 }
 
-// A command to show the configured pinout for reference.
+// PINOUT: prints the pin assignments this firmware was compiled with, plus the
+// turbo pump's RS485 address.
+//
+// Useful for checking a binary against the board in front of you before
+// chasing a wiring fault -- the pins are compile-time constants from
+// includes.h, not something the firmware discovers.
 void cmd_pinout(LazySerial::Context &context)
 {
     LAZY_COMMAND("PINOUT", "", "Prints configured arduino pinout and I2C/RS485 addresses");
@@ -116,7 +158,11 @@ void cmd_pinout(LazySerial::Context &context)
     COMMS.println(LAZY_KEYVAL(turboTC80.getAddress()));
 }
 
-// Command to set any pin high or low for testing purposes.
+// GPIO <pin number> <ON|OFF>: drives any Arduino pin high or low.
+//
+// A bench-testing aid with no interlocks of any kind: it will reconfigure a
+// pin that a pump or the RS485 transceiver is already driving. Registered only
+// in the debug command set for that reason.
 void cmd_gpio(LazySerial::Context &context)
 {
     LAZY_COMMAND("GPIO", "<pin number> <ON|OFF>", "Set any Arduino pin high or low - TESTING ONLY, DO NOT USE WITHOUT KNOWING WHAT YOU'RE DOING.");
@@ -134,7 +180,14 @@ void cmd_gpio(LazySerial::Context &context)
     handle_onoff_pin_command(&pwrPin, onoff, context.stream);
 }
 
-// Command to set any pin high or low for testing purposes.
+// BEAT: cancels the automatic startup sequence for the rest of this boot,
+// enforcing fully manual control.
+//
+// Sets the flag that setup() and cmd_full_startup() both check, so an operator
+// who gets this in before the autostart delay expires -- or during the 60
+// second rough-out wait, which nonBlockDelay() keeps responsive -- stops the
+// instrument from bringing itself up. The flag is not persisted: the next
+// reset restores whatever AUTOSTART is set to.
 void cmd_beat(LazySerial::Context &context)
 {
     LAZY_COMMAND("BEAT", "", "Send to stop autostart for this boot, used to temporarily enforce fully manual control");
@@ -146,7 +199,11 @@ void cmd_beat(LazySerial::Context &context)
 // ------------- POWER ON/OFF commands --------------------
 // --------------------------------------------------
 
-// A command to turn the roughing pump power on or off.
+// ROUGHING <ON|OFF>: switches power to the roughing vacuum pump.
+//
+// The roughing pump has to be running to establish the foreline vacuum the
+// turbo pump needs, so switching it off while the turbo pump is spinning is an
+// operator error this command does not guard against.
 void cmd_roughing_on_off(LazySerial::Context &context)
 {
     LAZY_COMMAND("ROUGHING", "<ON|OFF>", "Turns the roughing pump power on or off");
@@ -157,7 +214,12 @@ void cmd_roughing_on_off(LazySerial::Context &context)
     handle_onoff_pin_command(&ROUGHING_PWR, onoff, context.stream);
 }
 
-// A command to turn the accessory power on or off (usually a PH Probe).
+// pH <ON|OFF>: switches power to the accessory port.
+//
+// The command's name and its output both come from ACCESSORY_NAME, which
+// tracks what is actually fitted to the port -- normally a pH probe, or the
+// cryo pump on instruments equipped with one -- so the command an operator
+// types differs between builds.
 void cmd_accessory_pwr(LazySerial::Context &context)
 {
     LAZY_COMMAND(ACCESSORY_NAME, "<ON|OFF>", "Turns the " ACCESSORY_NAME " power on or off");
@@ -168,7 +230,13 @@ void cmd_accessory_pwr(LazySerial::Context &context)
     handle_onoff_pin_command(&ACCESSORY_PWR, onoff, context.stream);
 }
 
-// A command to turn the fluid pump power on or off.
+// FLUIDPUMP <ON|OFF>: starts the fluid pump at its saved rate, or stops it.
+//
+// ON applies the rate saved in EEPROM; if that rate is 0 the pump would not
+// actually turn, so it is first raised to 50% and saved, on the assumption
+// that an operator asking for ON wants flow. OFF sets the speed to 0, which
+// also opens the pump's power relay. Reports an error if the pump object was
+// never initialized.
 void cmd_fluidpump_on_off(LazySerial::Context &context)
 {
     LAZY_COMMAND("FLUIDPUMP", "<ON|OFF>", "Turns the fluid pump power on or off");
@@ -208,6 +276,13 @@ void cmd_fluidpump_on_off(LazySerial::Context &context)
 // ------------- FLUID PUMP CONTROL commands --------------------
 // --------------------------------------------------
 
+// FLUIDPUMP_RATE <-100-100>: sets the fluid pump speed as a percentage of full
+// speed and saves it to EEPROM as the rate FLUIDPUMP ON will use.
+//
+// Negative values run the pump in reverse and 0 cuts power to it. The rate is
+// saved before it is applied, so it persists even if the pump itself reports
+// that it has not been initialized, in which case an error is printed in place
+// of the applied speed.
 void cmd_fluidpump_rate(LazySerial::Context &context)
 {
     LAZY_COMMAND("FLUIDPUMP_RATE", "<-100-100>", "Sets the fluid pumping rate as a percentage of full speed. Negative values run pump in reverse. 0 will turn off pump power");
@@ -233,6 +308,13 @@ void cmd_fluidpump_rate(LazySerial::Context &context)
 // ---------- TURBO PUMP CONTROL commands -----------------
 // --------------------------------------------------
 
+// TURBO <ON|OFF>: starts or stops the turbo pump's motor at whatever speed the
+// pump is currently configured for.
+//
+// Sends the Pfeiffer MotorPump control command and prints the pump's reply.
+// Spinning up takes several minutes, and this does not touch the roughing
+// pump, so rough vacuum must already be established -- STARTUP sequences both
+// pumps correctly.
 void cmd_turbo_on_off(LazySerial::Context &context)
 {
     LAZY_COMMAND("TURBO", "<ON|OFF>", "Power ON/OFF turbo pump at configured speed.");
@@ -255,6 +337,14 @@ void cmd_turbo_on_off(LazySerial::Context &context)
     }
 }
 
+// TURBO_SPEED <0.0-100.0>: runs the turbo pump at a fixed fraction of its
+// maximum speed, which is 90,000 RPM on the Pfeiffer TC80.
+//
+// Enables the pump's set-speed mode and then writes the target. An argument of
+// 0 instead disables set-speed mode, handing speed control back to the pump's
+// own default logic. Running below full speed saves power but degrades the
+// vacuum, and too low a speed risks the RGA filament -- see the warning
+// emitted by log_stats().
 void cmd_turbo_speed(LazySerial::Context &context)
 {
     LAZY_COMMAND("TURBO_SPEED", "<0.0-100.0>", "Sets the turbo pump to run at a target speed as percent of max speed (100% is 90,000 RPM for the Pfeiffer TC80) - Send 0 to reset to pfeiffer default speed control mode");
@@ -279,6 +369,13 @@ void cmd_turbo_speed(LazySerial::Context &context)
     }
 }
 
+// TURBO_LIMIT_PWR <0-100>: caps the turbo pump's power draw as a percentage of
+// full power, which is a 5 A draw on the TC80.
+//
+// Lowering the cap slows spin-up and is how the pump is kept inside a
+// constrained power budget. The argument is accepted over 10-100 and falls
+// back to 100 if it cannot be parsed; log_stats() warns whenever the cap is
+// below 100 so a forgotten limit does not get mistaken for a failing pump.
 void cmd_turbo_limit_pwr(LazySerial::Context &context)
 {
     LAZY_COMMAND("TURBO_LIMIT_PWR", "<0-100>", "Sets the turbo pump power limit as a percentage of full power (Pfeiffer max draw is 5A)");
@@ -291,6 +388,13 @@ void cmd_turbo_limit_pwr(LazySerial::Context &context)
     turboTC80.receiveUShortInt(PfeifferVacProtocol::ReferenceValueInput::PwrSVal, isValid, true);
 }
 
+// TURBO_CMD <PARAM> <DATA>: writes an arbitrary Pfeiffer parameter, named by
+// its three-digit number, with `DATA` passed through unchanged, then prints
+// the pump's reply.
+//
+// The escape hatch for parameters this firmware has no dedicated command for.
+// The data string must already be in the format that parameter expects, so
+// consult the TC80 manual first.
 void cmd_turbo_cmd(LazySerial::Context &context)
 {
     LAZY_COMMAND("TURBO_CMD", "<PARAM> <DATA>", "Send a command to the turbo pump with the 3-digit parameter number and optional data string");
@@ -307,6 +411,8 @@ void cmd_turbo_cmd(LazySerial::Context &context)
     turboTC80.receiveTelegram(true);
 }
 
+// TURBO_QUERY <PARAM>: reads an arbitrary Pfeiffer parameter by its
+// three-digit number and prints the raw reply telegram, decoding nothing.
 void cmd_turbo_query(LazySerial::Context &context)
 {
     LAZY_COMMAND("TURBO_QUERY", "<PARAM>", "Query a parameter from the turbo pump with the 3-digit parameter number");
@@ -321,6 +427,12 @@ void cmd_turbo_query(LazySerial::Context &context)
     turboTC80.receiveTelegram(true);
 }
 
+// TURBO_RAW <COMMAND>: writes a raw ASCII telegram onto the turbo pump's RS485
+// line and prints whatever comes back.
+//
+// Bypasses telegram construction entirely -- only the terminating carriage
+// return is added, so the address, action, parameter, data length and checksum
+// all have to be correct in what is typed. For protocol debugging only.
 void cmd_turbo_raw(LazySerial::Context &context)
 {
     LAZY_COMMAND("TURBO_RAW", "<COMMAND>", "Send raw ASCII to the turbo pump");
@@ -333,6 +445,18 @@ void cmd_turbo_raw(LazySerial::Context &context)
     turboTC80.receiveTelegram(true);
 }
 
+// TURBO_RESET: returns the turbo pump to the configuration the ISMS expects
+// for normal operation.
+//
+// Selects the light-gases mode, restores the 100% power limit, hands speed
+// control back to the pump's own logic with the target at full speed, and
+// turns the pumping station on while acknowledging any latched errors. Note
+// that turning the pumping station on powers the pump electronics but does not
+// spin the motor up -- TURBO ON does that. Short delays separate the commands
+// because the TC80 drops telegrams that arrive back to back.
+//
+// Only the pump is touched; the RGA and the settings this firmware saves are
+// left alone.
 void cmd_turbo_reset(LazySerial::Context &context)
 {
     LAZY_COMMAND("TURBO_RESET", "", "Resets turbo pump parameters for default operation in normal conditions (light gases, default speed control mode, power limit 100%)");
@@ -365,6 +489,11 @@ void cmd_turbo_reset(LazySerial::Context &context)
     COMMS.println(F(OK "TURBO_RESET COMPLETE"));
 }
 
+// TURBO_CLEAR_ERRORS: acknowledges the turbo pump's latched errors and
+// warnings so that it will accept commands again.
+//
+// Clears the pump's report of a fault, not the fault itself -- read the error
+// out of the stats telegram before dismissing it.
 void cmd_turbo_clear_errors(LazySerial::Context &context)
 {
     LAZY_COMMAND("TURBO_CLEAR_ERRORS", "", "Clears turbo pump errors and warning messages");
@@ -374,6 +503,20 @@ void cmd_turbo_clear_errors(LazySerial::Context &context)
     COMMS.println(F("| TURBO_CLEAR_ERRORS COMPLETE"));
 }
 
+// STARTUP: brings the vacuum system up from cold, in the order the hardware
+// requires.
+//
+// Powers the roughing pump, then the fluid pump at 100%, then the accessory
+// port, spacing them 100 ms apart so their inrush currents do not overlap.
+// Then waits a full 60 seconds for the roughing pump to pull the foreline down
+// before configuring and starting the turbo pump -- starting the turbo pump
+// into a poor foreline vacuum is what this delay exists to prevent, so do not
+// shorten it.
+//
+// Runs for over a minute, but waits through nonBlockDelay(), so serial
+// commands are still answered and the watchdog is still petted throughout.
+// Returns without touching the turbo pump if BEAT arrives during the wait.
+// Also called directly from setup() when autostart is enabled.
 void cmd_full_startup(LazySerial::Context &context)
 {
     LAZY_COMMAND("STARTUP", "", "Run full auto startup sequence.");
@@ -414,6 +557,14 @@ void cmd_full_startup(LazySerial::Context &context)
     COMMS.println(F("| Startup Complete"));
 }
 
+// AUTOSTART <ON|OFF|DELAY>: controls whether STARTUP runs by itself after boot,
+// and how long after boot it runs.
+//
+// ON and OFF toggle the behavior; a number is taken as the delay in
+// milliseconds and enables autostart as well, since setting a delay only makes
+// sense if the sequence is going to run. With no argument the current setting
+// is reported and nothing changes. Changes are saved to EEPROM, so this is
+// what makes an instrument bring itself up after an unattended power cycle.
 void cmd_autostart_on_off(LazySerial::Context &context)
 {
     LAZY_COMMAND("AUTOSTART", "<ON|OFF|DELAY>", "Set whether the system should startup automatically. If a integer is passed, the delay in milliseconds after boot.");
@@ -456,6 +607,12 @@ void cmd_autostart_on_off(LazySerial::Context &context)
         COMMS.println(F("| [To manually trigger startup routine, use command: STARTUP]\n"));
 }
 
+// RESET_SETTINGS: restores the settings this firmware keeps in EEPROM to their
+// compiled-in defaults, taking effect immediately.
+//
+// Autostart, the stats interval, the log level and the saved fluid pump rate
+// all revert. Turbo pump and RGA parameters live in those instruments rather
+// than in EEPROM and are untouched -- use TURBO_RESET for the pump.
 void cmd_reset_settings(LazySerial::Context &context)
 {
     LAZY_COMMAND("RESET_SETTINGS", "", "Resets settings saved on the ISMS to their default values (does not change TURBO pump or RGA parameters)");
@@ -464,6 +621,8 @@ void cmd_reset_settings(LazySerial::Context &context)
     COMMS.println(F("| RESET_SETTINGS COMPLETE"));
 }
 
+// The commands HELP lists: everything needed to operate the instrument
+// normally. Used only for building that table, not for matching input.
 LazySerial::CallbackFunction basic_comms_commands[] = {
     cmd_help,
     cmd_beat,
@@ -480,6 +639,8 @@ LazySerial::CallbackFunction basic_comms_commands[] = {
     cmd_autostart_on_off,
 };
 
+// The extra commands HELP DEBUG reveals: diagnostics, raw pump access, and
+// settings that should not be changed casually. Also table-building only.
 LazySerial::CallbackFunction debug_comms_commands[] = {
     cmd_help,
     cmd_version,
@@ -493,6 +654,12 @@ LazySerial::CallbackFunction debug_comms_commands[] = {
     cmd_gpio,
 };
 
+// Every command LazySerial matches operator input against -- the union of the
+// two lists above, and the only one of the three registered in setup(). Kept
+// as its own array because joining the other two at runtime would cost RAM
+// the ATmega2560 cannot spare; see the commented-out concatArrays() attempt in
+// setup(). A command added above must be added here too, or it will appear in
+// the help table without being accepted.
 LazySerial::CallbackFunction all_comms_commands[] = {
     cmd_help,
     cmd_beat,
@@ -517,7 +684,12 @@ LazySerial::CallbackFunction all_comms_commands[] = {
     cmd_gpio,
 };
 
-/** Prints out the passed list of lazyserial commands and their usage in askii table format */
+// Prints the `commands_list_size` handlers in `commands_list` as an askii
+// table of command names, usage strings, and descriptions.
+//
+// Calls each handler in GET_METADATA mode, which makes LAZY_COMMAND() fill the
+// name, usage and description into the context and return instead of executing
+// the command. Handlers that supply no usage or description are skipped.
 void print_cmd_help_table(LazySerial::CallbackFunction *commands_list, size_t commands_list_size)
 {
     for (uint8_t i = 0; i < commands_list_size; ++i)
@@ -540,7 +712,10 @@ void print_cmd_help_table(LazySerial::CallbackFunction *commands_list, size_t co
     }
 };
 
-/** Prints out the basic available commands and their usage as a table - used as the default help message callback by lazyserial */
+// Prints the table of everyday commands, then pauses 4 seconds so the operator
+// can read it before the periodic stats telegram scrolls it away. Registered
+// as LazySerial's default help callback, so it is also what an unrecognized
+// command prints.
 void basic_help_table(LazySerial::Context &context)
 {
     print_padded(COMMS, F("+====== AVAILABLE COMMANDS "), lazy.d_usage_column_width + 3, '=');
@@ -549,7 +724,8 @@ void basic_help_table(LazySerial::Context &context)
     nonBlockDelay(4000); // give the human more time to read commands
 }
 
-/** Prints out the debug/troubleshooting commands and their usage as a table */
+// Prints the table of debugging and troubleshooting commands, with the same 4
+// second reading pause as the basic table.
 void debug_help_table(LazySerial::Context &context)
 {
     print_padded(COMMS, F("+====== DEBUGGING COMMANDS "), lazy.d_usage_column_width + 3, '=');
@@ -558,7 +734,8 @@ void debug_help_table(LazySerial::Context &context)
     nonBlockDelay(4000); // give the human more time to read commands
 }
 
-// A command to show a help message listing all available commands.
+// HELP <DEBUG>: lists the everyday commands with their usage and description,
+// or the troubleshooting commands instead when DEBUG is given.
 void cmd_help(LazySerial::Context &context)
 {
     LAZY_COMMAND("HELP", "<DEBUG>", "Shows this help message, add DEBUG to show additional troubleshooting commands");
@@ -574,5 +751,7 @@ void cmd_help(LazySerial::Context &context)
     }
 }
 
-// Set the default lazyserial help callback to the basic help table print function, which just shows the most commonly used commands.
+// The help output LazySerial prints when it does not recognize a command:
+// the basic table, so an operator who mistypes is shown the commands they are
+// likely to want rather than the full debug list. Registered in setup().
 const auto &lazy_help_callback = basic_help_table;
