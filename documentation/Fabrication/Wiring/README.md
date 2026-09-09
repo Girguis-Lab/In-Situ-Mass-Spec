@@ -77,7 +77,7 @@ Gold plated connectors are recommended as these have slightly more durability. E
 
 Create pigtails (connector at one end with bare ends at the other) for each used connector on the PCB.
 
-Follow the wire color pin order to make each connector pigtail. Color coding is shown in the "ISMS PCB Pinouts Annotated.png" file (embedded below). The wire color coding for each connector pin is shown below the label in the corresponding pin location as a line.
+Follow the wire color pin order to make each connector pigtail. Color coding is shown in the [ISMS PCB Pinouts Annotated](<./Build Images/Internal/ISMS PCB Pinouts Annotated.png>) file shown below. The wire color coding for each connector pin is shown below the label in the corresponding pin location as a line.
 
 ![ISMS PCB Pinouts Annotated](<./Build Images/Internal/ISMS PCB Pinouts Annotated.png>)
 
@@ -222,7 +222,7 @@ The exterior of the ISMS has a 1in-3out "Octopus" style cable to connect the mai
 
 We will be making a test wiring harness / octopus cable directly from the subconn 16 pin female pigtail. Start by stripping back 2 inches of the outer sheath using either techinique shown in [this guide](https://bluerobotics.com/learn/cable-stripping/) and also strip and twist each conductor about 1/4". Using [these connectors](https://www.digikey.com/en/products/detail/adafruit-industries-llc/5619/17506672) we can quickly make a harness to test what a full topside connection would be like, minus any other connectors between the topside/operator and ISMS and length of wire in-between.
 
-![Test Harness S1](<./Build Images/External/Test Harness S1.jpg>)Connnect a quick connector to each of the wires of the 16 pin subcon pigtail following the left column color codes (or 'ISMS Housing Side') of the  [SubCon Octopus Cable Key.pdf](<./SubCon Octopus Cable Key.pdf>) wiring chart
+![Test Harness S1](<./Build Images/External/Test Harness S1.jpg>)Connect a quick connector to each of the wires of the 16 pin subcon pigtail following the left column color codes (or 'ISMS Housing Side') of the  [SubCon Octopus Cable Key.pdf](<./SubCon Octopus Cable Key.pdf>) wiring chart
 
 > [!TIP]
 >
@@ -273,4 +273,3 @@ Use the [molds](https://www.seascapesubsea.com/product/reusable-flexible-casting
 ## Appendix
 
 A full wiring diagram can be found here:
-

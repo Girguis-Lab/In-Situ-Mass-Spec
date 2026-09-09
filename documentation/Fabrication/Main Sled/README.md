@@ -16,7 +16,7 @@ Tools Requried:
 * 16mm or 5/8" hollow cuttout tool and hard teflon "cutting board"
 * Hammer or cutting press.
 
-Cut out a disk from the membrane using the cutout tool (or laser cutter for PDMS composite membranes - ask kyle for laser cutter settings used>)
+Cut out a disk from the membrane using the cutout tool (or laser cutter for PDMS composite membranes - ask kyle for laser cutter settings used)
 
 
 
@@ -74,14 +74,12 @@ Screw in prevco dual seal vent plug ensuring both o-rings are present and lightl
 
 Screw in zincoid sacrificial anode (Do not use tef-gel or other insulating material between anode and endcap threads as this defeats the purpose)
 
-![p00003](<./Build Images/Endcap Assembly/p00003.png)Screw in subcon 16pin male bulkhead with red FEMALE locking sleve (NOT the male variant pictured here).
+![p00003](<./Build Images/Endcap Assembly/p00003.png>)
+
+Screw in Subcon 16pin male bulkhead with red FEMALE locking sleeve.
 Make sure the o-ring provided with the Subcon bulkhead is lightly greased and dust/hair free before inserting.
 
-Fill the 16 pin dummy plug holes with some Molykote 111 grease and push onto the bulkhead to protect the bulkhead pins.
-
-
-
-
+Fill the 16 pin dummy plug holes with some Molykote 44 Medium grease and push onto the bulkhead to protect the bulkhead pins.
 
 ![p00004](<./Build Images/Endcap Assembly/p00004.png>)
 
@@ -101,10 +99,10 @@ Apply a generous amount of teff-Gel to the threads of the 1/4-20 x 1" bolts with
 
 Machined Parts required:
 
-- 4x rails (Machined brass>)
-- 1x electronics base plate (Machined brass>)
-- 2x center chassis spacer disks  (machined black Delrin plastic>)
-- 2x end chassis spacer disks  (machined black Delrin plastic>)
+- 4x rails (Machined brass)
+- 1x electronics base plate (Machined brass)
+- 2x center chassis spacer disks  (machined black Delrin plastic)
+- 2x end chassis spacer disks  (machined black Delrin plastic)
 
 ![p00001](<./Build Images/Sled Assembly Steps/p00001.png>)
 
@@ -116,7 +114,7 @@ Machined Parts required:
 
 ![p00003](<./Build Images/Sled Assembly Steps/p00003.png>)
 
-The four bottom holes in the roughing pump will need to be tapped with an 10-32 thread tap to accept the screws. Apply a small amount of Swagelok VacGoop to the BSPP threads of the BSPP to YORLOK fitting and screw into inlet port of the roughing pump following BSPP fastening norms (screw till mostly tight then finish by screwing down nut over o-ring flange>)
+The four bottom holes in the roughing pump will need to be tapped with an 10-32 thread tap to accept the screws. Apply a small amount of Swagelok VacGoop to the BSPP threads of the BSPP to YORLOK fitting and screw into inlet port of the roughing pump following BSPP fastening norms (screw till mostly tight then finish by screwing down nut over o-ring flange)
 
 ![p00004](<./Build Images/Sled Assembly Steps/p00004.png>)
 
