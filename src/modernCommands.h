@@ -317,7 +317,7 @@ void cmd_beat(LazySerial::Context &context)
 // operator error this command does not guard against.
 void cmd_roughing_on_off(LazySerial::Context &context)
 {
-    LAZY_COMMAND("ROUGHING", "<ON|OFF>", "Turns the roughing pump power on or off");
+    LAZY_COMMAND("ROUGHING", "<ON|OFF>", "Turn the roughing pump power on or off");
     char *onoff;
     bool ok = context.parse_word(&onoff);
     LAZY_RETURN_USAGE_UNLESS(ok);
@@ -333,7 +333,7 @@ void cmd_roughing_on_off(LazySerial::Context &context)
 // types differs between builds.
 void cmd_accessory_pwr(LazySerial::Context &context)
 {
-    LAZY_COMMAND(ACCESSORY_NAME, "<ON|OFF>", "Turns the " ACCESSORY_NAME " power on or off");
+    LAZY_COMMAND(ACCESSORY_NAME, "<ON|OFF>", "Turn the " ACCESSORY_NAME " power on or off");
     char *onoff;
     bool ok = context.parse_word(&onoff);
     LAZY_RETURN_USAGE_UNLESS(ok);
@@ -350,7 +350,7 @@ void cmd_accessory_pwr(LazySerial::Context &context)
 // never initialized.
 void cmd_fluidpump_on_off(LazySerial::Context &context)
 {
-    LAZY_COMMAND("FLUIDPUMP", "<ON|OFF>", "Turns the fluid pump power on or off");
+    LAZY_COMMAND("FLUIDPUMP", "<ON|OFF>", "Turn the fluid pump power on or off");
     char *onoff;
     bool ok = context.parse_word(&onoff);
     LAZY_RETURN_USAGE_UNLESS(ok);

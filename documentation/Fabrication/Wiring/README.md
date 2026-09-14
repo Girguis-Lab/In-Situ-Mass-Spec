@@ -201,7 +201,11 @@ The main comms of the ISMS talks to the onboard arduino-like chip and provides o
 
 ![Topside RGA Comms DB9 Wiring](<./Build Images/Topside/Topside RGA Comms DB9 Wiring.svg>)
 
-The RGA comms of the ISMS 'talks' directly to the onboard RGA providing the mass spectra and tuning of the RGA via the windows software (or python library). Much like the the main comms this is wired as a "Null Modem" swapping RX and TX for proper flow, however in addition this plug requires some exra jumper wiring to "Fake" and handshake signal normally sent betwen the computer and RGA to keep them from talking over each other. In practice this fake handshake is sufficient as the windows software and RGA always follow a command-response format and so are never talking over each other anyway - this allows us to only require two signal wires to communicate with the RGA instead of 9. These jumper wires should fit into a plastic "Hood" on the back of the DB9 Connector.
+The RGA comms of the ISMS 'talks' directly to the onboard RGA providing the mass spectra and tuning of the RGA via the windows software (or python library). This plug requires some extra jumper wiring to "Fake" and handshake signal normally sent between the computer and RGA to keep them from talking over each other. In practice this fake handshake is sufficient as the windows software and RGA always follow a command-response format and so are never talking over each other anyway - this allows us to only require two signal wires to communicate with the RGA instead of 9. These jumper wires should fit into a plastic "Hood" on the back of the DB9 Connector to keep things tidy.
+
+> [!NOTE]
+>
+> The RGA has an internal "Null Modem" wire switch and expects a "straight through" style serial cable, hence why there is no crossing of RX and TX wires between the bottom and topsides.
 
 ### Overall Topside/Operator Wiring
 
