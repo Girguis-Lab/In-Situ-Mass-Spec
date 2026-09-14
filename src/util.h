@@ -33,12 +33,14 @@ inline int getTotalRam()
     return RAMEND - RAMSTART + 1;
 }
 
-// Zeroes the first 100 bytes of EEPROM.
+// Zeroes the first 100 physical bytes of EEPROM.
 //
-// Debug helper for starting from a blank slate. Note that the saved settings
-// struct lives from eeprom_start_address (50) onward, so this also discards
-// it; the next boot will fall back to the compiled-in defaults. Not reachable
-// from any serial command.
+// Debug helper for starting from a blank slate. Note that this does NOT clear
+// the saved settings: eeprom_settings_slot is an array index scaled by
+// sizeof(saved_settings_t) and by PROMPLUS's 3 redundant copies per cell, so
+// the struct actually lives around physical byte 2400 -- see savedSettings.h.
+// Use the RESET_SETTINGS command to restore the defaults. Not reachable from
+// any serial command.
 void eraseEEPROM()
 {
     for (int i = 0; i < 100; i++)
@@ -54,23 +56,23 @@ void eraseEEPROM()
 // row holding bytesPerLine bytes and prefixed with its start address.
 //
 // Debug helper for confirming what the settings struct actually wrote to.
-void dumpEEPROM(int lines, Stream &serial)
+void dumpEEPROM(int lines, Stream &_serial)
 {
     char buff[100];
     for (int i = 0; i < lines; i++)
     {
         sprintf(buff, "0x0%02X0: ", i);
-        serial.print(buff);
+        _serial.print(buff);
         for (int j = 0; j < bytesPerLine; j++)
         {
             sprintf(buff, "%02X", EEPROM.read((i * bytesPerLine) + j));
-            serial.print(buff);
+            _serial.print(buff);
             if (j != bytesPerLine - 1)
             {
-                Serial.print(",");
+                _serial.print(",");
             }
         }
-        serial.print("\n");
+        _serial.print("\n");
     }
 }
 
@@ -149,13 +151,18 @@ String logLevelToString(DebugLogLevel level)
 // Wraps pinMode() and digitalWrite() and caches the last commanded level, so
 // the stats telegram can report what each rail was told to do without reading
 // the pin back. Instances are created at global scope in includes.h before the
-// Arduino core is running, so begin() must be called from setup() before the
-// pin is driven.
+// Arduino core is running, so begin() should be called from setup() before the
+// pin is driven. turnOn() and turnOff() apply pinMode(OUTPUT) themselves if it
+// has not happened yet, so a pin driven before begin() still drives rather
+// than silently enabling its pull-up -- but begin() is what gives a rail a
+// defined state at boot, so keep calling it.
 class powerPin
 {
 public:
     // Records `pinNum` as the pin to drive and starts in the off state. Does
-    // not touch the hardware; call begin() once the core is initialized.
+    // not touch the hardware -- the Arduino core may not be running yet -- so
+    // the pin is configured by whichever of begin(), turnOn() or turnOff()
+    // runs first.
     explicit powerPin(const uint8_t pinNum) : pinNum(pinNum)
     {
         state = false;
@@ -177,6 +184,11 @@ public:
     // Drives the pin HIGH, energizing the attached load.
     void turnOn()
     {
+        if (!initilized)
+        {
+            initilized = true;
+            pinMode(pinNum, OUTPUT);
+        }
         digitalWrite(pinNum, HIGH);
         state = HIGH;
     }
@@ -184,6 +196,11 @@ public:
     // Drives the pin LOW, de-energizing the attached load.
     void turnOff()
     {
+        if (!initilized)
+        {
+            initilized = true;
+            pinMode(pinNum, OUTPUT);
+        }
         digitalWrite(pinNum, LOW);
         state = LOW;
     }
@@ -197,7 +214,7 @@ public:
 
 private:
     uint8_t state;   // Level last commanded on the pin, HIGH or LOW.
-    bool initilized; // Reserved; begin() does not currently record having run.
+    bool initilized; // True once pinMode(OUTPUT) has been applied, by begin() or by the first turnOn()/turnOff().
     uint8_t pinNum;  // Arduino pin number this instance drives.
 };
 

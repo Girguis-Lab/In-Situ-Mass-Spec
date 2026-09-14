@@ -41,6 +41,26 @@
 // services serial commands and pets the watchdog.
 bool nonBlockDelay(unsigned long ms);
 
+// Longest wait nonBlockDelay() will honor, and therefore the ceiling on every
+// operator-settable interval that ends up being waited on or compared against.
+//
+// nonBlockDelay() converts its argument to microseconds in 32 bit arithmetic,
+// which wraps above 4,294,967 ms, and micros() itself rolls over every 71.58
+// minutes -- so no wait longer than that is expressible however it is written.
+// One hour leaves headroom under both limits (3.6e9 us plus the typing grace
+// period still fits in 32 bits) and is far longer than any wait this
+// instrument has a use for. Values above this are rejected by the commands
+// that set them, and clamped in nonBlockDelay() as a backstop against a
+// corrupted EEPROM value.
+#define NONBLOCK_DELAY_MAX_MS 3600000UL
+
+// Shortest stats telegram interval the STATS_INTERVAL command will accept.
+//
+// Below roughly this, telegrams are emitted back to back and saturate the 9600
+// baud operator link, leaving no room to type the command that would undo it
+// -- and the setting persists to EEPROM, so it would survive a power cycle.
+#define STATS_INTERVAL_MIN_MS 100UL
+
 // -- PINS --
 #define PIN_LED1 A9
 #define PIN_LED2 A8
@@ -56,6 +76,15 @@ powerPin FLUIDPUMP_PWR(53);          // CFP_ON
 #define PIN_ANALOG_FLUIDPUMP_SPEED 8 // Fluid pump speed control (0-5V pwm signal)
 #define PIN_FLUIDPUMP_REVERSE 15     // Fluid pump reverse signal (Physically exposed as bare header J11, pin 6 - the pin furthest from the capacitor)
 // Reference: https://docs.arduino.cc/retired/hacking/hardware/PinMapping2560/
+
+// Highest digital pin number the GPIO command will accept, as a number and as
+// the string its usage message prints. Written out literally so the help text
+// reads "<0-69>" rather than an unexpanded expression; the static_assert keeps
+// both spellings honest if this firmware is ever built for another board.
+#define GPIO_MAX_PIN 69
+#define GPIO_MAX_PIN_STR "69"
+static_assert(GPIO_MAX_PIN == NUM_DIGITAL_PINS - 1,
+              "GPIO_MAX_PIN/GPIO_MAX_PIN_STR do not match this board's NUM_DIGITAL_PINS");
 
 // -- CONSTSANTS --
 #define FIRMWARE_VERSION "3.6"

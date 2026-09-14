@@ -44,6 +44,106 @@ void handle_onoff_pin_command(powerPin *pwrPin, char *onoff, Stream &stream)
     }
 }
 
+// Runs the startup sequence to bring the ISMS from a cold stop to ready.
+// Note that you will want to wait much longer after this startup (hours) before
+// taking readings if  the vacuum chamber has not been pumped down recently or
+// has switched from  a different gas environment (such as going from land
+// testing to ocean use).
+
+// startedByUser is a flag that will disable BEAT detection so a manual triggered
+// startup sequence will always run to completion.
+
+// Powers the roughing pump, then the fluid pump at 100%, then the accessory
+// port, spacing them 100 ms apart so their inrush currents do not overlap.
+// Then waits a full 60 seconds for the roughing pump to pull the foreline down
+// before configuring and starting the turbo pump -- starting the turbo pump
+// into a poor foreline vacuum is what this delay exists to prevent, so do not
+// shorten it.
+//
+// Runs for over a minute, but waits through nonBlockDelay(), so serial
+// commands are still answered and the watchdog is still petted throughout.
+// Returns without touching the turbo pump if BEAT arrives during the wait.
+// Also called directly from setup() when autostart is enabled.
+void run_startup_sequence(bool startedByUser)
+{
+    // do not finish automatic startup sequence if beat was callled.
+    if (beatActive && !startedByUser)
+    {
+        COMMS.println(F("| BEAT Recived. Exiting Startup..."));
+        return;
+    }
+
+    if (startedByUser)
+        COMMS.println(F(OK "Starting system now."));
+    else
+        COMMS.println(F(OK "Autostarting system now."));
+
+    // Power on sequence
+
+    // 1. Power on roughing pump
+    ROUGHING_PWR.turnOn();
+    COMMS.println(F("| Roughing Pump ON"));
+    nonBlockDelay(100); // Wait 100ms to avoid current spikes
+
+    // do not finish automatic startup sequence if beat was callled.
+    if (beatActive && !startedByUser)
+    {
+        COMMS.println(F("| BEAT Recived. Exiting Startup..."));
+        return;
+    }
+
+    // 2. Power on fluid pump
+    fluidPump.setSpeed(100);
+    COMMS.println(F("| Fluid Pump ON 100%"));
+    nonBlockDelay(100); // Wait 100ms to avoid current spikes
+
+    // do not finish automatic startup sequence if beat was callled.
+    if (beatActive && !startedByUser)
+    {
+        COMMS.println(F("| BEAT Recived. Exiting Startup..."));
+        return;
+    }
+
+    // 3. Power on PH Probe or Accessory
+    ACCESSORY_PWR.turnOn();
+    COMMS.println(F("| " ACCESSORY_NAME " ON"));
+
+    // do not finish automatic startup sequence if beat was callled.
+    if (beatActive && !startedByUser)
+    {
+        COMMS.println(F("| BEAT Recived. Exiting Startup..."));
+        return;
+    }
+
+    // !!!! IMPORTANT WAIT 60 Seconds so that roughing pump has sufficiently pumped down vacuum !!!!!
+    COMMS.println(F("| Waiting 60 seconds for rough out..."));
+
+    // Wait 60 seconds while checking for beat command (rollover safe time check) !!!!!
+    unsigned long startTime = millis();
+    while (millis() - startTime < 60000)
+    {
+        nonBlockDelay(1);
+        // do not finish automatic startup sequence if beat was callled.
+        if (beatActive && !startedByUser)
+        {
+            COMMS.println(F("| BEAT Recived. Exiting Startup..."));
+            return;
+        }
+    }
+
+    COMMS.println(F("| Turning ON Turbo Pump..."));
+    turboTC80.sendCommand(PfeifferVacProtocol::ControlCommand::GasMode, PfeifferVacProtocol::UShortInt((uint8_t)PfeifferVacProtocol::FuncGasMode::LightGases), true);
+    turboTC80.receiveTelegram(true);
+    nonBlockDelay(20); // TC80 Likes a delay between queries.
+    turboTC80.sendCommand(PfeifferVacProtocol::ControlCommand::MotorPump, PfeifferVacProtocol::BooleanOld((uint8_t)PfeifferVacProtocol::FuncOnOff::On), true);
+    turboTC80.receiveTelegram(true);
+    nonBlockDelay(20);                                                                                                                                                          // TC80 Likes a delay between queries.
+    turboTC80.sendCommand(PfeifferVacProtocol::ControlCommand::PumpgStatn, PfeifferVacProtocol::BooleanOld((uint8_t)PfeifferVacProtocol::FuncPumpingStation::OnAndAckn), true); // Turn on pumping station (acknowledging errors)
+    turboTC80.receiveTelegram(true);
+    nonBlockDelay(20); // TC80 Likes a delay between queries.
+    COMMS.println(F("| Startup Complete"));
+}
+
 // --------- User Commands -----------
 
 // forward function delcaration - implemented later in the file. HELP is listed
@@ -100,9 +200,15 @@ void cmd_set_debug_loglevel(LazySerial::Context &context)
 // Prints the resulting state whether or not it changed, including when no
 // argument was supplied, so the command doubles as a way to read the current
 // interval back.
+//
+// The interval is bounded rather than taken as given. Too small and telegrams
+// run back to back and saturate the 9600 baud link, leaving no room to type
+// the command that would undo it -- and since the value is saved to EEPROM,
+// that state would survive a power cycle. Use OFF to stop the telegram; that
+// is what it is for.
 void cmd_set_stats_broadcast_interval(LazySerial::Context &context)
 {
-    LAZY_COMMAND("STATS_INTERVAL", "<MS|OFF>", "Sets how often the system broadcasts stats to serial in milliseconds. Send OFF to disable stats logging.");
+    LAZY_COMMAND("STATS_INTERVAL", "<100-3600000|OFF>", "Sets how often the system broadcasts stats to serial in milliseconds. Send OFF to disable stats logging.");
     char *intervalStr;
     bool ok = context.parse_word(&intervalStr);
     if (ok)
@@ -116,6 +222,7 @@ void cmd_set_stats_broadcast_interval(LazySerial::Context &context)
             char *end;
             unsigned long interval = strtoul(intervalStr, &end, 10);
             LAZY_RETURN_USAGE_UNLESS(end > intervalStr); // Check that we parsed something
+            LAZY_RETURN_USAGE_UNLESS(interval >= STATS_INTERVAL_MIN_MS && interval <= NONBLOCK_DELAY_MAX_MS);
             saved_settings.stats_log_interval = interval;
             saved_settings.stats_loging_enabled = true;
         }
@@ -125,11 +232,11 @@ void cmd_set_stats_broadcast_interval(LazySerial::Context &context)
     // Print the current state:
     if (!saved_settings.stats_loging_enabled)
     {
-        LOG_INFO(OK "STATS_LOGGING OFF - periodic stats logging disabled\n");
+        LOG_INFO(OK "STATS_INTERVAL OFF - periodic stats logging disabled\n");
     }
     else
     {
-        LOG_INFO(F(OK "STATS_LOGGING ON - Logging interval set to "));
+        LOG_INFO(F(OK "STATS_INTERVAL ON - Logging interval set to "));
         LOG_INFO(saved_settings.stats_log_interval);
         LOG_INFO(F("ms\n"));
     }
@@ -165,15 +272,19 @@ void cmd_pinout(LazySerial::Context &context)
 // in the debug command set for that reason.
 void cmd_gpio(LazySerial::Context &context)
 {
-    LAZY_COMMAND("GPIO", "<pin number> <ON|OFF>", "Set any Arduino pin high or low - TESTING ONLY, DO NOT USE WITHOUT KNOWING WHAT YOU'RE DOING.");
-    uint8_t pin = 0;
+    LAZY_COMMAND("GPIO", "<0-" GPIO_MAX_PIN_STR "> <ON|OFF>", "Set any Arduino pin high or low - TESTING ONLY, DO NOT USE WITHOUT KNOWING WHAT YOU'RE DOING.");
+    int pin = 0;
     char *onoff;
-    bool ok = context.parse_int(&pin);
+    // The upper bound must be the real pin count: digitalWrite() indexes
+    // digital_pin_to_port_PGM[] with no bounds check of its own, so a larger
+    // number reads past the end of that flash table and can end up writing an
+    // arbitrary I/O port.
+    bool ok = context.parse_int_minmax(&pin, 0, (int)GPIO_MAX_PIN);
     LAZY_RETURN_USAGE_UNLESS(ok);
     ok = context.parse_word(&onoff);
     LAZY_RETURN_USAGE_UNLESS(ok);
 
-    powerPin pwrPin(pin);
+    powerPin pwrPin((uint8_t)pin);
     COMMS.print(OK "GPIO ");
     COMMS.print(pin);
     COMMS.print(" ");
@@ -348,8 +459,8 @@ void cmd_turbo_on_off(LazySerial::Context &context)
 void cmd_turbo_speed(LazySerial::Context &context)
 {
     LAZY_COMMAND("TURBO_SPEED", "<0.0-100.0>", "Sets the turbo pump to run at a target speed as percent of max speed (100% is 90,000 RPM for the Pfeiffer TC80) - Send 0 to reset to pfeiffer default speed control mode");
-    uint16_t param = 0;
-    bool ok = context.parse_float_minmax(&param, (uint16_t)0.0, (uint16_t)100.0);
+    float param = 0;
+    bool ok = context.parse_float_minmax(&param, (float)0.0, (float)100.0);
     LAZY_RETURN_USAGE_UNLESS(ok);
     if (param == 0)
     {
@@ -360,7 +471,7 @@ void cmd_turbo_speed(LazySerial::Context &context)
     }
     else
     {
-        uint16_t speedValue = param;
+        float speedValue = param;
         turboTC80.sendCommand(PfeifferVacProtocol::ControlCommand::SpdSetMode, PfeifferVacProtocol::UShortInt((uint16_t)1)); // turn on custom speed setting mode & diable pfeiffer default speed control mode
         turboTC80.receiveTelegram(true);
         nonBlockDelay(20); // TC80 Likes a delay between queries.
@@ -369,19 +480,21 @@ void cmd_turbo_speed(LazySerial::Context &context)
     }
 }
 
-// TURBO_LIMIT_PWR <0-100>: caps the turbo pump's power draw as a percentage of
+// TURBO_LIMIT_PWR <10-100>: caps the turbo pump's power draw as a percentage of
 // full power, which is a 5 A draw on the TC80.
 //
 // Lowering the cap slows spin-up and is how the pump is kept inside a
-// constrained power budget. The argument is accepted over 10-100 and falls
-// back to 100 if it cannot be parsed; log_stats() warns whenever the cap is
-// below 100 so a forgotten limit does not get mistaken for a failing pump.
+// constrained power budget. The argument is accepted over 10-100 and anything
+// outside that -- or unparseable -- prints the usage message and leaves the
+// pump alone; log_stats() warns whenever the cap is below 100 so a forgotten
+// limit does not get mistaken for a failing pump.
 void cmd_turbo_limit_pwr(LazySerial::Context &context)
 {
-    LAZY_COMMAND("TURBO_LIMIT_PWR", "<0-100>", "Sets the turbo pump power limit as a percentage of full power (Pfeiffer max draw is 5A)");
+    LAZY_COMMAND("TURBO_LIMIT_PWR", "<10-100>", "Sets the turbo pump power limit as a percentage of full power (Pfeiffer max draw is 5A)");
     COMMS.print(F(OK "TURBO_LIMIT_PWR "));
     int percent = 100;
-    context.parse_int_minmax(&percent, 10, 100);
+    bool ok = context.parse_int_minmax(&percent, 10, 100);
+    LAZY_RETURN_USAGE_UNLESS(ok);
     COMMS.println(percent);
     bool isValid;
     turboTC80.sendCommand(PfeifferVacProtocol::ReferenceValueInput::PwrSVal, PfeifferVacProtocol::UShortInt((uint16_t)percent));
@@ -393,11 +506,14 @@ void cmd_turbo_limit_pwr(LazySerial::Context &context)
 // the pump's reply.
 //
 // The escape hatch for parameters this firmware has no dedicated command for.
-// The data string must already be in the format that parameter expects, so
-// consult the TC80 manual first.
+// See the pfeiffer TC80 Manual for a full command list.
+// Both arguments are required -- a Pfeiffer write telegram carries no
+// meaningful empty payload, so there is nothing to send without DATA. Use
+// TURBO_QUERY to read a parameter instead. The data string must already be in
+// the askii format that parameter expects, so consult the TC80 manual first.
 void cmd_turbo_cmd(LazySerial::Context &context)
 {
-    LAZY_COMMAND("TURBO_CMD", "<PARAM> <DATA>", "Send a command to the turbo pump with the 3-digit parameter number and optional data string");
+    LAZY_COMMAND("TURBO_CMD", "<PARAM> <DATA>", "Send a command to the turbo pump with the 3-digit parameter number and a data string (use TURBO_QUERY to read a parameter)");
 
     uint16_t param = 0;
     bool ok = context.parse_int_minmax(&param, (uint16_t)0, (uint16_t)999);
@@ -490,7 +606,7 @@ void cmd_turbo_reset(LazySerial::Context &context)
 }
 
 // TURBO_CLEAR_ERRORS: acknowledges the turbo pump's latched errors and
-// warnings so that it will accept commands again.
+// warnings.
 //
 // Clears the pump's report of a fault, not the fault itself -- read the error
 // out of the stats telegram before dismissing it.
@@ -503,61 +619,15 @@ void cmd_turbo_clear_errors(LazySerial::Context &context)
     COMMS.println(F("| TURBO_CLEAR_ERRORS COMPLETE"));
 }
 
-// STARTUP: brings the vacuum system up from cold, in the order the hardware
+// STARTUP: brings everything (the vacuum system, fluid pump, and pH probe or accessory) up from a powered off state, in the order/timing the hardware
 // requires.
-//
-// Powers the roughing pump, then the fluid pump at 100%, then the accessory
-// port, spacing them 100 ms apart so their inrush currents do not overlap.
-// Then waits a full 60 seconds for the roughing pump to pull the foreline down
-// before configuring and starting the turbo pump -- starting the turbo pump
-// into a poor foreline vacuum is what this delay exists to prevent, so do not
-// shorten it.
-//
-// Runs for over a minute, but waits through nonBlockDelay(), so serial
-// commands are still answered and the watchdog is still petted throughout.
-// Returns without touching the turbo pump if BEAT arrives during the wait.
-// Also called directly from setup() when autostart is enabled.
 void cmd_full_startup(LazySerial::Context &context)
 {
-    LAZY_COMMAND("STARTUP", "", "Run full auto startup sequence.");
-    COMMS.println(F(OK "Autostarting system now."));
-    // Power on sequence
-
-    // 1. Power on roughing pump
-    ROUGHING_PWR.turnOn();
-    COMMS.println(F("| Roughing Pump ON"));
-    nonBlockDelay(100); // Wait 100ms to avoid current spikes
-
-    // 2. Power on fluid pump
-    fluidPump.setSpeed(100);
-    COMMS.println(F("| Fluid Pump ON 100%"));
-    nonBlockDelay(100); // Wait 100ms to avoid current spikes
-
-    // 3. Power on PH Probe or Accessory
-    ACCESSORY_PWR.turnOn();
-    COMMS.println(F("| " ACCESSORY_NAME " ON"));
-
-    // !!!! IMPORTANT WAIT 60 Seconds so that roughing pump has sufficiently pumped down vacuum !!!!!
-    COMMS.println(F("| Waiting 60 seconds for rough out..."));
-    nonBlockDelay(60000); // Wait 60 seconds !!!!!
-
-    if (beatActive)
-        return; // do not finish startup sequence if beat was callled.
-
-    COMMS.println(F("| Turning ON Turbo Pump..."));
-    turboTC80.sendCommand(PfeifferVacProtocol::ControlCommand::GasMode, PfeifferVacProtocol::UShortInt((uint8_t)PfeifferVacProtocol::FuncGasMode::LightGases), true);
-    turboTC80.receiveTelegram(true);
-    nonBlockDelay(20); // TC80 Likes a delay between queries.
-    turboTC80.sendCommand(PfeifferVacProtocol::ControlCommand::MotorPump, PfeifferVacProtocol::BooleanOld((uint8_t)PfeifferVacProtocol::FuncOnOff::On), true);
-    turboTC80.receiveTelegram(true);
-    nonBlockDelay(20);                                                                                                                                                          // TC80 Likes a delay between queries.
-    turboTC80.sendCommand(PfeifferVacProtocol::ControlCommand::PumpgStatn, PfeifferVacProtocol::BooleanOld((uint8_t)PfeifferVacProtocol::FuncPumpingStation::OnAndAckn), true); // Turn on pumping station (acknowledging errors)
-    turboTC80.receiveTelegram(true);
-    nonBlockDelay(20); // TC80 Likes a delay between queries.
-    COMMS.println(F("| Startup Complete"));
+    LAZY_COMMAND("STARTUP", "", "Run full startup sequence - same as run in auto mode.");
+    run_startup_sequence(true);
 }
 
-// AUTOSTART <ON|OFF|DELAY>: controls whether STARTUP runs by itself after boot,
+// SET_AUTOSTART <ON|OFF|DELAY>: controls whether STARTUP runs by itself after boot,
 // and how long after boot it runs.
 //
 // ON and OFF toggle the behavior; a number is taken as the delay in
@@ -565,9 +635,9 @@ void cmd_full_startup(LazySerial::Context &context)
 // sense if the sequence is going to run. With no argument the current setting
 // is reported and nothing changes. Changes are saved to EEPROM, so this is
 // what makes an instrument bring itself up after an unattended power cycle.
-void cmd_autostart_on_off(LazySerial::Context &context)
+void cmd_set_autostart_on_off(LazySerial::Context &context)
 {
-    LAZY_COMMAND("AUTOSTART", "<ON|OFF|DELAY>", "Set whether the system should startup automatically. If a integer is passed, the delay in milliseconds after boot.");
+    LAZY_COMMAND("SET_AUTOSTART", "<ON|OFF|DELAY>", "Set whether the system should startup automatically. If an integer is passed, the delay in milliseconds after boot when autostart should happen.");
     char *param;
     bool hasParam = context.parse_word(&param);
     if (hasParam)
@@ -586,10 +656,21 @@ void cmd_autostart_on_off(LazySerial::Context &context)
         }
         else
         {
-            COMMS.println(F(OK "AUTOSTART SET TO"));
             char *end;
             unsigned long delay = strtoul(param, &end, 10);
             LAZY_RETURN_USAGE_UNLESS(end > param) // check that we parsed some number and not just garbage
+            // Reject rather than clamp. A delay past this cannot be waited on
+            // -- micros() rolls over every 71.58 minutes -- and silently
+            // substituting a shorter one would boot the instrument at a time
+            // the operator did not choose, every boot, since this is saved.
+            if (delay > NONBLOCK_DELAY_MAX_MS)
+            {
+                COMMS.print(F(ERROR " AUTOSTART delay too long, maximum is "));
+                COMMS.print(NONBLOCK_DELAY_MAX_MS);
+                COMMS.println(F("ms (1 hour)"));
+                return;
+            }
+            COMMS.println(F(OK "AUTOSTART SET TO"));
             saved_settings.autostart_delay = delay;
             saved_settings.autostart_on = true; // if we're setting a delay, we should also turn autostart on
             save_settings();
@@ -636,7 +717,7 @@ LazySerial::CallbackFunction basic_comms_commands[] = {
     cmd_turbo_limit_pwr,
     cmd_turbo_clear_errors,
     cmd_set_stats_broadcast_interval,
-    cmd_autostart_on_off,
+    cmd_set_autostart_on_off,
 };
 
 // The extra commands HELP DEBUG reveals: diagnostics, raw pump access, and
@@ -666,7 +747,7 @@ LazySerial::CallbackFunction all_comms_commands[] = {
     cmd_version,
     cmd_set_debug_loglevel,
     cmd_set_stats_broadcast_interval,
-    cmd_autostart_on_off,
+    cmd_set_autostart_on_off,
     cmd_full_startup,
     cmd_roughing_on_off,
     cmd_accessory_pwr,

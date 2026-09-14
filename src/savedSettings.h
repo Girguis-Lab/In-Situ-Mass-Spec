@@ -17,12 +17,24 @@
 // When settings are changed, the full struct is saved to EEPROM so that the settings persist by calling save_settings().
 // Writes are done using the PROM.put() function which only updated the bits that have changed,
 // to keep the EEPROM wear to a minimum. In the unlikely event that all three copies stored in the eeprom by the PROMPLUS
-// library have been worn out and settings do not save or load correctly,  Update the eeprom_start_address variable to point
-// to a part of the eeprom past where the settings struct was stored.
+// library have been worn out and settings do not save or load correctly, increment eeprom_settings_slot to move the
+// struct to a fresh set of cells. Increment it by one, not by the size of the struct -- see below for why.
 
-// Byte offset in EEPROM where the settings struct is stored. Move it past the
-// old location if those cells ever wear out, as described above.
-size_t eeprom_start_address = 50;
+// Which slot of the EEPROM the settings struct occupies.
+//
+// This is an ARRAY INDEX, not a byte offset. PROM.get()/PROM.put() scale it by
+// sizeof(saved_settings_t), and PROMPLUS then stores every logical byte three
+// times for redundancy, so the physical address works out as:
+//
+//     physical = eeprom_settings_slot * sizeof(saved_settings_t) * 3
+//
+// Slot 50 with the current 16 byte struct therefore lands at physical bytes
+// 2400-2447, not at byte 50. The consequence worth knowing: the physical
+// address moves whenever the struct's size changes, and the AVR's EEPROM
+// address register is only 12 bits, so an address past E2END wraps silently
+// and corrupts an unrelated region while every write appears to succeed. The
+// static_assert below the struct is what catches that at compile time.
+constexpr size_t eeprom_settings_slot = 50;
 
 // ISMS settings struct - contains all settings that should persist through
 // reboots and power cycles - stored in EEPROM.
@@ -53,6 +65,17 @@ struct saved_settings_t
     int16_t fluidpump_rate;           // Fluid pump speed, -100 to 100 percent.
 };
 
+// Guards the struct against outgrowing the EEPROM at its slot. Because the
+// slot is scaled by sizeof(saved_settings_t) (see eeprom_settings_slot above),
+// adding fields pushes the physical address up by 3 bytes per added byte per
+// slot -- at slot 50, a struct larger than 26 bytes writes past E2END, where
+// the 12-bit address register wraps and quietly corrupts low EEPROM instead of
+// failing. struct_version cannot catch this: the layout is fine, the address
+// is not. Today: 51 * 16 * 3 = 2448 of 4096 bytes used.
+static_assert((eeprom_settings_slot + 1) * sizeof(saved_settings_t) * 3 <= E2END + 1,
+              "saved_settings_t no longer fits in EEPROM at eeprom_settings_slot - "
+              "shrink the struct or lower the slot number");
+
 // Default settings to use if there are no valid saved settings in EEPROM
 saved_settings_t default_settings{
     .struct_initialized = true,
@@ -79,7 +102,7 @@ saved_settings_t saved_settings = {};
 void save_settings()
 {
     // Save the current settings to EEPROM
-    PROM.put(eeprom_start_address, saved_settings);
+    PROM.put(eeprom_settings_slot, saved_settings);
 }
 
 // Restores the compiled-in defaults and persists them to EEPROM.
@@ -102,7 +125,7 @@ void reset_settings()
 }
 
 // Loads the saved settings from EEPROM, falling back to the defaults whenever
-// they cannot be trusted.
+// they are invalid.
 //
 // Seeds the live settings with the defaults first, so even a failed read
 // leaves the firmware with a usable configuration, then reads EEPROM and
@@ -117,7 +140,7 @@ void load_settings()
     memcpy(&saved_settings, &default_settings, sizeof(saved_settings));
 
     // Load saved settings from EEPROM, if they are valid (i.e. struct_initialized is true and struct_version matches)
-    PROM.get(eeprom_start_address, saved_settings);
+    PROM.get(eeprom_settings_slot, saved_settings);
     LOG_INFO(F("| EEPROM: Loading saved settings [ struct_initialized: "));
     LOG_INFO(saved_settings.struct_initialized);
     LOG_INFO(F(", struct_version: "));

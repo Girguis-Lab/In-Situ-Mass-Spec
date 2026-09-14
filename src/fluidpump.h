@@ -113,10 +113,6 @@ public:
     // above 100 are clamped. Returns the speed actually applied, or
     // FLUID_PUMP_UNINITIALIZED if init() has not been called yet, in which
     // case nothing is driven.
-    //
-    // TODO: values below -100 are clamped to +100 rather than -100, which
-    // reverses the requested direction. Latent for now, since every caller
-    // parses its argument with a -100 to 100 range check first.
     int setSpeed(int percent)
     {
         if (!initialized)

@@ -72,34 +72,33 @@ void resetWDT()
     }
 }
 
-// Prints a one-line explanation of why the board last reset to `Serial`.
+// Prints a one-line explanation of why the board last reset to `serial`.
 //
 // Decodes the boot-time copy of MCUSR captured by get_mcusr(). A brown-out
 // flag is expected on power-on, whereas a watchdog flag means the previous run
 // stopped petting the timer and was reset -- worth investigating in a
 // deployment log. Called once from setup(), which passes the operator serial
-// port;
+// port.
+//
+// Every set flag is reported, not just the first one found. MCUSR's flags are
+// cumulative until something clears them, and more than one is set routinely:
+// a watchdog reset during a supply sag sets both WDRF and BORF. Reporting only
+// the first match used to hide the watchdog behind the expected brown-out
+// message, suppressing the single most diagnostically useful fact there is --
+// that the firmware hung.
 void wdtPrintStatus(Stream &serial)
 {
+    serial.print(F("| STARTUP: last reset flags:"));
+    if (mcusr_mirror & (1 << WDRF))
+        serial.print(F(" WATCHDOG-TIMEOUT(firmware hung - investigate)"));
     if (mcusr_mirror & (1 << BORF))
-    {
-        serial.println(F("| STARTUP: Normal, Brown-out occurred - This is expected on power-on."));
-    }
-    else if (mcusr_mirror & (1 << WDRF))
-    {
-        serial.println(F("| STARTUP: Watchdog timeout occurred"));
-    }
-    else if (mcusr_mirror & (1 << EXTRF))
-    {
-        serial.println(F("| STARTUP: External reset triggered"));
-    }
-    else if (mcusr_mirror & (1 << PORF))
-    {
-        serial.println(F("| STARTUP: Power-on reset occurred"));
-    }
-    else
-    {
-        serial.println(F("| STARTUP: Normal, no reset occurred"));
-    }
+        serial.print(F(" Brown-out(expected on power-on)"));
+    if (mcusr_mirror & (1 << EXTRF))
+        serial.print(F(" External-reset"));
+    if (mcusr_mirror & (1 << PORF))
+        serial.print(F(" Power-on"));
+    if ((mcusr_mirror & ((1 << WDRF) | (1 << BORF) | (1 << EXTRF) | (1 << PORF))) == 0)
+        serial.print(F(" none recorded"));
+    serial.println();
 }
 #endif // WATCHDOG_H
