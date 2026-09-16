@@ -7,6 +7,7 @@ inols*.log
 .pioenvs
 .piolibdeps
 .pio/build
+.pio/libdeps
 
 .vscode/c_cpp_properties.json
 

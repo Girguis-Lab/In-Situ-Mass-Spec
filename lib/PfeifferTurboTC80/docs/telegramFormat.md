@@ -2,7 +2,7 @@
 
 ### 5.2.1 Telegram frame
 
-The telegram frame of the Pfeiffer Vacuum protocol contains only ASCII code characters [32; 127], with the exception of the end character of the telegram, CR. [cite\_start]Basically, a host (e.g., a PC) sends a telegram, which a device (e.g., an electronic drive unit or gauge) responds to[cite: 33, 35].
+The telegram frame of the Pfeiffer Vacuum protocol contains only ASCII code characters [32; 127], with the exception of the end character of the telegram, CR. Basically, a host (e.g., a PC) sends a telegram, which a device (e.g., an electronic drive unit or gauge) responds to.
 
 | Field | Description                                                                                                                                                                                                             |
 | :---- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -10,9 +10,9 @@ The telegram frame of the Pfeiffer Vacuum protocol contains only ASCII code char
 | \*    | Action according to telegram description                                                                                                                                                                                |
 | n2-n0 | **Pfeiffer Vacuum parameter numbers**                                                                                                                                                                                   |
 | dnd0  | **Data length**                                                                                                                                                                                                         |
-| dn-d0 | [cite\_start]**Data in the respective data type** (see chapter "Data types," page 24) [cite: 61]                                                                                                                        |
-| c2-c0 | [cite\_start]**Checksum** (sum of ASCII values of cells a2 to d0) modulo 256 [cite: 61]                                                                                                                                 |
-| CR    | [cite\_start]**Carriage return** (ASCII 13) [cite: 61]                                                                                                                                                                  |
+| dn-d0 | **Data in the respective data type** (see chapter "Data types," page 24)                                                                                                                        |
+| c2-c0 | **Checksum** (sum of ASCII values of cells a2 to d0) modulo 256                                                                                                                                 |
+| CR    | **Carriage return** (ASCII 13)                                                                                                                                                                  |
 
 ---
 

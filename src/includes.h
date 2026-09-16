@@ -123,7 +123,10 @@ LazySerial::LazySerial<128> lazy(COMMS);
 // Half-duplex RS485 link to the turbo pump controller. Owns the transceiver's
 // direction pins and needs its task() called often -- see taskTick() -- to
 // turn the line around and drain its buffers.
-RS485HardwareSerial turboSerialRS485(TURBO_SERIAL, PIN_TC80_RS485_ENABLE_SEND, PIN_TC80_RS485_DISABLE_RECEIVE, 10);
+// The template parameter is the RX buffer size. 128 bytes holds four full
+// telegrams, which is ample now that taskTick() drains the port continuously;
+// the library previously hard-coded a 600 byte buffer.
+RS485HardwareSerial<128> turboSerialRS485(TURBO_SERIAL, PIN_TC80_RS485_ENABLE_SEND, PIN_TC80_RS485_DISABLE_RECEIVE, 10);
 PfeifferSerialTC80 turboTC80(turboSerialRS485, 1, COMMS, nonBlockDelay); // Turbo pump controller object (address 1, using HardwareSerial1)
 
 FluidPump fluidPump(&FLUIDPUMP_PWR, PIN_ANALOG_FLUIDPUMP_SPEED, PIN_FLUIDPUMP_REVERSE); // Fluid pump control object

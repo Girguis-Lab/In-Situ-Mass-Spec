@@ -1,49 +1,90 @@
 #pragma once
-#include <Arduino.h>
-#include "RingBufCPP.h"
 
-// Base interface so users can swap implementations if they want.
-// You can derive from this class and keep the same method interface.
-class RS485Serial_Base
+/**
+ * @file RS485Serial.h
+ * @brief Half-duplex RS-485 transport used by PfeifferSerialTC80.
+ *
+ * RS485Serial_Base is the abstract interface the pump driver talks to; derive
+ * from it to drive a transceiver this library does not cover (a SoftwareSerial
+ * link, a USB-RS485 bridge, a test double). RS485HardwareSerial is the stock
+ * implementation, wrapping a HardwareSerial plus DE/RE direction pins.
+ *
+ * The base derives from Print, so print()/println() and their formatting
+ * overloads work through a RS485Serial_Base& for free. Only write() needs
+ * implementing.
+ */
+
+#include <Arduino.h>
+#include <RingBufCPP.h>
+
+/// Passed for a RS485 converter Driver Enable (DE) or Receiver Enable (RE) pin that is not wired. Pin 0 is a real pin on most
+/// boards, so it cannot double as the "absent" sentinel.
+#define RS485_PIN_UNUSED 255
+
+/**
+ * @brief Abstract half-duplex serial interface with explicit direction control.
+ *
+ * Every method is pure virtual: the vtable is emitted in each translation unit
+ * that needs it, and there is no key function to leave undefined.
+ */
+class RS485Serial_Base : public Print
 {
 public:
-    RS485Serial_Base() {};
+    RS485Serial_Base() {}
+
+    /// Required so deleting a derived object through a base pointer is defined.
+    virtual ~RS485Serial_Base() {}
 
     // Setup / teardown
-    virtual void begin(unsigned long baud = 9600, uint32_t config = SERIAL_8N1);
-    virtual void end();
+    virtual void begin(unsigned long baud = 9600, uint32_t config = SERIAL_8N1) = 0;
+    virtual void end() = 0;
 
     // Direction control (explicit override if needed)
-    virtual void enterReceiveMode();
-    virtual void enterSendMode();
+    virtual void enterReceiveMode() = 0;
+    virtual void enterSendMode() = 0;
 
-    // --- Cooperative task function ---
-    // Call this frequently (e.g. each loop()) to:
-    virtual void task();
+    /**
+     * @brief Cooperative task function. Call frequently (e.g. each loop()) to move
+     *        incoming bytes out of the RS485 converter serial port UART and into the software RX buffer.
+     */
+    virtual void task() = 0;
 
     // --- RX API ---
-    virtual int available();
-    virtual int availableForWrite();
-    virtual int read();
+    virtual int available() = 0;
+    virtual int availableForWrite() = 0;
+    virtual int read() = 0;
 
-    // --- Write API ---
-    // Write is blocking
-    virtual size_t write(const uint8_t *buffer, size_t size);
-    virtual size_t write(uint8_t b);
+    // --- Write API (blocking: drives DE, writes, waits for the shift register
+    //     to drain, then releases the bus) ---
+    virtual size_t write(const uint8_t *buffer, size_t size) = 0;
+    virtual size_t write(uint8_t b) = 0;
 
-    // --- Print API ---
-    // Make templated print more efficient by reusing underlying Print::print where possible
-    template <typename T>
-    size_t print(const T &value);
-    template <typename T>
-    size_t println(const T &value);
+    // Print declares write(const char*) and friends; naming write() above
+    // would otherwise hide them.
+    using Print::write;
 };
 
-// Concrete RS485 implementation that wraps an underlying HardwareSerial Object
-// and manages RS485 direction pins + RX/TX buffering.
+/**
+ * @brief RS-485 transport over a HardwareSerial with DE/RE direction pins.
+ *
+ * @tparam RxBufferSize Bytes of RAM reserved for the receive FIFO. The longest
+ *         Pfeiffer telegram is 30 bytes, so the 64-byte default holds two full
+ *         frames. Raise it if your loop() calls task() infrequently; check
+ *         rxOverflowCount() if replies look truncated.
+ */
+template <size_t RxBufferSize = 64>
 class RS485HardwareSerial : public RS485Serial_Base
 {
 public:
+    /**
+     * @param serial               Underlying arduino UART.
+     * @param pin485SendEnable     DE (Driver Enable) pin, active high. Defaults to RS485_PIN_UNUSED if absent.
+     * @param pin485ReceiveDisable RE (Reciver Enable) pin, Both DE and RE are driven high/low together matching the style of a combined DE/RE
+     *                             RS485 converter. Defaults to RS485_PIN_UNUSED if absent.
+     * @param readTimeoutMs        Upper bound on how long one ingest pass may
+     *                             spend draining the arduino UART, so a flooded bus
+     *                             cannot stall the caller indefinitely.
+     */
     RS485HardwareSerial(
         HardwareSerial &serial,
         uint8_t pin485SendEnable,
@@ -52,70 +93,79 @@ public:
         : serial(serial),
           _pin485SendEnable(pin485SendEnable),
           _pin485ReceiveDisable(pin485ReceiveDisable),
-          _readTimeoutMs(readTimeoutMs)
+          _readTimeoutMs(readTimeoutMs),
+          _rxOverflowCount(0),
+          _sendMode(false)
     {
-        _sendMode = false;
     }
 
-    // Setup / teardown
+    // === Setup / teardown ===
+
     void begin(unsigned long baud = 9600, uint32_t config = SERIAL_8N1) override
     {
-        if (_pin485SendEnable != 0)
+        if (_pin485SendEnable != RS485_PIN_UNUSED)
             pinMode(_pin485SendEnable, OUTPUT);
-        if (_pin485ReceiveDisable != 0)
+        if (_pin485ReceiveDisable != RS485_PIN_UNUSED)
             pinMode(_pin485ReceiveDisable, OUTPUT);
-        enterReceiveMode();         // start in receive mode
+        enterReceiveMode();         // start listening, never driving the bus
         serial.begin(baud, config); // hardware serial with config
     }
 
     void end() override
     {
         serial.end();
-    };
+    }
 
-    // === Data Flow Direction Control ==== (allows explicit override if needed)
+    // === Data flow direction control (allows explicit override if needed) ===
 
     void enterReceiveMode() override
     {
-        // make sure outgoing messages have sent fully.
+        // Block until the last outgoing byte has left the shift register,
+        // otherwise dropping DE truncates it mid-character.
         serial.flush();
 
-        // Disable sending mode
         _sendMode = false;
-        if (_pin485SendEnable != 0)
+        if (_pin485SendEnable != RS485_PIN_UNUSED)
             digitalWrite(_pin485SendEnable, LOW);
-        if (_pin485ReceiveDisable != 0)
+        if (_pin485ReceiveDisable != RS485_PIN_UNUSED)
             digitalWrite(_pin485ReceiveDisable, LOW);
     }
 
     void enterSendMode() override
     {
-        // Drain any in-flight incoming bytes into RX buffer
-        _injestRxBytes();
+        // Capture anything still in flight before we take over the bus.
+        ingestRxBytes();
 
-        // Enable sending mode
         _sendMode = true;
-        if (_pin485SendEnable != 0)
+        if (_pin485SendEnable != RS485_PIN_UNUSED)
             digitalWrite(_pin485SendEnable, HIGH);
-        if (_pin485ReceiveDisable != 0)
+        if (_pin485ReceiveDisable != RS485_PIN_UNUSED)
             digitalWrite(_pin485ReceiveDisable, HIGH);
     }
 
-    // === Cooperative task function ==
-    // Call this frequently (e.g. each loop()) to:
-    // - pull incoming bytes into RX buffer
+    // === Cooperative task function ===
+
     void task() override
     {
-        // Drain arduino serial into RX buffer when in receive mode
+        // Only drain while listening; during a send the Arduino UART's RX side sees
+        // our own transmission on a half-duplex pair.
         if (!_sendMode)
-            _injestRxBytes();
+            ingestRxBytes();
     }
 
-    // === RX Methods ===
+    // === RX methods ===
 
+    /**
+     * @brief Bytes available to read().
+     *
+     * Ingests first so the count reflects what read() can actually return;
+     * without that, bytes still sitting in the UART would be counted even
+     * though read() drains only the ring buffer.
+     */
     int available() override
     {
-        return rxBuffer.numElements() + serial.available();
+        ingestRxBytes();
+        return static_cast<int>(rxBuffer.numElements());
     }
 
     int availableForWrite() override
@@ -123,21 +173,32 @@ public:
         return serial.availableForWrite();
     }
 
-    // read and return a byte from the RX buffer.
+    /**
+     * @brief Remove and return the oldest buffered byte.
+     * @return The byte (0-255), or -1 when nothing is buffered.
+     */
     int read() override
     {
-        _injestRxBytes();
-        if (available() == 0)
-            return -1;
-        // fetch the last byte from the buffer.
-        uint8_t readByte = -1;
-        rxBuffer.pull(&readByte);
+        ingestRxBytes();
+        uint8_t readByte = 0;
+        if (!rxBuffer.pull(&readByte))
+            return -1; // empty: must be -1, not a truncated 0xFF
         return static_cast<int>(readByte);
     }
 
-    // === TX Methods ====
+    /** @brief Discard buffered input, e.g. to resync after a malformed frame. */
+    void flushInput()
+    {
+        ingestRxBytes();
+        uint8_t discard = 0;
+        while (rxBuffer.pull(&discard))
+        {
+        }
+    }
 
-    // Multiple byte write (blocking)
+    // === TX methods ===
+
+    /// Multiple byte write (blocking). Holds the bus for the whole buffer.
     size_t write(const uint8_t *bytes, size_t size) override
     {
         enterSendMode();
@@ -146,7 +207,8 @@ public:
         return written;
     }
 
-    // Single byte write (blocking)
+    /// Single byte write (blocking). Prefer the buffer overload for a telegram:
+    /// one call per byte releases the bus between characters.
     size_t write(uint8_t b) override
     {
         enterSendMode();
@@ -155,36 +217,37 @@ public:
         return written;
     }
 
-    // Reusing underlying serial.print through templating.
-    template <typename T>
-    size_t print(const T &value)
-    {
-        enterSendMode();
-        size_t written = serial.print(value);
-        enterReceiveMode();
-        return written;
-    }
+    using RS485Serial_Base::write;
 
-    // Reusing underlying serial.println through templating.
-    template <typename T>
-    size_t println(const T &value)
-    {
-        enterSendMode();
-        size_t written = serial.println(value);
-        enterReceiveMode();
-        return written;
-    }
+    // === Diagnostics ===
 
-    // Reads all incoming bytes from the arduino serial into the RxBuffer
-    // Includes a timeout in case of serial flooding.
-    size_t _injestRxBytes()
+    /**
+     * @brief Bytes discarded because the RX buffer was full.
+     *
+     * Non-zero means task() is not being called often enough, or RxBufferSize
+     * is too small for your loop timing. Dropped bytes corrupt telegrams.
+     */
+    unsigned long rxOverflowCount() const { return _rxOverflowCount; }
+
+    /**
+     * @brief Move bytes from the Arduino UART into the software RX buffer.
+     *
+     * Bounded by readTimeoutMs so a continuously flooded bus cannot spin here
+     * forever; leftover bytes are picked up on the next call.
+     *
+     * @return Number of bytes moved.
+     */
+    size_t ingestRxBytes()
     {
         unsigned long startTime = millis();
         size_t bytesRead = 0;
         while (serial.available())
         {
             int c = serial.read();
-            rxBuffer.add(static_cast<uint8_t>(c));
+            if (c < 0)
+                break;
+            if (!rxBuffer.add(static_cast<uint8_t>(c)))
+                _rxOverflowCount++; // buffer was full: this byte is lost
             bytesRead++;
             if (millis() - startTime > _readTimeoutMs)
                 break;
@@ -198,7 +261,8 @@ private:
     uint8_t _pin485SendEnable;
     uint8_t _pin485ReceiveDisable;
     unsigned long _readTimeoutMs;
-    RingBufCPP<uint8_t, 600> rxBuffer;
+    unsigned long _rxOverflowCount;
+    RingBufCPP<uint8_t, RxBufferSize> rxBuffer;
 
     // RS485 state
     bool _sendMode;

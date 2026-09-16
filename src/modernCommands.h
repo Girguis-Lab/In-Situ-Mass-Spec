@@ -557,7 +557,7 @@ void cmd_turbo_raw(LazySerial::Context &context)
     LAZY_RETURN_USAGE_UNLESS(ok);
     COMMS.print(F(OK "TURBO_RAW"));
     COMMS.println(command);
-    turboTC80._sendTelegramRaw(command);
+    turboTC80.sendTelegramRaw(command);
     turboTC80.receiveTelegram(true);
 }
 

@@ -1,5 +1,13 @@
-#ifndef PFEIFFER_PROTOCOL_DATATYPES_H
-#define PFEIFFER_PROTOCOL_DATATYPES_H
+#pragma once
+
+/**
+ * @file PfeifferVacProtocolDatatypes.h
+ * @brief The nine Pfeiffer Vacuum Protocol payload types.
+ *
+ * Each class wraps one wire format. Construct from a native value to send, or
+ * from the 1/3/6/8/16-character ASCII field of a received telegram to read;
+ * encode() gives the wire form, decode() the native value.
+ */
 
 #include <Arduino.h> // Used for String, boolean, etc.
 
@@ -298,7 +306,7 @@ namespace PfeifferVacProtocol
      * @brief u_expo_new (10) - Positive exponential number
      * Length: 6. Last two digits are the exponent with a deduction of 20.
      * Example: 100023 = 1.0 * 10^(23-20) = 1.0 * 10^3; 100000 = 1.0 * 10^(0-20) = 1.0 * 10^-20
-     * Format: MMMMXX, where MMMM is mantissa (fixed point, 2 decimals), XX is exponent + 20.
+     * Format: MMMMXX, where MMMM is the mantissa  (fixed point, 3 decimals) and XX is the exponent + 20.
      */
     class UExpoNew
     {
@@ -309,11 +317,11 @@ namespace PfeifferVacProtocol
         // Constructor from ASCII string representation (6 chars)
         explicit UExpoNew(const char *str)
         {
-            // MMMM: str[0] to str[3] - Mantissa (with two decimals, e.g., 1000 -> 10.00)
+            // MMMM: str[0] to str[3] - Mantissa (with three decimals, e.g., 1000 -> 1.000)
             char mantissa_str[5];
             strncpy(mantissa_str, str, 4);
             mantissa_str[4] = '\0';
-            float mantissa = (float)strtoul(mantissa_str, NULL, 10) / 100.0f;
+            float mantissa = (float)strtoul(mantissa_str, NULL, 10) / 1000.0f;
 
             // XX: str[4] to str[5] - Exponent + 20
             char exponent_str[3];
@@ -337,7 +345,7 @@ namespace PfeifferVacProtocol
             if (_value == 0.0f)
                 return "000000"; // Special case for zero
 
-            // Find an exponent 'exp' such that 1.00 <= mantissa < 100.00
+            // Find an exponent 'exp' such that 1.00 <= mantissa < 10.00
             int actual_exponent = 0;
             float mantissa = _value;
             while (mantissa < 1.0f && actual_exponent > -20)
@@ -345,14 +353,14 @@ namespace PfeifferVacProtocol
                 mantissa *= 10.0f;
                 actual_exponent--;
             }
-            while (mantissa >= 100.0f && actual_exponent < 79) // Limit to max practical exp
+            while (mantissa >= 10.0f && actual_exponent < 79) // Limit to max practical exp (79=99-20)
             {
                 mantissa /= 10.0f;
                 actual_exponent++;
             }
 
-            // MMMM is the mantissa * 100 (rounded)
-            uint16_t mantissa_mm = (uint16_t)(mantissa * 100.0f + 0.5f);
+            // MMMM is the mantissa * 1000 (rounded)
+            uint16_t mantissa_mm = (uint16_t)(mantissa * 1000.0f + 0.5f);
 
             // XX is the actual_exponent + 20
             uint8_t exponent_xx = (uint8_t)(actual_exponent + 20);
@@ -374,5 +382,3 @@ namespace PfeifferVacProtocol
     };
 
 } // namespace PfeifferVacProtocol
-
-#endif // PFEIFFER_PROTOCOL_DATATYPES_H
