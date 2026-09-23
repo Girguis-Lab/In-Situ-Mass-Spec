@@ -22,7 +22,7 @@
 #include <avr/wdt.h>
 
 // -- Bundled 3rd Party Library Includes --
-#define DEBUGLOG_DEFAULT_LOG_LEVEL_TRACE // compile time flag, higher level messages will get compiled out.
+#define DEBUGLOG_DEFAULT_LOG_LEVEL_TRACE // compile time flag, trace messages will get compiled out if set lower than trace.
 #define LOG_PREAMBLE ""
 #include <DebugLog.h>   // A logging library for Arduino that allows for log levels and printing
 #include <LazySerial.h> // A simple command line interface library for Arduino
@@ -68,8 +68,8 @@ bool nonBlockDelay(unsigned long ms);
 #define PIN_PWR_ROUGHING 51
 #define PIN_PWR_FLUIDPUMP 53
 
-powerPin LED1_PWR(A9);               // LED 1 is a staus indicator
-powerPin LED2_PWR(A8);               // LED 2 is a warning/error indicator
+powerPin LED4_PWR(A9);               // LED 1 is a staus indicator
+powerPin LED5_PWR(A8);               // LED 2 is a warning/error indicator
 powerPin ACCESSORY_PWR(49);          // PICO_ON usually the ph probe or cryo pump (if equipped)
 powerPin ROUGHING_PWR(51);           // MVP_ON
 powerPin FLUIDPUMP_PWR(53);          // CFP_ON

@@ -189,7 +189,7 @@ void log_value_postfix(float value, float minOk, float maxOk, bool gotValidRespo
 void setup()
 {
   // LED1 on to indicate setup done
-  LED1_PWR.turnOn();
+  LED4_PWR.turnOn();
   wdtStart();
   resetWDT();
   // wdtStop(); // uncomment to disable watch dog timer
@@ -225,8 +225,8 @@ void setup()
   saved_settings.stats_log_interval = constrain(saved_settings.stats_log_interval, STATS_INTERVAL_MIN_MS, NONBLOCK_DELAY_MAX_MS);
 
   // Setup Pins and ensure everything is off to start
-  LED1_PWR.begin(HIGH);     // LED 1: Status Indicator light - stays on until setup finishes
-  LED2_PWR.begin(LOW);      // LED 2: Warning/error Indicator light
+  LED4_PWR.begin(HIGH);     // LED 1: Status Indicator light - stays on until setup finishes
+  LED5_PWR.begin(LOW);      // LED 2: Warning/error Indicator light
   ACCESSORY_PWR.begin(LOW); // Accessory/Ph probe power pin
   ROUGHING_PWR.begin(LOW);  // Roughing vacuum pump power pin
 
@@ -239,7 +239,7 @@ void setup()
   fluidPump.setSpeed(0); // Ensure fluid pump is off
 
   // Turn off LED1 on to indicate setup done
-  LED1_PWR.turnOff();
+  LED4_PWR.turnOff();
 
   // auto initilize system
   if (saved_settings.autostart_on && !autostarted && !beatActive)
@@ -282,9 +282,7 @@ static bool log_stats_values(String &warnings)
 {
   bool responseIsValid = true;
 
-  COMMS.print("Fluidpump_Rate:");
-  COMMS.print(fluidPump.getSpeed());
-  COMMS.print("%");
+  LOG_INFO("Fluidpump_Rate:", fluidPump.getSpeed(), "%");
   // Bounds admit the pump's full commanded range: 0 is stopped and negative is
   // reverse, both legitimate states. A low or reversed speed that actually
   // matters is warned about explicitly just below.
@@ -304,78 +302,62 @@ static bool log_stats_values(String &warnings)
     return false; // Yield to allow command checks to run and reset WDT, while ensuring stats logging doesn't cause long pauses
 
   LOG_DEBUG("\n");
-  turboTC80.sendQuery(PfeifferVacProtocol::StatusRequest::SetRotSpdRpm, false);
-  unsigned long turboRpmTarget = turboTC80.receiveUInteger(PfeifferVacProtocol::StatusRequest::SetRotSpdRpm, responseIsValid, false);
+  unsigned long turboRpmTarget = turboTC80.queryUInteger(PfeifferVacProtocol::StatusRequest::SetRotSpdRpm, responseIsValid, false);
   if (!responseIsValid)
     warnings += F("Turbo_RPM_Setpoint wrong or missing response, ");
-  COMMS.print("Turbo_RPM_Setpoint:");
-  COMMS.print(turboRpmTarget);
+  LOG_INFO("Turbo_RPM_Setpoint:", turboRpmTarget);
   log_value_postfix((float)turboRpmTarget, 50000, 95000, responseIsValid);
   if (nonBlockDelay(5))
     return false; // Yield to allow command checks to run and reset WDT, while ensuring stats logging doesn't cause long pauses
 
   responseIsValid = true;
   LOG_DEBUG("\n");
-  turboTC80.sendQuery(PfeifferVacProtocol::StatusRequest::ActualSpdRpm, false);
-  unsigned long turboRpm = turboTC80.receiveUInteger(PfeifferVacProtocol::StatusRequest::ActualSpdRpm, responseIsValid, false);
+  unsigned long turboRpm = turboTC80.queryUInteger(PfeifferVacProtocol::StatusRequest::ActualSpdRpm, responseIsValid, false);
   if (!responseIsValid)
     warnings += F("Turbo_RPM wrong or missing response, ");
   else if (turboRpm > 1 && turboRpm < TC80_TURBO_LOW_SPEED_WARNING_RPM)
     warnings += F("Low Turbopump RPM - ensure RGA filament is OFF to avoid burnout, ");
-  COMMS.print("Turbo_RPM:");
-  COMMS.print(turboRpm);
+  LOG_INFO("Turbo_RPM:", turboRpm);
   log_value_postfix((float)turboRpm, 50000, 95000, responseIsValid);
   if (nonBlockDelay(5))
     return false; // Yield to allow command checks to run and reset WDT, while ensuring stats logging doesn't cause long pauses
 
   responseIsValid = true;
   LOG_DEBUG("\n");
-  turboTC80.sendQuery(PfeifferVacProtocol::StatusRequest::DrvCurrent, false);
-  float turboCurrent = turboTC80.receiveUReal(PfeifferVacProtocol::StatusRequest::DrvCurrent, responseIsValid, false);
+  float turboCurrent = turboTC80.queryUReal(PfeifferVacProtocol::StatusRequest::DrvCurrent, responseIsValid, false);
   if (!responseIsValid)
     warnings += F("Turbo_Current wrong or missing response, ");
-  COMMS.print("Turbo_Current:");
-  COMMS.print(turboCurrent);
-  COMMS.print("A");
+  LOG_INFO("Turbo_Current:", turboCurrent, "A");
   log_value_postfix(turboCurrent, 0.2, 5.2, responseIsValid);
   if (nonBlockDelay(5))
     return false; // Yield to allow command checks to run and reset WDT, while ensuring stats logging doesn't cause long pauses
 
   responseIsValid = true;
   LOG_DEBUG("\n");
-  turboTC80.sendQuery(PfeifferVacProtocol::StatusRequest::TempRotor, false);
-  unsigned long turboRotorTemp = turboTC80.receiveUInteger(PfeifferVacProtocol::StatusRequest::TempRotor, responseIsValid, false);
+  unsigned long turboRotorTemp = turboTC80.queryUInteger(PfeifferVacProtocol::StatusRequest::TempRotor, responseIsValid, false);
   if (!responseIsValid)
     warnings += F("Turbo_Rotor_Temp wrong or missing response, ");
-  COMMS.print("Turbo_Rotor_Temp:");
-  COMMS.print(turboRotorTemp);
-  COMMS.print("C");
+  LOG_INFO("Turbo_Rotor_Temp:", turboRotorTemp, "C");
   log_value_postfix((float)turboRotorTemp, 0, 60, responseIsValid);
   if (nonBlockDelay(5))
     return false; // Yield to allow command checks to run and reset WDT, while ensuring stats logging doesn't cause long pauses
 
   responseIsValid = true;
   LOG_DEBUG("\n");
-  turboTC80.sendQuery(PfeifferVacProtocol::StatusRequest::TempElec, false);
-  unsigned long turboElecTemp = turboTC80.receiveUInteger(PfeifferVacProtocol::StatusRequest::TempElec, responseIsValid, false);
+  unsigned long turboElecTemp = turboTC80.queryUInteger(PfeifferVacProtocol::StatusRequest::TempElec, responseIsValid, false);
   if (!responseIsValid)
     warnings += F("Turbo_Elec_Temp wrong or missing response, ");
-  COMMS.print("Turbo_Elec_Temp:");
-  COMMS.print(turboElecTemp);
-  COMMS.print("C");
+  LOG_INFO("Turbo_Elec_Temp:", turboElecTemp, "C");
   log_value_postfix((float)turboElecTemp, 0, 70, responseIsValid);
   if (nonBlockDelay(5))
     return false; // Yield to allow command checks to run and reset WDT, while ensuring stats logging doesn't cause long pauses
 
   responseIsValid = true;
   LOG_DEBUG("\n");
-  turboTC80.sendQuery(PfeifferVacProtocol::StatusRequest::TempPmpBot, false);
-  unsigned long turboBottomTemp = turboTC80.receiveUInteger(PfeifferVacProtocol::StatusRequest::TempPmpBot, responseIsValid, false);
+  unsigned long turboBottomTemp = turboTC80.queryUInteger(PfeifferVacProtocol::StatusRequest::TempPmpBot, responseIsValid, false);
   if (!responseIsValid)
     warnings += F("Turbo_Bottom_Temp wrong or missing response, ");
-  COMMS.print("Turbo_Bottom_Temp:");
-  COMMS.print(turboBottomTemp);
-  COMMS.print("C");
+  LOG_INFO("Turbo_Bottom_Temp:", turboBottomTemp, "C");
   log_value_postfix((float)turboBottomTemp, 0, 60, responseIsValid);
   if (nonBlockDelay(5))
     return false; // Yield to allow command checks to run and reset WDT, while ensuring stats logging doesn't cause long pauses
@@ -383,8 +365,7 @@ static bool log_stats_values(String &warnings)
   responseIsValid = true;
   LOG_DEBUG("\n");
 
-  turboTC80.sendQuery(PfeifferVacProtocol::ReferenceValueInput::PwrSVal, false);
-  uint16_t turboPowerLimit = turboTC80.receiveUShortInt(PfeifferVacProtocol::ReferenceValueInput::PwrSVal, responseIsValid, false);
+  uint16_t turboPowerLimit = turboTC80.queryUShortInt(PfeifferVacProtocol::ReferenceValueInput::PwrSVal, responseIsValid, false);
   if (!responseIsValid)
   {
     warnings += F("Turbo_Power_Limit wrong or missing response, ");
@@ -396,12 +377,9 @@ static bool log_stats_values(String &warnings)
   if (nonBlockDelay(5))
     return false; // Yield to allow command checks to run and reset WDT, while ensuring stats logging doesn't cause long pauses
 
-  COMMS.print("Roughing_on:");
-  COMMS.print(ROUGHING_PWR.getState());
-  COMMS.print(",Fluidpump_on:");
-  COMMS.print(FLUIDPUMP_PWR.getState());
-  COMMS.print("," ACCESSORY_NAME "_on:");
-  COMMS.print(ACCESSORY_PWR.getState());
+  LOG_INFO("Roughing_on:", ROUGHING_PWR.getState(), ",");
+  LOG_INFO("Fluidpump_on:", FLUIDPUMP_PWR.getState(), ",");
+  LOG_INFO(ACCESSORY_NAME "_on:", ACCESSORY_PWR.getState());
 
   return true;
 }
@@ -431,7 +409,7 @@ void log_stats()
   {
     // Every truncation point leaves the record comma-terminated, so this reads
     // as a final field. Topside can discard the record on sight of it.
-    COMMS.print(F("TRUNCATED"));
+    LOG_INFO(F("TRUNCATED"));
   }
 
   // Log newline after all stats have been logged
@@ -441,36 +419,35 @@ void log_stats()
   {
     String lastestError = turboTC80.queryLatestError(responseIsValid, false, 5000);
     // if there is any active turbo pump error, also query the turbo pump error history:
-    if (lastestError.length() != 0)
+    if (lastestError.length() != 0 && lastestError != "000000")
     {
-      warnings += "Turbo Error: ," + lastestError + ", ";
+      warnings += "Turbo Error:" + lastestError + ", ";
       responseIsValid = true;
       String errorHistory = turboTC80.queryErrorHistory(responseIsValid, false, 5000);
       if (errorHistory.length() != 0)
       {
-        warnings += "Turbo Error History: ," + errorHistory + ", ";
+        warnings += "Turbo Error History:" + errorHistory; // final comma , included
       }
     }
-  }
 
-  // check free memory and log a warning if it's low.
-  int freeMemory = getAvailableRAM();
-  if (freeMemory < 1000 || minFreeRam < 600)
-  {
-    warnings += "Low Free Memory: " + String(freeMemory) + "/" + String(getTotalRam()) + " bytes remaining [low since boot: " + String(minFreeRam) + "], ";
-  }
+    // check free memory and log a warning if it's low.
+    int freeMemory = getAvailableRAM();
+    if (freeMemory < 1000 || minFreeRam < 600)
+    {
+      warnings += "Low Free Memory: " + String(freeMemory) + "/" + String(getTotalRam()) + " bytes remaining [low since boot: " + String(minFreeRam) + "], ";
+    }
 
-  if (warnings.length() > 0)
-  {
-    LOG_WARN(F("!WARN: "));
-    LOG_WARN(warnings);
-    LOG_WARN("\n");
-    LED2_PWR.turnOn(); // turn on status LED 2 when warnings occur
-  }
-  else
-  {
-    LOG_WARN("!WARN: All OK\n");
-    LED2_PWR.turnOff(); // turn off status LED 2 when no warnings are active
+    if (warnings.length() > 0)
+    {
+      warnings.remove(warnings.length() - 1); // remove trailing comma.
+      LOG_WARN(F("!WARN: "), warnings, "\n");
+      LED5_PWR.turnOn(); // turn on status LED 2 when warnings occur
+    }
+    else
+    {
+      LOG_WARN("!WARN: All OK\n");
+      LED5_PWR.turnOff(); // turn off status LED 2 when no warnings are active
+    }
   }
 }
 
@@ -493,13 +470,13 @@ void loop()
   if (millis() - lastStatsLogTime < saved_settings.stats_log_interval)
   {
     // Turn off LED1 on to indicate the ISMS is between logging events
-    LED1_PWR.turnOff();
+    LED4_PWR.turnOff();
     // Return to avoid logging
     return;
   }
 
   // Turn on LED1 on to indicate the ISMS has started a stats log event.
-  LED1_PWR.turnOn();
+  LED4_PWR.turnOn();
   if (saved_settings.stats_loging_enabled)
   {
     log_stats();
@@ -517,5 +494,5 @@ void loop()
   lastStatsLogTime = millis();
 
   // Turn off LED1 after the ISMS has done one stats log
-  LED1_PWR.turnOff();
+  LED4_PWR.turnOff();
 }
