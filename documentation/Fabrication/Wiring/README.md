@@ -249,24 +249,91 @@ Next add the Fluid pump (and optional pH probe subconn) following the same [SubC
 
 > [!NOTE]
 >
-> The fluid pump and pH probe subconns expose more pins than can map to the 16 pin ISMS Main Housing subcon. This was done intentionally so a future revision could change which features of the fluid pump are exposed by chaninging the octopus cable to dedicate more pins to the fluid pump or pH probe respectively. Any unterminated wires should be capped/taped to prevent shorts and left unconnected to anything.
+> The fluid pump and pH probe subconns expose more pins than can map to the 16 pin ISMS Main Housing subcon. This was done intentionally so a future revision could change which features of the fluid pump are exposed by changing the octopus cable to dedicate more pins to the fluid pump or pH probe respectively. Any unterminated wires should be capped/taped to prevent shorts and left unconnected to anything.
+
+### Permanent Splice
+
+![Octopus1](<./Build Images/External/Octopus1.jpeg>)
+
+Match the locking sleeves onto the pigtails as shown.
+
+![Octopus2 - Cable Jacket Tool](<./Build Images/External/Octopus2 - Cable Jacket Tool.jpeg>)
+
+Use a tool like this or  using either technique shown in [this guide](https://bluerobotics.com/learn/cable-stripping/) to strip back the outer sheath
+
+![Octopus3 - 16Pin Cut Lengths](<./Build Images/External/Octopus3 - 16Pin Cut Lengths.jpeg>)
+
+Cut the 16 pin outer sheath back 1 3/4" and strip each conductor 3/4"
+
+![Octopus4 - Accessory cable cut lengths](<./Build Images/External/Octopus4 - Accessory cable cut lengths.jpeg>)
+
+For every outer cable strip back 2 1/4" and strip 3/4"
+
+![Octopus5 - Trim core](<./Build Images/External/Octopus5 - Trim core.jpeg>)
+
+Cut just the inner core back (but not the tension cord if possible)
+
+![Octopus6 - heat shrink](<./Build Images/External/Octopus6 - heat shrink.jpeg>)
+
+Cut 7/8" long heat shrink tube and slide onto the 8 pin connector side.
+
+![Octopus7 - Linemans splice](<./Build Images/External/Octopus7 - Linemans splice.jpeg>)
+
+Do a lineman's splice between the 16 pin and 8 pin following the  [SubCon Octopus Cable Key.pdf](<./SubCon Octopus Cable Key.pdf>) wiring chart
+
+![Octopus8 - Solder](<./Build Images/External/Octopus8 - Solder.jpeg>)
+
+Solder each connector.
+
+![Octopus9 - Heat shrink](<./Build Images/External/Octopus9 - Heat shrink.jpeg>)
+
+Slide heat shrink over the connector and shrink it, repeating for each conductor.
+
+![Octopus10 - Next cable](<./Build Images/External/Octopus10 - Next cable.jpeg>) Repeat for the other cords keeping them untangled as much as possible and inline with the 16 pin connector.
+
+Cut a 1" section of firm rubber rod as a core material.
+
+Wrap/twist the cords around the center core and tape the center to hold things together.
+
+
 
 ### Potting
 
-Use the [molds](https://www.seascapesubsea.com/product/reusable-flexible-casting-molds/?attribute_configuration=1x+%E2%8C%808mm+to+3x+%E2%8C%808mm) and [mold clamps](https://www.seascapesubsea.com/product/casting-mold-clamps/?attribute_size=Standard). Put silicone putty around the outside of the mold and cables to seal any cracks and openings in the sides of the mold!
+Use the [molds](https://www.seascapesubsea.com/product/reusable-flexible-casting-molds/?attribute_configuration=1x+%E2%8C%808mm+to+3x+%E2%8C%808mm) and [mold clamps](https://www.seascapesubsea.com/product/casting-mold-clamps/?attribute_size=Standard).
+
+![Octopus12](<./Build Images/External/Octopus12.jpeg>)
+
+put the wire bundle in the mold so that it is floating on each side. try to keep the silicone mold seams as aligned to their orignal positions as feasable while putting the black or metal mold clamps on.
+
+![Octopus13](<./Build Images/External/Octopus13.jpeg>)
+
+Stretch the cables with clamps so they are taught within the mold and have some twist int the cables so they sit more tightly bound in the mold.
+
+![Octopus14](<./Build Images/External/Octopus14.jpeg>)
+
+Add a drip catch area.
+
+![Octopus15](<./Build Images/External/Octopus15.jpeg>)
+
+Put non-hardening silicone putty around the outside of the mold and cables to seal any cracks and openings in the sides of the mold!
+
+![Octopus16](<./Build Images/External/Octopus16.jpeg>)
+
+Mix and poor the Scotchcast compound follwing mfg directions, jiggle the mold to release air bubbles.
 
 **Octopus cable potting checklist**:
 
-- [ ] Wire heat shrink slid on each conductor and then soldered
+- [ ] Correct locking collars slid on subconn ends.
+- [ ] Wire heat shrink slid on each conductor and then soldered using the lineman's splice
 - [ ] Free floating conductors are capped/taped.
 - [ ] Correct wire continuity verified.
 - [ ] Heat shrink shrunk.
-- [ ] Wires taped around central rubber core to provide separation & rigidity.
-- [ ] Correct locking collars slid on subconn ends.
+- [ ] Wires taped around central rubber rod core to provide separation & rigidity.
 - [ ] Cable outer surfaces prepped & sanded.
+- [ ] (Optional) Mold-release applied to mold.
 - [ ] All wires in mold and outer square mold clamps installed.
 - [ ] Potential potting drip gaps sealed with silicone non-drying putty and area prepared for pouring.
-- [ ] Wires centered in mold cavity (not too near edges or top or bottom).
+- [ ] Wires tensioned and centered in mold cavity (not too near edges or top or bottom).
 
 ## Next Build Section: [Fluid Pump](<../Fluid Pump/README.md>)
 
@@ -276,4 +343,4 @@ Use the [molds](https://www.seascapesubsea.com/product/reusable-flexible-casting
 
 ## Appendix
 
-A full wiring diagram can be found here:
+A full ISMS system wiring diagram can be found here: ![plantuml](../../Documentation Diagram Source Materials/Full Wiring Diagram Attempts/plantuml.png) ../../Documentation Diagram Source Materials/Full Wiring Diagram Attempts/plantuml.png

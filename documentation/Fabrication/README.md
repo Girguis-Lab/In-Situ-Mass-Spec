@@ -9,4 +9,5 @@ Recommended Build Order:
 4. [Wiring](<./Wiring/README.md>)
 5. [Fluid Pump](<./Fluid Pump/README.md>)
 6. [pH Sensor](<pH Sensor/README.md>)
+7. [Sealing Housing](<Housing/README.md>)
 7. [Vehicle Integration Guide](<ISMS V3 Vehicle Integration Guide.md>)

@@ -30,10 +30,11 @@ The 8-pin subconn "Topside/Vehicle" connector consists of two RS232 serial conne
 
 The RGA serial connection requires a special "Fake Handshake" DB9 connector between the cable and Laptop or USB to RS232 converter. This cable is documented in the fabrication wiring section of this documentation and should be provided.
 
-The recommended topside wiring is shown below:
+**The recommended topside wiring is shown below:**
 > For more details see the topside section of the [Wiring Guide](Wiring/README.md)
 
 ![ISMS Recommended Topside Wiring](<Wiring/Build Images/Topside/ISMS Recommended Topside Wiring.svg>)
 
+### Commisionining and Troubleshooting
 
-The full wiring of the entire instrument can be seen [here](<../Documentation Diagram Source Materials/Full Wiring Diagram Attempts/plantuml.png>): ![alt text](<../Documentation Diagram Source Materials/Full Wiring Diagram Attempts/plantuml.png>)
+For additional guidance read the [User Guide](<../Operation/User Guide - In-Situ Mass Spectrometer V3.md>) and [Troubleshooting Guide](<../Operation//Troubleshooting Guide - In-Situ Mass Spectrometer V3.md>)
