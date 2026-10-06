@@ -1,3 +1,19 @@
+// Build configuration and shared globals for the ISMS V3 firmware.
+// This is the file that should be changed if the arduino pins or hardware differs from
+// a "Standard" ISMS v3 build. Commented options can be found to change to the isms V2 layout
+// for the ISMS provided to ifremer.
+//
+// Pulls in the Arduino core, the third-party logging and command-line
+// libraries, and the in-house turbo pump driver, then declares everything the
+// rest of the firmware shares: pin assignments, firmware version, serial port
+// and baud rate, the mapping from operator-facing log levels onto the
+// DebugLog library's, and the global powerPin, LazySerial, PfeifferSerialTC80
+// and FluidPump instances.
+//
+// This is the file to edit when building for different hardware: lines tagged
+// [MODEL CHANGE] mark the choices that differ between ISMS revisions (V2 or V3) and
+// accessories (for the ISMS provided to ifremer).
+
 #pragma once
 
 // -- Arduino Standard Includes --
@@ -6,7 +22,7 @@
 #include <avr/wdt.h>
 
 // -- Bundled 3rd Party Library Includes --
-#define DEBUGLOG_DEFAULT_LOG_LEVEL_TRACE // compile time flag, higher level messages will get compiled out.
+#define DEBUGLOG_DEFAULT_LOG_LEVEL_TRACE // compile time flag, trace messages will get compiled out if set lower than trace.
 #define LOG_PREAMBLE ""
 #include <DebugLog.h>   // A logging library for Arduino that allows for log levels and printing
 #include <LazySerial.h> // A simple command line interface library for Arduino
@@ -20,7 +36,30 @@
 #include "savedSettings.h"
 
 // --- Forward function declarations ----
+// Defined in main.cpp. Declared here because the turbo pump driver below is
+// constructed with it as its delay callback, so that waiting on the pump still
+// services serial commands and pets the watchdog.
 bool nonBlockDelay(unsigned long ms);
+
+// Longest wait nonBlockDelay() will honor, and therefore the ceiling on every
+// operator-settable interval that ends up being waited on or compared against.
+//
+// nonBlockDelay() converts its argument to microseconds in 32 bit arithmetic,
+// which wraps above 4,294,967 ms, and micros() itself rolls over every 71.58
+// minutes -- so no wait longer than that is expressible however it is written.
+// One hour leaves headroom under both limits (3.6e9 us plus the typing grace
+// period still fits in 32 bits) and is far longer than any wait this
+// instrument has a use for. Values above this are rejected by the commands
+// that set them, and clamped in nonBlockDelay() as a backstop against a
+// corrupted EEPROM value.
+#define NONBLOCK_DELAY_MAX_MS 3600000UL
+
+// Shortest stats telegram interval the STATS_INTERVAL command will accept.
+//
+// Below roughly this, telegrams are emitted back to back and saturate the 9600
+// baud operator link, leaving no room to type the command that would undo it
+// -- and the setting persists to EEPROM, so it would survive a power cycle.
+#define STATS_INTERVAL_MIN_MS 100UL
 
 // -- PINS --
 #define PIN_LED1 A9
@@ -29,14 +68,23 @@ bool nonBlockDelay(unsigned long ms);
 #define PIN_PWR_ROUGHING 51
 #define PIN_PWR_FLUIDPUMP 53
 
-powerPin LED1_PWR(A9);               // LED 1 is a staus indicator
-powerPin LED2_PWR(A8);               // LED 2 is a warning/error indicator
+powerPin LED4_PWR(A9);               // LED 1 is a staus indicator
+powerPin LED5_PWR(A8);               // LED 2 is a warning/error indicator
 powerPin ACCESSORY_PWR(49);          // PICO_ON usually the ph probe or cryo pump (if equipped)
 powerPin ROUGHING_PWR(51);           // MVP_ON
 powerPin FLUIDPUMP_PWR(53);          // CFP_ON
 #define PIN_ANALOG_FLUIDPUMP_SPEED 8 // Fluid pump speed control (0-5V pwm signal)
 #define PIN_FLUIDPUMP_REVERSE 15     // Fluid pump reverse signal (Physically exposed as bare header J11, pin 6 - the pin furthest from the capacitor)
 // Reference: https://docs.arduino.cc/retired/hacking/hardware/PinMapping2560/
+
+// Highest digital pin number the GPIO command will accept, as a number and as
+// the string its usage message prints. Written out literally so the help text
+// reads "<0-69>" rather than an unexpanded expression; the static_assert keeps
+// both spellings honest if this firmware is ever built for another board.
+#define GPIO_MAX_PIN 69
+#define GPIO_MAX_PIN_STR "69"
+static_assert(GPIO_MAX_PIN == NUM_DIGITAL_PINS - 1,
+              "GPIO_MAX_PIN/GPIO_MAX_PIN_STR do not match this board's NUM_DIGITAL_PINS");
 
 // -- CONSTSANTS --
 #define FIRMWARE_VERSION "3.6"
@@ -61,6 +109,8 @@ powerPin FLUIDPUMP_PWR(53);          // CFP_ON
 
 // globals
 bool beatActive = false; // used to know if the "BEAT" command was sent indicating any autostart routines should not run this time around.
+// The operator command line, reading from and writing to the COMMS port with a
+// 128 byte input buffer. Commands are registered in setup().
 LazySerial::LazySerial<128> lazy(COMMS);
 
 // -- TURBO PUMP CONTROLLER CONFIG --
@@ -70,7 +120,13 @@ LazySerial::LazySerial<128> lazy(COMMS);
 #define TC80_SERIAL_CONFIG SERIAL_8N1
 #define TC80_RESPONSE_TIMEOUT 1000 // milliseconds to wait for a response from the TC80
 #define TC80_TURBO_LOW_SPEED_WARNING_RPM 70000
-RS485HardwareSerial turboSerialRS485(TURBO_SERIAL, PIN_TC80_RS485_ENABLE_SEND, PIN_TC80_RS485_DISABLE_RECEIVE, 10);
+// Half-duplex RS485 link to the turbo pump controller. Owns the transceiver's
+// direction pins and needs its task() called often -- see taskTick() -- to
+// turn the line around and drain its buffers.
+// The template parameter is the RX buffer size. 128 bytes holds four full
+// telegrams, which is ample now that taskTick() drains the port continuously;
+// the library previously hard-coded a 600 byte buffer.
+RS485HardwareSerial<128> turboSerialRS485(TURBO_SERIAL, PIN_TC80_RS485_ENABLE_SEND, PIN_TC80_RS485_DISABLE_RECEIVE, 10);
 PfeifferSerialTC80 turboTC80(turboSerialRS485, 1, COMMS, nonBlockDelay); // Turbo pump controller object (address 1, using HardwareSerial1)
 
 FluidPump fluidPump(&FLUIDPUMP_PWR, PIN_ANALOG_FLUIDPUMP_SPEED, PIN_FLUIDPUMP_REVERSE); // Fluid pump control object
