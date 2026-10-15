@@ -1,9 +1,9 @@
-# In-Situ Mass Spectrometer V3
+# In-Situ Mass Spectrometer V2.5 (IFREMER)
 
 NOTE this branch is specifically for the 2026 ISMS made for IFEMER.
-The main branch is for the current standard version of the ISMS made by the Girguis Lab
+The main branch is for the current standard version of the ISMS made by the Girguis Lab (V3)
 
-IFREMER-specific documentation and notes can be found in the Ifremer-documentation folder.
+IFREMER-specific documentation and notes can be found in the Ifremer-documentation folder. Other documenation found in (/Documentation) does not apply to this version.
  - [Ifremer 2026 ISMS Notes Doc](<Ifremer-isms-documentation/Ifremer 2026 ISMS Notes.docx>)
  - [Ifremer 2026 ISMS Operation Doc](Ifremer-isms-documentation/Ifremer_2026_ISMS_Operation.docx)
  - [Ifremer 2026 ISMS Modern Firmware Doc](<Ifremer-isms-documentation/Ifremer 2026 ISMS Modern Firmware Guide.docx>)

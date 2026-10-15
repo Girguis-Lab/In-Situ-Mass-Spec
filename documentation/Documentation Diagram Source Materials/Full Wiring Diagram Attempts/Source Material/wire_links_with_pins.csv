@@ -1,0 +1,76 @@
+From,To,Wire Color,Wire Stripe Color,Wire Label
+Main PCB,SubConn 16-pin [1],Black,,Main Power V+ 1 (VIN1)
+Main PCB,SubConn 16-pin [2],White,,Main Power V+ 2 (VIN2)
+Main PCB,SubConn 16-pin [3],Red,,Main Power GND (VIN-)
+Main PCB,SubConn 16-pin [4],Green,,tx/rx Arduino (tx)
+Main PCB,SubConn 16-pin [5],Orange,,tx/rx Arduino (rx)
+DB9 (with fake RS232 handshake jumpers),SubConn 16-pin [6],Blue,,tx/rx RGA (tx)
+DB9 (with fake RS232 handshake jumpers),SubConn 16-pin [7],White,Black,tx/rx RGA (rx)
+Main PCB,SubConn 16-pin [8],Red,Black,Communication GND (shared)
+Main PCB,SubConn 16-pin [9],Green,Black,Fluid Pump GND (Shared)
+Main PCB,SubConn 16-pin [10],Orange,Black,Fluid Pump Analog (0-5 V)
+Main PCB,SubConn 16-pin [11],Blue,Black,Fluid Pump Power (+12v)
+Main PCB,SubConn 16-pin [12],Black,White,Fluid Pump Fwd/Rev (0/5v)
+Main PCB,SubConn 16-pin [13],Red,White,LX/TX: pH Power V- (GND)
+Main PCB,SubConn 16-pin [14],Green,White,LX: USB Data (-) TX: RS485 Data
+Main PCB,SubConn 16-pin [15],Blue,White,LX/TX: pH Power V+    (+5 VDC)
+Main PCB,SubConn 16-pin [16],Black,Red,LX:USB Data (+)    TX: pH Analog Signal (0-3.3v)
+SubConn 16-pin [1],SubConn 8-pin (M) [1],Black,,Main Power V+ 1 (VIN1)
+SubConn 16-pin [2],SubConn 8-pin (M) [2],White,,Main Power V+ 2 (VIN2)
+SubConn 16-pin [3],SubConn 8-pin (M) [3],Red,,Main Power GND (VIN-)
+SubConn 16-pin [4],SubConn 8-pin (M) [4],Green,,tx/rx Arduino (tx)
+SubConn 16-pin [5],SubConn 8-pin (M) [5],Orange,,tx/rx Arduino (rx)
+SubConn 16-pin [6],SubConn 8-pin (M) [6],Blue,,tx/rx RGA (tx)
+SubConn 16-pin [7],SubConn 8-pin (M) [7],White,Black,tx/rx RGA (rx)
+SubConn 16-pin [8],SubConn 8-pin (M) [8],Red,Black,Communication GND (shared)
+SubConn 16-pin [9],"FLUID PUMP (12v power, 5v signals, SubConn 5-pin) [1]",Black,,Fluid Pump GND (Shared)
+SubConn 16-pin [10],"FLUID PUMP (12v power, 5v signals, SubConn 5-pin) [2]",White,,Fluid Pump Analog (0-5 V)
+SubConn 16-pin [11],"FLUID PUMP (12v power, 5v signals, SubConn 5-pin) [3]",Red,,Fluid Pump Power (+12v)
+N/A,"FLUID PUMP (12v power, 5v signals, SubConn 5-pin) [4]",Green,,UNUSED STUB   Fluid Pump Tachometer
+SubConn 16-pin [12],"FLUID PUMP (12v power, 5v signals, SubConn 5-pin) [5]",Orange,,Fluid Pump Fwd/Rev (0/5v)
+SubConn 16-pin [13],"pH LOGGER (Optional, 5v, SubConn 6-pin) [1]",Black,,LX/TX: pH Power V- (GND)
+SubConn 16-pin [14],"pH LOGGER (Optional, 5v, SubConn 6-pin) [2]",White,,LX: USB Data (-) TX: RS485 Data
+SubConn 16-pin [15],"pH LOGGER (Optional, 5v, SubConn 6-pin) [3]",Red,,LX/TX: pH Power V+    (+5 VDC)
+SubConn 16-pin [16],"pH LOGGER (Optional, 5v, SubConn 6-pin) [4]",Green,,LX:USB Data (+)    TX: pH Analog Signal (0-3.3v)
+N/A,"pH LOGGER (Optional, 5v, SubConn 6-pin) [5]",Orange,,UNUSED STUB     LX: Shield      TX: RS485 Data
+N/A,"pH LOGGER (Optional, 5v, SubConn 6-pin) [6]",Blue,,UNUSED STUB       pin for Compatibility
+SubConn 8-pin (M) [1],Topside connection,Black,,Main Power V+1 (VIN1)
+SubConn 8-pin (M) [2],Topside connection,White,,Main Power V+2 (VIN2)
+SubConn 8-pin (M) [3],Topside connection,Red,,Main Power GND (VIN-)
+SubConn 8-pin (M) [4],Topside connection,Green,,Arduino TX
+SubConn 8-pin (M) [5],Topside connection,Orange,,Arduino RX
+SubConn 8-pin (M) [6],Topside connection,Blue,,RGA TX
+SubConn 8-pin (M) [7],Topside connection,White,Black,RGA RX
+SubConn 8-pin (M) [8],Topside connection,Red,Black,Comm GND (shared)
+Topside connection,POWER SUPPLY A (24-48v @ 4A),Black,,Main Power V+1 (VIN1)
+Topside connection,POWER SUPPLY B (24-48v @ 4A),White,,Main Power V+2 (VIN2)
+Topside connection,POWER SUPPLY A (24-48v @ 4A),Red,,Main Power GND (VIN-)
+Topside connection,POWER SUPPLY B (24-48v @ 4A),Red,,Main Power GND (VIN-)
+Topside connection,MAIN COMMS DB9,Green,,Arduino RS232 TX
+Topside connection,MAIN COMMS DB9,Orange,,Arduino RS232 RX
+Topside connection,MAIN COMMS DB9,Red,Black,Comm GND (shared)
+Topside connection,RGA COMMS DB9 (with fake RS232 handshake jumpers),Blue,,RGA TX
+Topside connection,RGA COMMS DB9 (with fake RS232 handshake jumpers),White,Black,RGA RX
+Topside connection,RGA COMMS DB9 (with fake RS232 handshake jumpers),Red,Black,Comm GND (shared)
+Topside connection,POWER SUPPLY B (24-48v @ 4A),Red,Black,Comm GND (shared)
+MAIN COMMS DB9,USB to RS232 (to MAIN COMMS DB9),Black,,
+USB to RS232 (to MAIN COMMS DB9),LAPTOP,Black,,
+RGA COMMS DB9 (with fake RS232 handshake jumpers),USB to RS232 (to RGA COMMS DB9),Black,,
+USB to RS232 (to RGA COMMS DB9),LAPTOP,Black,,
+Barrel Jack,RGA (24v),Red,,24VA
+Barrel Jack,RGA (24v),Black,,GND
+DB9 (with fake RS232 handshake jumpers),RGA (24v),Black,,Serial Data
+Main PCB,Barrel Jack,Red,,24VA
+Main PCB,Barrel Jack,Black,,GND
+DB9 (with autostart jumpers),ROUGHING PUMP (24v),Red,,24VB
+DB9 (with autostart jumpers),ROUGHING PUMP (24v),Black,,GND
+Main PCB,DB9 (with autostart jumpers),Red,,24VB
+Main PCB,DB9 (with autostart jumpers),Black,,GND
+DB15,TURBO PUMP (24v),Red,,24VA
+DB15,TURBO PUMP (24v),Brown,,RS485-A
+DB15,TURBO PUMP (24v),Orange,,RS485-B
+DB15,TURBO PUMP (24v),Black,,GND
+Main PCB,DB15,Red,,24VA
+Main PCB,DB15,Brown,,RS485-A
+Main PCB,DB15,Orange,,RS485-B
+Main PCB,DB15,Black,,GND

@@ -1,0 +1,29 @@
+
+
+
+Create a copy of the file "wire_links.csv" where the PIN numbers for the subconn connections are specified in square brackets postfix in the two and from columns - use the files "ISMS Octopus cable wiring table.pdf" and "SubCon Topside or vehicle cable wiring table.pdf" to find the wires. Check that the wiring colors in the csv match the pdfs
+
+
+Your job is to create a wiring diagram in the PlantUML Deployment Diagram format using the elk layout engine to represent all the wiring in the ISMS instrument. Use the file "Blocks.csv" for the blocks colored as specified in the Block color column and organized into groupings and subgroups (specified in the group column) use the "package" block for groupings and the "rectangle" block for components. Layout should be from top to bottom: topside, external components (outside of a grouping), main housing. Connectors should be represented as "hexagon" blocks with each connector pin as a numbered circle within the connector block for the connectors with specified PIN numbers. Use the file "wire_links_with_pins.csv" for the connection edges.
+
+For wire colors follow this template except make wires with a wire stripe color also dashed:
+@startuml
+rectangle foo
+foo -[#red,thickness=3]-> bar1          : wireRed
+foo -[#red;#black,thickness=3]-> bar2   : wireRedStripeBlack
+foo -[#white;#black,thickness=3]-> bar3 : wireWhiteBlack
+foo -[#white,thickness=3]-> bar4 : wireWhite
+foo -[#red;#white,thickness=3]-> bar5 : wireRedWhite
+foo -[#red;#black,thickness=3]-> bar6 : wireRedBlack
+foo -[#orange;#black,thickness=3]-> bar7 : wireOrangeBlack
+foo -[#orange,thickness=3]-> bar8 : wireOrange
+foo -[#green;#white,thickness=3]-> bar9 : wireGreenWhite
+foo -[#green;#black,thickness=3]-> bar10 : wireGreenBlack
+foo -[#green,thickness=3]-> bar11 : wireGreen
+foo -[#brown,thickness=3]-> bar12 : wireBrown
+foo -[#blue;#white,thickness=3]-> bar13 : wireBlueWhite
+foo -[#blue;#black,thickness=3]-> bar14 : wireBlueBlack
+foo -[#blue,thickness=3]-> bar15 : wireBlue
+foo -[#black;#white,thickness=3]-> bar16 : wireBlackWhite
+foo -[#black,thickness=3]-> bar17 : wireBlack
+@enduml

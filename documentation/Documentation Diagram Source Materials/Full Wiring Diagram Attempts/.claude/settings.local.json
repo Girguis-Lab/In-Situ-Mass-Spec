@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mmdc -i block_diagram.mmd -o block_diagram.png -w 1800 -H 1200 -b white)",
+      "Bash(mmdc -i block_diagram.mmd -o block_diagram.png -w 2000 -H 1400 -b white)",
+      "Bash(mmdc -i block_diagram.mmd -o block_diagram.png -w 2200 -H 1200 -b white)",
+      "Bash(mmdc -i block_diagram.mmd -o block_diagram.png -w 3400 -H 2000 -b white)",
+      "Bash(mmdc -i block2.mmd -o block2_render.png)",
+      "Bash(java -jar plantuml.jar -checkonly plantuml.txt)",
+      "Bash(java -jar plantuml.jar -tpng plantuml.txt)"
+    ]
+  }
+}

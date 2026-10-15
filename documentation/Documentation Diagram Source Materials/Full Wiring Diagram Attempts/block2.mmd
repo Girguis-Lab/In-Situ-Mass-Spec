@@ -1,0 +1,216 @@
+---
+config:
+  layout: elk
+
+---
+flowchart BT
+
+%% ===== Shared / cross-group nodes (appear in more than one Group) =====
+unconnected("Unconnected")
+
+subgraph subconn8 ["SubConn 8-pin (M)"]
+    direction LR
+    subconn8_1(("1"))
+    subconn8_2(("2"))
+    subconn8_3(("3"))
+    subconn8_4(("4"))
+    subconn8_5(("5"))
+    subconn8_6(("6"))
+    subconn8_7(("7"))
+    subconn8_8(("8"))
+end
+
+subgraph subconn16 ["SubConn 16-pin"]
+    direction LR
+    subconn16_1(("1"))
+    subconn16_2(("2"))
+    subconn16_3(("3"))
+    subconn16_4(("4"))
+    subconn16_5(("5"))
+    subconn16_6(("6"))
+    subconn16_7(("7"))
+    subconn16_8(("8"))
+    subconn16_9(("9"))
+    subconn16_10(("10"))
+    subconn16_11(("11"))
+    subconn16_12(("12"))
+    subconn16_13(("13"))
+    subconn16_14(("14"))
+    subconn16_15(("15"))
+    subconn16_16(("16"))
+end
+
+%% ===== Fluid Pump =====
+subgraph fluidPumpGroup ["Fluid Pump"]
+    subconn5Fluid(["SubConn 5-pin FLUID PUMP (12v power; 5v signals)"])
+end
+
+%% ===== pH Logger =====
+subgraph phLoggerGroup ["pH Logger"]
+    subconn6pH(["SubConn 6-pin pH LOGGER (Optional; 5v)"])
+end
+
+
+%% ===== Main Enclosure (RGA + Turbo Pump + Roughing Pump + Main PCB groups, plus SubConn 16-pin) =====
+subgraph mainEnclosure ["Main Enclosure"]
+    direction LR
+
+    mainPCB("Main PCB")
+
+    subgraph roughingPumpGroup ["Roughing Pump"]
+        db9RP(["DB9 (with autostart jumpers)"])
+        roughingPump("ROUGHING PUMP (24v)")
+    end
+
+    subgraph turboPumpGroup ["Turbo Pump"]
+        db15(["DB15"])
+        turboPump("TURBO PUMP (24v)")
+    end
+
+    subgraph rgaGroup ["RGA"]
+        barrelJack(["Barrel Jack"])
+        db9RGA(["DB9 (with fake RS232 handshake jumpers)"])
+        rgaDevice("RGA (24v)")
+    end
+
+end
+
+%% ===== Topside (everything linked directly to the Topside connection, except SubConn 8-pin) =====
+subgraph topsideGroup ["Topside"]
+    direction LR
+    subgraph topside ["Topside connection"]
+        direction LR
+        topside_1(("1"))
+        topside_2(("2"))
+        topside_3(("3"))
+        topside_4(("4"))
+        topside_5(("5"))
+        topside_6(("6"))
+        topside_7(("7"))
+        topside_8(("8"))
+    end
+    rgaCommsDb9(["RGA COMMS DB9 (with fake RS232 handshake jumpers)"])
+    ismsDb9(["ISMS COMMS DB9"])
+    usbIsms(["USB to RS232 (to ISMS COMMS DB9)"])
+    usbRga(["USB to RS232 (to RGA COMMS DB9)"])
+    psA("POWER SUPPLY A (24-48v @ 4A)")
+    psB("POWER SUPPLY B (24-48v @ 4A)")
+    laptop("LAPTOP")
+end
+
+
+%% ===== Wires =====
+mainPCB e1@-- "24VB" --- db9RP
+mainPCB e2@-- "GND" --- db9RP
+db9RP e3@-- "24VB" --- roughingPump
+db9RP e4@-- "GND" --- roughingPump
+mainPCB e5@-- "24VA" --- db15
+mainPCB e6@-- "RS485-A" --- db15
+mainPCB e7@-- "RS485-B" --- db15
+mainPCB e8@-- "GND" --- db15
+db15 e9@-- "24VA" --- turboPump
+db15 e10@-- "RS485-A" --- turboPump
+db15 e11@-- "RS485-B" --- turboPump
+db15 e12@-- "GND" --- turboPump
+mainPCB e13@-- "24VA" --- barrelJack
+mainPCB e14@-- "GND" --- barrelJack
+barrelJack e15@-- "24VA" --- rgaDevice
+barrelJack e16@-- "GND" --- rgaDevice
+db9RGA e17@----- rgaDevice
+db9RGA e18@-- "RGA TX" --- subconn16_6
+db9RGA e19@-- "RGA RX [Black]" --- subconn16_7
+subconn16_6 e20@-- "RGA TX" --- subconn8_6
+subconn16_7 e21@-- "RGA RX [Black]" --- subconn8_7
+subconn8_6 e22@-- "RGA TX" --- topside_6
+subconn8_7 e23@-- "RGA RX [Black]" --- topside_7
+topside_1 e38@-- "Main Power V+1 (VIN1)" --- psA
+topside_2 e39@-- "Main Power V+2 (VIN2)" --- psB
+topside_3 e40@-- "Main Power GND (VIN- shared)" --- psA
+topside_3 e41@-- "Main Power GND (VIN- shared)" --- psB
+topside_6 e24@-- "RGA TX" --- rgaCommsDb9
+topside_7 e25@-- "RGA RX [Black]" --- rgaCommsDb9
+topside_8 e26@-- "Comm GND (shared) [Black]" --- rgaCommsDb9
+rgaCommsDb9 e27@----- usbRga
+usbRga e28@----- laptop
+mainPCB e29@-- "Main Power V+1 (VIN1)" --- subconn16_1
+mainPCB e30@-- "Main Power V+2 (VIN2)" --- subconn16_2
+mainPCB e31@-- "Main Power GND (VIN-)" --- subconn16_3
+subconn16_1 e32@-- "Main Power V+1 (VIN1)" --- subconn8_1
+subconn16_2 e33@-- "Main Power V+2 (VIN2)" --- subconn8_2
+subconn16_3 e34@-- "Main Power GND (VIN-)" --- subconn8_3
+subconn8_1 e35@-- "Main Power V+1 (VIN1)" --- topside_1
+subconn8_2 e36@-- "Main Power V+2 (VIN2)" --- topside_2
+subconn8_3 e37@-- "Main Power GND (VIN-)" --- topside_3
+mainPCB e42@-- "Arduino TX" --- subconn16_4
+mainPCB e43@-- "Arduino RX" --- subconn16_5
+mainPCB e44@-- "Comm GND (shared) [Black]" --- subconn16_8
+subconn16_4 e45@-- "Arduino TX" --- subconn8_4
+subconn16_5 e46@-- "Arduino RX" --- subconn8_5
+subconn16_8 e47@-- "Comm GND (shared) [Black]" --- subconn8_8
+subconn8_4 e48@-- "Arduino TX" --- topside_4
+subconn8_5 e49@-- "Arduino RX" --- topside_5
+subconn8_8 e50@-- "Comm GND (shared) [Black]" --- topside_8
+topside_4 e51@-- "Arduino TX" --- ismsDb9
+topside_5 e52@-- "Arduino RX" --- ismsDb9
+topside_8 e53@-- "Comm GND (shared) [Black]" --- ismsDb9
+ismsDb9 e54@----- usbIsms
+usbIsms e55@----- laptop
+mainPCB e56@-- "Fluid Pump GND (shared) [Black]" --- subconn16_9
+mainPCB e57@-- "Fluid Pump Analog (0-5V) [Black]" --- subconn16_10
+mainPCB e58@-- "Fluid Pump Power (+12V) [Black]" --- subconn16_11
+mainPCB e59@-- "Fluid Pump Fwd/Rev (0/5V) [White]" --- subconn16_12
+subconn16_9 e60@-- "Fluid Pump GND (shared)" --- subconn5Fluid
+subconn16_10 e61@-- "Fluid Pump Analog (0-5V)" --- subconn5Fluid
+subconn16_11 e62@-- "Fluid Pump Power (+12V)" --- subconn5Fluid
+subconn16_12 e63@-- "Fluid Pump Fwd/Rev (0/5V)" --- subconn5Fluid
+unconnected e64@-- "Tachometer (unused - not wired to 16-pin SubConn)" --- subconn5Fluid
+mainPCB e65@-- "pH Power V+ (+5VDC) (PCB header - currently unused) [White]" --- subconn16_15
+mainPCB e66@-- "pH Power GND (PCB header - currently unused) [White]" --- subconn16_13
+mainPCB e67@-- "pH TX 3V3 (PCB header - currently unused) [White]" --- subconn16_14
+mainPCB e68@-- "pH RX 3V3 (PCB header - currently unused) [White]" --- subconn16_16
+subconn16_13 e69@-- "pH Power GND" --- subconn6pH
+subconn16_14 e70@-- "pH Data (-) / RS485 Data" --- subconn6pH
+subconn16_15 e71@-- "pH Power V+ (+5VDC)" --- subconn6pH
+subconn16_16 e72@-- "pH Data (+) / Analog Signal" --- subconn6pH
+unconnected e73@-- "Shield / RS485 Data (unused - not wired to 16-pin SubConn)" --- subconn6pH
+unconnected e74@-- "Compatibility pin (unused - not wired to 16-pin SubConn)" --- subconn6pH
+
+%% ===== Group (block) background colors, per "Group Background Color" =====
+style roughingPumpGroup fill:yellow,stroke:#333333,color:#000000
+style turboPumpGroup fill:orange,stroke:#333333,color:#000000
+style rgaGroup fill:magenta,stroke:#333333,color:#ffffff
+style fluidPumpGroup fill:blue,stroke:#333333,color:#ffffff
+style phLoggerGroup fill:green,stroke:#333333,color:#ffffff
+
+%% ===== Outer structural groups (not from CSV) - outline only, no fill =====
+style mainEnclosure fill:none,stroke:#333333,stroke-width:2px
+style topsideGroup fill:none,stroke:#333333,stroke-width:2px
+
+%% ===== Wire colors, per "Wire Color" (dashed when a "Wire Stripe Color" is present) =====
+classDef wireRed stroke:#FF0000,stroke-width:2px
+classDef wireRedDash stroke:#FF0000,stroke-width:2px,stroke-dasharray:5,5
+classDef wireBlack stroke:#000000,stroke-width:2px
+classDef wireBlackDash stroke:#000000,stroke-width:2px,stroke-dasharray:5,5
+classDef wireBrown stroke:#8B4513,stroke-width:2px
+classDef wireOrange stroke:#FF8C00,stroke-width:2px
+classDef wireOrangeDash stroke:#FF8C00,stroke-width:2px,stroke-dasharray:5,5
+classDef wireBlue stroke:#0000FF,stroke-width:2px
+classDef wireBlueDash stroke:#0000FF,stroke-width:2px,stroke-dasharray:5,5
+classDef wireWhite stroke:#BBBBBB,stroke-width:2px
+classDef wireWhiteDash stroke:#BBBBBB,stroke-width:2px,stroke-dasharray:5,5
+classDef wireGreen stroke:#008000,stroke-width:2px
+classDef wireGreenDash stroke:#008000,stroke-width:2px,stroke-dasharray:5,5
+
+class e1,e3,e5,e9,e13,e15,e31,e34,e37,e40,e41,e62,e71 wireRed
+class e26,e44,e47,e50,e53,e67 wireRedDash
+class e2,e4,e8,e12,e14,e16,e17,e27,e28,e29,e32,e35,e38,e54,e55,e60,e69 wireBlack
+class e59,e66 wireBlackDash
+class e6,e10 wireBrown
+class e7,e11,e43,e46,e49,e52,e63,e73 wireOrange
+class e57 wireOrangeDash
+class e18,e20,e22,e24,e74 wireBlue
+class e58,e68 wireBlueDash
+class e30,e33,e36,e39,e61,e70 wireWhite
+class e19,e21,e23,e25 wireWhiteDash
+class e42,e45,e48,e51,e64,e72 wireGreen
+class e56,e65 wireGreenDash
