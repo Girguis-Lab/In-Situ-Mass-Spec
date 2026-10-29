@@ -3,7 +3,7 @@
 NOTE this branch is specifically for the 2026 ISMS made for IFEMER.
 The main branch is for the current standard version of the ISMS made by the Girguis Lab (V3)
 
-IFREMER-specific documentation and notes can be found in the Ifremer-documentation folder. Other documenation found in (/Documentation) does not apply to this version.
+IFREMER-specific documentation and notes can be found in the Ifremer-documentation folder. Other documenation found in [/Documentation](/documentation/) generally does not apply to this version.
  - [Ifremer 2026 ISMS Notes Doc](<Ifremer-isms-documentation/Ifremer 2026 ISMS Notes.docx>)
  - [Ifremer 2026 ISMS Operation Doc](Ifremer-isms-documentation/Ifremer_2026_ISMS_Operation.docx)
  - [Ifremer 2026 ISMS Modern Firmware Doc](<Ifremer-isms-documentation/Ifremer 2026 ISMS Modern Firmware Guide.docx>)
@@ -36,7 +36,7 @@ Applies to uploading either legacy or modern firmware.
 
    - **Modern interface with support for Serial Studio dashboard**
 
-     To upload this firmware, open the whole cloned/downloaded github repository in the VS-Code IDE with the Platform.io extension installed (see [Installing PlatformIO](https://platformio.org/platformio-ide)). Use the upload button provided by the PlatformIO extension (small right arrow in lower left corner of IDE, or type "> PlatformIO: Upload" in the VS-Code command pallet) to upload firmware to the onboard Arduino Mega.
+     To upload this firmware, open the whole cloned/downloaded github repository in the VS-Code IDE with the Platform.io extension installed & enabled. See [Installing PlatformIO IDE](https://platformio.org/platformio-ide). Use the upload button provided by the PlatformIO extension (small right arrow in lower left corner of IDE, or type "> PlatformIO: Upload" in the VS-Code command pallet) to upload firmware to the onboard Arduino Mega.
 5. Reconnect the TTL serial wires to the Arduino Mega shield with the red wire in Arduino pin 0 (RX0) and the orange wire in pin 1 (TX1).
 
 > [!NOTE]
