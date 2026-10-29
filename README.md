@@ -22,12 +22,13 @@ For more details see the [Ifremer 2026 ISMS Notes Doc](<Ifremer-isms-documentati
 ### Firmware Upload Steps
 Applies to uploading either legacy or modern firmware.
 
-1. Clone or download the (Github repository)[] on the ifremer-2026-build branch.
-1.  (If plugged in) unplug supply power from the normal 24-48v power inputs.
+1. Clone or download the [Github repository](https://github.com/Girguis-Lab/In-Situ-Mass-Spec/tree/ifremer-2026-build) on the ifremer-2026-build branch.
+1.  (If plugged in) unplug supply power from the normal 24-48v power inputs of the ISMS.
 2.  Attach a USB cable from your computer to the USB-B port on the  Arduino Mega within the ISMS.
-3. DISCONNECT the red & orange TTL serial wires at the Arduino pins 0 & 1 before uploading code. Once done, reconnect the TTL serial wires to the Arduino Mega shield with the red wire in Arduino pin 0 (RX0) and the orange wire in pin 1 (TX1).
-    > [!IMPORTANT]
-    > Firmware upload will fail if any TTL wires are connected to Arduino pins 0 & 1.
+3. DISCONNECT the red & orange TTL serial wires at the Arduino pins 0 & 1 before uploading code.
+> [!IMPORTANT]
+> Firmware upload will fail if any TTL wires are connected to Arduino pins 0 & 1.
+
 4. Upload firmware:
    - **Legacy-interface compatible version**
 
@@ -35,7 +36,8 @@ Applies to uploading either legacy or modern firmware.
 
    - **Modern interface with support for Serial Studio dashboard**
 
-     To upload this firmware, open the whole cloned/downloaded github repository in the VSCode IDE with the Platform.io extension installed (see [Installing PlatformIO](https://platformio.org/platformio-ide)). Use the upload button provided by the platformio extension (small right arrow in lower left corner of IDE, or type "> PlatformIO: Upload" in the command pallet) to upload firmware to the onboard Arduino Mega.
+     To upload this firmware, open the whole cloned/downloaded github repository in the VS-Code IDE with the Platform.io extension installed (see [Installing PlatformIO](https://platformio.org/platformio-ide)). Use the upload button provided by the PlatformIO extension (small right arrow in lower left corner of IDE, or type "> PlatformIO: Upload" in the VS-Code command pallet) to upload firmware to the onboard Arduino Mega.
+5. Reconnect the TTL serial wires to the Arduino Mega shield with the red wire in Arduino pin 0 (RX0) and the orange wire in pin 1 (TX1).
 
 > [!NOTE]
 > The serial connection from the Arduino USB-B port may not show the full serial output. Always prefer to use the raw TTL lines (pins 0 & 1) or RS232 connection from serial pins 0 & 1 for proper instrument CLI usage.
