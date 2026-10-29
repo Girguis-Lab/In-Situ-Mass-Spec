@@ -3,6 +3,7 @@
         {
             "autoExecuteOnConnect": false,
             "binary": false,
+            "checksum": "",
             "eol": "\r\n",
             "icon": "Play Property",
             "repeatCount": 3,
@@ -16,6 +17,7 @@
         {
             "autoExecuteOnConnect": false,
             "binary": false,
+            "checksum": "",
             "eol": "\r\n",
             "icon": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0iTTIgMjF2LTZoMS41YTkuMyA5LjMgMCAwIDEtLjUtM2E5IDkgMCAwIDEgOS05aDEwdjZoLTEuNWMuMzIuOTQuNSAxLjk1LjUgM2E5IDkgMCAwIDEtOSA5em0zLTljMCAxLjI4LjM0IDIuNDcuOTQgMy41bDMuNDYtMmMtLjI1LS40NC0uNC0uOTUtLjQtMS41YzAtLjY1LjIxLTEuMjUuNTYtMS43NEw2LjMgNy45M0M1LjUgOS4wOCA1IDEwLjUgNSAxMm03IDdjMi41OSAwIDQuODUtMS40MSA2LjA2LTMuNWwtMy40Ni0yYy0uNTIuOS0xLjQ5IDEuNS0yLjYgMS41aC0uMjlsLS4zOCAzLjk3em0wLTEwYzEuMjEgMCAyLjI2LjcyIDIuNzMgMS43NmwzLjY0LTEuNjZBNi45OSA2Ljk5IDAgMCAwIDEyIDV6bTAgMmMtLjU1IDAtMSAuNDUtMSAxcy40NSAxIDEgMXMxLS40NSAxLTFzLS40NS0xLTEtMSIvPjwvc3ZnPg==",
             "repeatCount": 3,
@@ -29,6 +31,7 @@
         {
             "autoExecuteOnConnect": false,
             "binary": false,
+            "checksum": "",
             "eol": "\r\n",
             "icon": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0iTTIyLjEgMjEuNUwyLjQgMS43TDEuMSAzbDMuNyAzLjdDMy43IDguMiAzIDEwIDMgMTJjMCAxIC4yIDIuMS41IDNIMnY2aDEwYzIgMCAzLjgtLjcgNS4zLTEuOGwzLjUgMy41em0tMTYuMi02Yy0uNi0xLS45LTIuMi0uOS0zLjVjMC0xLjQuNS0yLjggMS4yLTMuOWwzIDNjLS4xLjItLjIuNi0uMi45YzAgLjUuMiAxLjEuNCAxLjV6TTEyIDE5aC0uN2wuNC00aC4zYy4zIDAgLjYtLjEuOS0uMmwzIDNjLTEuMS43LTIuNSAxLjItMy45IDEuMm0wLTEwLjJMNy40IDQuMkM4LjggMy41IDEwLjMgMyAxMiAzaDEwdjZoLTEuNWMuMy45LjUgMiAuNSAzYzAgMS43LS41IDMuMi0xLjIgNC42TDEyLjIgOWMxLjEuMSAyLjEuOCAyLjUgMS43TDE4LjMgOWMtMS0yLjMtMy41LTQtNi4zLTR6Ii8+PC9zdmc+",
             "repeatCount": 3,
@@ -42,6 +45,7 @@
         {
             "autoExecuteOnConnect": false,
             "binary": false,
+            "checksum": "",
             "eol": "\r\n",
             "icon": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0iTTIgMTJjMCA1LjUgNC41IDEwIDEwIDEwczEwLTQuNSAxMC0xMFMxNy41IDIgMTIgMlMyIDYuNSAyIDEybTE4IDBjMCA0LjQtMy42IDgtOCA4cy04LTMuNi04LThzMy42LTggOC04czggMy42IDggOG0tNy41LTVsLS4zIDEuM2wtLjktMy4zYy0xIC4zLTEuNiAxLjMtMS40IDIuNGwuMyAxLjNsLTIuMy0yLjRjLS43LjctLjcgMiAwIDIuN2wxIDFsLTMuMy0uOWMtLjMgMSAuMyAyLjEgMS40IDIuNGwxLjMuM2wtMy4zLjljLjMgMSAxLjMgMS42IDIuNCAxLjRsMS4zLS4zbC0yLjQgMi40Yy44LjcgMiAuNyAyLjcgMGwuOS0uOWwtLjkgMy4zYzEgLjMgMi4xLS4zIDIuNC0xLjRsLjMtMS4zbC45IDMuM2MxLS4zIDEuNi0xLjMgMS40LTIuNGwtLjMtMS4zbDIuNCAyLjRjLjctLjguNy0yIDAtMi43bC0xLTEuMmwzLjMuOWMuMy0xLS4zLTIuMS0xLjQtMi40bC0xLjMtLjNsMy4zLS45Yy0uMy0xLTEuMy0xLjYtMi40LTEuNGwtMS4zLjNsMi40LTIuNGMtLjgtLjctMi0uNy0yLjcgMGwtLjkgMWwuOS0zLjNjLTEuMS0uMi0yLjIuNC0yLjUgMS41bTEgNWMwIC44LS43IDEuNS0xLjUgMS41cy0xLjUtLjctMS41LTEuNXMuNy0xLjUgMS41LTEuNXMxLjUuNyAxLjUgMS41Ii8+PC9zdmc+",
             "repeatCount": 3,
@@ -55,6 +59,7 @@
         {
             "autoExecuteOnConnect": false,
             "binary": false,
+            "checksum": "",
             "eol": "\r\n",
             "icon": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0iTTEyIDIycS0yLjA3NSAwLTMuOS0uNzg4dC0zLjE3NS0yLjEzN1QyLjc4OCAxNS45VDIgMTJ0Ljc4OC0zLjl0Mi4xMzctMy4xNzVUOC4xIDIuNzg4VDEyIDJ0My45Ljc4OHQzLjE3NSAyLjEzN1QyMS4yMTMgOC4xVDIyIDEydC0uNzg4IDMuOXQtMi4xMzcgMy4xNzV0LTMuMTc1IDIuMTM4VDEyIDIybTAtMnEzLjM1IDAgNS42NzUtMi4zMjVUMjAgMTJ0LTIuMzI1LTUuNjc1VDEyIDRUNi4zMjUgNi4zMjVUNCAxMnQyLjMyNSA1LjY3NVQxMiAyMG0wLTgiLz48L3N2Zz4=",
             "repeatCount": 3,
@@ -68,6 +73,7 @@
         {
             "autoExecuteOnConnect": false,
             "binary": false,
+            "checksum": "",
             "eol": "\r\n",
             "icon": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0iTTIwIDE0aDJ2MmgtMmMtMS4zOCAwLTIuNzQtLjM1LTQtMWMtMi41IDEuMy01LjUgMS4zLTggMGMtMS4yNi42NS0yLjYzIDEtNCAxSDJ2LTJoMmMxLjM5IDAgMi43OC0uNDcgNC0xLjMzYzIuNDQgMS43MSA1LjU2IDEuNzEgOCAwYzEuMjIuODYgMi42MSAxLjMzIDQgMS4zM20wIDZoMnYyaC0yYy0xLjM4IDAtMi43NC0uMzUtNC0xYy0yLjUgMS4zLTUuNSAxLjMtOCAwYy0xLjI2LjY1LTIuNjMgMS00IDFIMnYtMmgyYzEuMzkgMCAyLjc4LS40NyA0LTEuMzNjMi40NCAxLjcxIDUuNTYgMS43MSA4IDBjMS4yMi44NiAyLjYxIDEuMzMgNCAxLjMzbTItMTRsLTQtNHYzaC01djJoNXYzIi8+PC9zdmc+",
             "repeatCount": 3,
@@ -81,6 +87,7 @@
         {
             "autoExecuteOnConnect": false,
             "binary": false,
+            "checksum": "",
             "eol": "\r\n",
             "icon": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0iTTQgMTRjMS4zOSAwIDIuNzgtLjQ3IDQtMS4zM2MyLjQ0IDEuNzEgNS41NiAxLjcxIDggMGMxLjIyLjg2IDIuNjEgMS4zMyA0IDEuMzNoMnYyaC0yYy0xLjM3IDAtMi43NC0uMzUtNC0xYy0yLjUgMS4zLTUuNSAxLjMtOCAwYy0xLjI2LjY1LTIuNjIgMS00IDFIMnYtMnptNCA0LjY3YzIuNDQgMS43MSA1LjU2IDEuNzEgOCAwYzEuMjIuODYgMi42MSAxLjMzIDQgMS4zM2gydjJoLTJjLTEuMzcgMC0yLjc0LS4zNS00LTFjLTIuNSAxLjMtNS41IDEuMy04IDBjLTEuMjYuNjUtMi42MiAxLTQgMUgydi0yaDJjMS4zOSAwIDIuNzgtLjQ3IDQtMS4zM002IDEwVjdoNVY1SDZWMkwyIDYiLz48L3N2Zz4=",
             "repeatCount": 3,
@@ -94,6 +101,7 @@
         {
             "autoExecuteOnConnect": false,
             "binary": false,
+            "checksum": "",
             "eol": "\r\n",
             "icon": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0iTTIwIDEyYy0xLjM5IDAtMi43OC0uNDctNC0xLjMzYy0yLjQ0IDEuNzEtNS41NiAxLjcxLTggMEM2Ljc4IDExLjUzIDUuMzkgMTIgNCAxMkgydjJoMmMxLjM3IDAgMi43NC0uMzUgNC0xYzIuNSAxLjMgNS41IDEuMyA4IDBjMS4yNi42NSAyLjYyIDEgNCAxaDJ2LTIiLz48L3N2Zz4=",
             "repeatCount": 3,
@@ -107,32 +115,35 @@
         {
             "autoExecuteOnConnect": false,
             "binary": false,
+            "checksum": "",
             "eol": "\r\n",
             "icon": "Dew Point",
             "repeatCount": 3,
             "sourceId": 0,
             "timerIntervalMs": 100,
             "timerMode": 0,
-            "title": "pH ON",
-            "txData": "PH ON",
+            "title": "Cryo ON",
+            "txData": "CRYO ON",
             "txEncoding": 0
         },
         {
             "autoExecuteOnConnect": false,
             "binary": false,
+            "checksum": "",
             "eol": "\r\n",
             "icon": "Dew Point",
             "repeatCount": 3,
             "sourceId": 0,
             "timerIntervalMs": 100,
             "timerMode": 0,
-            "title": "pH OFF",
-            "txData": "PH OFF",
+            "title": "Cryo OFF",
+            "txData": "Cryo OFF",
             "txEncoding": 0
         }
     ],
     "changeDrivenTransforms": false,
     "customizeWorkspaces": true,
+    "frozen": false,
     "groups": [
         {
             "datasets": [
@@ -145,6 +156,7 @@
                     "fftMin": 0,
                     "fftSamples": 256,
                     "fftSamplingRate": 100,
+                    "fftWindow": 5,
                     "graph": false,
                     "groupId": 0,
                     "index": 1,
@@ -179,6 +191,7 @@
                     "fftMin": 0,
                     "fftSamples": 256,
                     "fftSamplingRate": 100,
+                    "fftWindow": 5,
                     "graph": false,
                     "groupId": 0,
                     "index": 2,
@@ -218,6 +231,7 @@
                     "fftMin": 0,
                     "fftSamples": 256,
                     "fftSamplingRate": 100,
+                    "fftWindow": 5,
                     "graph": false,
                     "groupId": 0,
                     "index": 3,
@@ -257,6 +271,7 @@
                     "fftMin": 0,
                     "fftSamples": 256,
                     "fftSamplingRate": 100,
+                    "fftWindow": 5,
                     "graph": false,
                     "groupId": 0,
                     "index": 4,
@@ -296,6 +311,7 @@
                     "fftMin": 0,
                     "fftSamples": 256,
                     "fftSamplingRate": 100,
+                    "fftWindow": 5,
                     "graph": false,
                     "groupId": 0,
                     "index": 5,
@@ -323,6 +339,7 @@
                     "fftMin": 0,
                     "fftSamples": 256,
                     "fftSamplingRate": 100,
+                    "fftWindow": 5,
                     "graph": false,
                     "groupId": 0,
                     "index": 8,
@@ -350,6 +367,7 @@
                     "fftMin": 0,
                     "fftSamples": 256,
                     "fftSamplingRate": 100,
+                    "fftWindow": 5,
                     "graph": false,
                     "groupId": 0,
                     "index": 9,
@@ -377,6 +395,7 @@
                     "fftMin": 0,
                     "fftSamples": 256,
                     "fftSamplingRate": 100,
+                    "fftWindow": 5,
                     "graph": false,
                     "groupId": 0,
                     "index": 10,
@@ -411,6 +430,7 @@
                     "fftMin": 0,
                     "fftSamples": 256,
                     "fftSamplingRate": 100,
+                    "fftWindow": 5,
                     "graph": true,
                     "groupId": 1,
                     "index": 1,
@@ -438,6 +458,7 @@
                     "fftMin": 0,
                     "fftSamples": 256,
                     "fftSamplingRate": 100,
+                    "fftWindow": 5,
                     "graph": true,
                     "groupId": 1,
                     "index": 3,
@@ -465,6 +486,7 @@
                     "fftMin": 0,
                     "fftSamples": 256,
                     "fftSamplingRate": 100,
+                    "fftWindow": 5,
                     "graph": true,
                     "groupId": 1,
                     "index": 4,
@@ -499,6 +521,7 @@
                     "fftMin": 0,
                     "fftSamples": 256,
                     "fftSamplingRate": 100,
+                    "fftWindow": 5,
                     "graph": false,
                     "groupId": 2,
                     "index": 5,
@@ -526,6 +549,7 @@
                     "fftMin": 0,
                     "fftSamples": 256,
                     "fftSamplingRate": 100,
+                    "fftWindow": 5,
                     "graph": false,
                     "groupId": 2,
                     "index": 6,
@@ -553,6 +577,7 @@
                     "fftMin": 0,
                     "fftSamples": 256,
                     "fftSamplingRate": 100,
+                    "fftWindow": 5,
                     "graph": false,
                     "groupId": 2,
                     "index": 7,
@@ -587,6 +612,7 @@
                     "fftMin": 0,
                     "fftSamples": 256,
                     "fftSamplingRate": 100,
+                    "fftWindow": 5,
                     "graph": false,
                     "groupId": 3,
                     "index": 11,
@@ -614,6 +640,7 @@
                     "fftMin": 0,
                     "fftSamples": 256,
                     "fftSamplingRate": 100,
+                    "fftWindow": 5,
                     "graph": false,
                     "groupId": 3,
                     "index": 12,
@@ -641,6 +668,7 @@
                     "fftMin": 0,
                     "fftSamples": 256,
                     "fftSamplingRate": 100,
+                    "fftWindow": 5,
                     "graph": false,
                     "groupId": 3,
                     "index": 13,
@@ -668,6 +696,7 @@
                     "fftMin": 0,
                     "fftSamples": 256,
                     "fftSamplingRate": 100,
+                    "fftWindow": 5,
                     "graph": false,
                     "groupId": 3,
                     "index": 14,
@@ -695,6 +724,7 @@
                     "fftMin": 0,
                     "fftSamples": 256,
                     "fftSamplingRate": 100,
+                    "fftWindow": 5,
                     "graph": false,
                     "groupId": 3,
                     "index": 15,
@@ -722,6 +752,7 @@
                     "fftMin": 0,
                     "fftSamples": 256,
                     "fftSamplingRate": 100,
+                    "fftWindow": 5,
                     "graph": false,
                     "groupId": 3,
                     "index": 16,
@@ -749,6 +780,7 @@
                     "fftMin": 0,
                     "fftSamples": 256,
                     "fftSamplingRate": 100,
+                    "fftWindow": 5,
                     "graph": false,
                     "groupId": 3,
                     "index": 17,
@@ -808,8 +840,19 @@
         }
     ],
     "hexadecimalDelimiters": false,
+    "influxSink": {
+        "bucket": "",
+        "enabled": false,
+        "measurement": "serial_studio",
+        "org": "",
+        "url": ""
+    },
+    "luaFastMode": false,
     "mqttPublisher": {
+        "alpnEnabled": false,
+        "alpnProtocol": "x-amzn-mqtt-ca",
         "cleanSession": true,
+        "clientCertPath": "",
         "customClientId": false,
         "enabled": false,
         "hostname": "127.0.0.1",
@@ -820,11 +863,16 @@
         "peerVerifyDepth": 10,
         "peerVerifyMode": 3,
         "port": 1883,
+        "privateKeyPath": "",
         "publishFrequency": 10,
         "publishNotifications": false,
         "scriptCode": "",
         "scriptLanguage": 0,
         "scriptTopic": "",
+        "sparkplugDeviceId": "",
+        "sparkplugEdgeNodeId": "",
+        "sparkplugEnabled": false,
+        "sparkplugGroupId": "",
         "sslEnabled": false,
         "sslProtocol": 5,
         "topicBase": ""
@@ -843,9 +891,10 @@
                 "baudRate": 9600,
                 "dataBitsIndex": 3,
                 "deviceId": {
-                    "description": "USB-Serial Controller",
+                    "description": "USB-Serial Controller D",
                     "pid": "2303",
-                    "portName": "cu.usbserial-2110",
+                    "portName": "cu.usbserial-2130",
+                    "serial": "000000001",
                     "vid": "067B"
                 },
                 "dtr": false,
@@ -900,14 +949,15 @@
         "Ifremer ISMS Serial Studio Dashboard/Fluid Pump FORWARD": false,
         "Ifremer ISMS Serial Studio Dashboard/Fluid Pump OFF": false,
         "Ifremer ISMS Serial Studio Dashboard/Fluid Pump REVERSED": false,
+        "Ifremer ISMS Serial Studio Dashboard/InfluxDB Sink": false,
         "Ifremer ISMS Serial Studio Dashboard/MQTT Publisher": false,
         "Ifremer ISMS Serial Studio Dashboard/Roughing Pump OFF": false,
         "Ifremer ISMS Serial Studio Dashboard/Roughing Pump ON": false,
-        "Ifremer ISMS Serial Studio Dashboard/Shared Memory": true,
-        "Ifremer ISMS Serial Studio Dashboard/Shared Memory/Dataset Values": false,
         "Ifremer ISMS Serial Studio Dashboard/Startup All": false,
         "Ifremer ISMS Serial Studio Dashboard/Turbo Pump OFF": false,
         "Ifremer ISMS Serial Studio Dashboard/Turbo Pump ON": false,
+        "Ifremer ISMS Serial Studio Dashboard/Variables": true,
+        "Ifremer ISMS Serial Studio Dashboard/Variables/Dataset Values": false,
         "Ifremer ISMS Serial Studio Dashboard/Workspaces": true,
         "Ifremer ISMS Serial Studio Dashboard/Workspaces/All Data": false,
         "Ifremer ISMS Serial Studio Dashboard/Workspaces/Output Controls": false,
@@ -959,6 +1009,15 @@
         },
         "2:1:-1": {
             "userShowLegends": true
+        },
+        "2:2:-1": {
+            "holdoff": 0,
+            "sweepEnabled": false,
+            "sweepMode": 0,
+            "sweepTimebase": 0,
+            "triggerEdge": 0,
+            "triggerLevel": 0,
+            "triggerSource": 0
         },
         "2:3:-1": {
             "holdoff": 0,
@@ -1492,88 +1551,88 @@
         "layout:5000": {
             "data": {
                 "autoLayout": true,
-                "canvasHeight": 462,
-                "canvasWidth": 1041,
+                "canvasHeight": 655,
+                "canvasWidth": 1499,
                 "geometries": [
                     {
-                        "height": 231,
+                        "height": 655,
                         "id": 15,
                         "relativeIndex": 0,
                         "state": "normal",
                         "widgetType": 13,
-                        "width": 209,
+                        "width": 300,
                         "x": 0,
                         "y": 0
                     },
                     {
-                        "height": 231,
+                        "height": 655,
                         "id": 13,
                         "relativeIndex": 0,
                         "state": "normal",
                         "widgetType": 11,
-                        "width": 208,
-                        "x": 208,
+                        "width": 300,
+                        "x": 299,
                         "y": 0
                     },
                     {
-                        "height": 231,
+                        "height": 328,
                         "id": 14,
                         "relativeIndex": 1,
                         "state": "normal",
                         "widgetType": 11,
-                        "width": 208,
-                        "x": 415,
+                        "width": 300,
+                        "x": 598,
                         "y": 0
                     },
                     {
-                        "height": 231,
+                        "height": 327,
                         "id": 11,
                         "relativeIndex": 0,
                         "state": "normal",
                         "widgetType": 10,
-                        "width": 208,
-                        "x": 622,
-                        "y": 0
+                        "width": 300,
+                        "x": 598,
+                        "y": 327
                     },
                     {
-                        "height": 231,
+                        "height": 328,
                         "id": 12,
                         "relativeIndex": 1,
                         "state": "normal",
                         "widgetType": 10,
-                        "width": 208,
-                        "x": 829,
+                        "width": 300,
+                        "x": 897,
                         "y": 0
                     },
                     {
-                        "height": 231,
+                        "height": 327,
                         "id": 1,
                         "relativeIndex": 0,
                         "state": "normal",
                         "widgetType": 1,
-                        "width": 347,
-                        "x": 0,
-                        "y": 230
+                        "width": 300,
+                        "x": 897,
+                        "y": 327
                     },
                     {
-                        "height": 231,
+                        "height": 328,
                         "id": 3,
                         "relativeIndex": 0,
                         "state": "normal",
                         "widgetType": 8,
-                        "width": 347,
-                        "x": 346,
-                        "y": 230
+                        "width": 299,
+                        "x": 1196,
+                        "y": 0
                     },
                     {
-                        "height": 231,
+                        "height": 327,
                         "id": 6,
                         "relativeIndex": 0,
                         "state": "normal",
                         "widgetType": 19,
-                        "width": 347,
-                        "x": 692,
-                        "y": 230
+                        "width": 299,
+                        "x": 1196,
+                        "y": 327
                     }
                 ],
                 "userReordered": true,
@@ -1819,48 +1878,48 @@
         "layout:5003": {
             "data": {
                 "autoLayout": true,
-                "canvasHeight": 462,
-                "canvasWidth": 1041,
+                "canvasHeight": 656,
+                "canvasWidth": 1499,
                 "geometries": [
                     {
-                        "height": 231,
+                        "height": 328,
                         "id": 9,
                         "relativeIndex": 1,
                         "state": "normal",
                         "widgetType": 9,
-                        "width": 521,
+                        "width": 750,
                         "x": 0,
                         "y": 0
                     },
                     {
-                        "height": 231,
+                        "height": 328,
                         "id": 10,
                         "relativeIndex": 2,
                         "state": "normal",
                         "widgetType": 9,
-                        "width": 521,
-                        "x": 520,
+                        "width": 749,
+                        "x": 749,
                         "y": 0
                     },
                     {
-                        "height": 231,
+                        "height": 328,
                         "id": 8,
                         "relativeIndex": 0,
                         "state": "normal",
                         "widgetType": 9,
-                        "width": 521,
+                        "width": 750,
                         "x": 0,
-                        "y": 230
+                        "y": 327
                     },
                     {
-                        "height": 231,
+                        "height": 328,
                         "id": 2,
                         "relativeIndex": 0,
                         "state": "normal",
                         "widgetType": 2,
-                        "width": 521,
-                        "x": 520,
-                        "y": 230
+                        "width": 749,
+                        "x": 749,
+                        "y": 327
                     }
                 ],
                 "userReordered": false,
@@ -1974,26 +2033,31 @@
             "title": "Overview",
             "widgetRefs": [
                 {
+                    "datasetUniqueId": 20004,
                     "groupId": 20007,
                     "relativeIndex": 0,
                     "widgetType": 13
                 },
                 {
+                    "datasetUniqueId": 20002,
                     "groupId": 20007,
                     "relativeIndex": 0,
                     "widgetType": 10
                 },
                 {
+                    "datasetUniqueId": 20001,
                     "groupId": 20007,
                     "relativeIndex": 0,
                     "widgetType": 11
                 },
                 {
+                    "datasetUniqueId": 20000,
                     "groupId": 20007,
                     "relativeIndex": 1,
                     "widgetType": 11
                 },
                 {
+                    "datasetUniqueId": 20003,
                     "groupId": 20007,
                     "relativeIndex": 1,
                     "widgetType": 10
@@ -2026,41 +2090,49 @@
                     "widgetType": 1
                 },
                 {
+                    "datasetUniqueId": 10000,
                     "groupId": 20006,
                     "relativeIndex": 1,
                     "widgetType": 9
                 },
                 {
+                    "datasetUniqueId": 10001,
                     "groupId": 20006,
                     "relativeIndex": 2,
                     "widgetType": 9
                 },
                 {
+                    "datasetUniqueId": 10003,
                     "groupId": 20006,
                     "relativeIndex": 0,
                     "widgetType": 9
                 },
                 {
+                    "datasetUniqueId": 20000,
                     "groupId": 20007,
                     "relativeIndex": 1,
                     "widgetType": 11
                 },
                 {
+                    "datasetUniqueId": 20001,
                     "groupId": 20007,
                     "relativeIndex": 0,
                     "widgetType": 11
                 },
                 {
+                    "datasetUniqueId": 20002,
                     "groupId": 20007,
                     "relativeIndex": 0,
                     "widgetType": 10
                 },
                 {
+                    "datasetUniqueId": 20003,
                     "groupId": 20007,
                     "relativeIndex": 1,
                     "widgetType": 10
                 },
                 {
+                    "datasetUniqueId": 20004,
                     "groupId": 20007,
                     "relativeIndex": 0,
                     "widgetType": 13
@@ -2077,16 +2149,19 @@
             "title": "Plots",
             "widgetRefs": [
                 {
+                    "datasetUniqueId": 10000,
                     "groupId": 20006,
                     "relativeIndex": 1,
                     "widgetType": 9
                 },
                 {
+                    "datasetUniqueId": 10001,
                     "groupId": 20006,
                     "relativeIndex": 2,
                     "widgetType": 9
                 },
                 {
+                    "datasetUniqueId": 10003,
                     "groupId": 20006,
                     "relativeIndex": 0,
                     "widgetType": 9
@@ -2122,6 +2197,6 @@
             "workspaceId": 5004
         }
     ],
-    "writerVersion": "4.0.2",
+    "writerVersion": "4.2.0",
     "writerVersionAtCreation": "4.0.1"
 }
