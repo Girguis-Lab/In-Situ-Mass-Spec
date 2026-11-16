@@ -1,6 +1,5 @@
-Work in progress... Stay tuned for updates!
-
-Full Parts List: [Here](<../Documentation Diagram Source Materials/ISMS V3 Parts List.numbers>)
+Full Parts List PDF [ Here](<./ISMS V3 Parts List.pdf>) /
+([Editable Version](<../Documentation Diagram Source Materials/ISMS V3 Parts List.numbers>))
 
 Recommended Build Order:
 1. [PCB](./PCB/README.md)
